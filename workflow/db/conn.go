@@ -11,7 +11,7 @@ var (
 )
 
 func init() {
-	dbConn, err = sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/go-workflow?charset=utf8")
+	dbConn, err = sql.Open("mysql", "root:1234@(127.0.0.1:3306)/go-workflow?charset=utf8")
 	if err != nil {
 		panic(err.Error())
 	}

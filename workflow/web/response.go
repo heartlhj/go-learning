@@ -1,17 +1,13 @@
-package web
+package main
 
 import (
-	"encoding/json"
-	"go-learning/workflow/errs"
 	"io"
 	"net/http"
 )
 
-func sendErrorResponse(w http.ResponseWriter, errResp errs.ErrResponse) {
-	w.WriteHeader(errResp.HttpSC)
-
-	resStr, _ := json.Marshal(&errResp.Error)
-	io.WriteString(w, string(resStr))
+func sendErrorResponse(w http.ResponseWriter, sc int, errMsg string) {
+	w.WriteHeader(sc)
+	io.WriteString(w, errMsg)
 }
 
 func sendNormalResponse(w http.ResponseWriter, resp string, sc int) {

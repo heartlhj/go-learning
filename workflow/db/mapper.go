@@ -5,12 +5,10 @@ func CreateByteArry(name string, bytes string) error {
 	if err != nil {
 		return err
 	}
-
 	_, err = stmtIns.Exec(name, bytes)
 	if err != nil {
 		return err
 	}
-
 	stmtIns.Close()
 	return nil
 }
