@@ -2,10 +2,14 @@ package db
 
 import "encoding/xml"
 
+var (
+	flowMap = make([]Flow, 0)
+)
+
 type Bytearry struct {
-	Id    int    `json:"id"`
+	Id    int    `json:"id" xorm:"pk autoincr"`
 	Name  string `json:"name"`
-	Bytes string `json:"id"`
+	Bytes string `json:"bytes"`
 }
 type Definitions struct {
 	Definitionsname    xml.Name  `xml:"definitions"`
@@ -34,9 +38,17 @@ type Process struct {
 	ExclusiveGateway []ExclusiveGateway `xml:"ExclusiveGateway"`
 }
 
-type Flow struct {
+type FlowElement struct {
 	Id   string `xml:"id,attr"`
 	Name string `xml:"name,attr"`
+}
+
+type Flow struct {
+	FlowElement
+	Id           string `xml:"id,attr"`
+	Name         string `xml:"name,attr"`
+	IncomingFlow *FlowElement
+	OutgoingFlow *FlowElement
 }
 
 type StartEvent struct {
@@ -65,4 +77,15 @@ type SequenceFlow struct {
 }
 type ExclusiveGateway struct {
 	Flow
+}
+
+func (flow Flow) setIncoming(f *FlowElement) {
+	flow.IncomingFlow = f
+}
+func (flow Flow) setOutgoing(f *FlowElement) {
+	flow.OutgoingFlow = f
+}
+
+func setFow() {
+
 }

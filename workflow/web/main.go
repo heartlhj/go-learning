@@ -10,6 +10,7 @@ func RegisterHandler() *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/", index)
 	router.POST("/import", create)
+	router.POST("/select", query)
 	return router
 }
 

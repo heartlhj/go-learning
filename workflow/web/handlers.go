@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"github.com/julienschmidt/httprouter"
 	dbops "go-learning/workflow/db"
@@ -40,14 +41,22 @@ func create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 	body, err := ioutil.ReadAll(file)
-	dberr := dbops.CreateByteArry(string(name), string(body))
-	if dberr != nil {
+	//保存数据
+	dbErr := dbops.CreateByteArry(string(name), string(body))
+	if dbErr != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, "创建数据异常")
 		return
 	}
+	//解析xml数据
 	data := new(dbops.Definitions)
 	err = xml.Unmarshal(body, &data)
 	dataStr, err := xml.MarshalIndent(data, "", " ")
+	if err != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, "XML转换异常")
+		return
+	}
+
+	//导出xml文件
 	headerBytes := []byte(xml.Header)                //加入XML头
 	xmlOutPutData := append(headerBytes, dataStr...) //拼接XML头和实际XML内容
 
@@ -56,4 +65,16 @@ func create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Add("Content-Disposition", "attachment; filename=\""+name+"\".bpmn20.xml")
 
 	sendNormalResponse(w, string(xmlOutPutData), 201)
+}
+
+func query(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	name := r.FormValue("nameCode")
+	bytearries, err2 := dbops.Select(name, "nil")
+	dbErr := err2
+	if dbErr != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, "查询数据异常")
+		return
+	}
+	marshal, err2 := json.Marshal(bytearries)
+	sendNormalResponse(w, string(marshal), 201)
 }
