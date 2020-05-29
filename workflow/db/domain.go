@@ -132,7 +132,7 @@ func Converter(d *Definitions) {
 	}
 }
 
-func convertXMLToElement(model *Definitions) {
+func ConvertXMLToElement(model *Definitions) {
 	processes := model.Process
 	if processes != nil {
 		for _, p := range processes {
@@ -140,7 +140,7 @@ func convertXMLToElement(model *Definitions) {
 			if start != nil {
 				for _, sta := range start {
 					value := flowMap[sta.Id]
-					m := []flow{}
+					m := make([]flow, len(start))
 					m[0] = value
 					sta.setIncoming(m)
 				}
@@ -148,19 +148,28 @@ func convertXMLToElement(model *Definitions) {
 			se := p.SequenceFlow
 			if se != nil {
 				for _, s := range se {
-					flowMap[s.Id] = &s
+					value := flowMap[s.Id]
+					m := make([]flow, len(se))
+					m[0] = value
+					s.setIncoming(m)
 				}
 			}
 			user := p.UserTask
 			if user != nil {
 				for _, u := range user {
-					flowMap[u.Id] = &u
+					value := flowMap[u.Id]
+					m := make([]flow, len(user))
+					m[0] = value
+					u.setIncoming(m)
 				}
 			}
 			end := p.EndEvent
 			if end != nil {
 				for _, e := range end {
-					flowMap[e.Id] = &e
+					value := flowMap[e.Id]
+					m := make([]flow, len(end))
+					m[0] = value
+					e.setIncoming(m)
 				}
 			}
 		}

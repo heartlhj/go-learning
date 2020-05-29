@@ -56,6 +56,7 @@ func create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 	dbops.Converter(data)
+	dbops.ConvertXMLToElement(data)
 	//导出xml文件
 	headerBytes := []byte(xml.Header)                //加入XML头
 	xmlOutPutData := append(headerBytes, dataStr...) //拼接XML头和实际XML内容
