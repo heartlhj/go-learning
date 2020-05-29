@@ -3,7 +3,7 @@ package db
 import "encoding/xml"
 
 var (
-	flowMap = make([]Flow, 0)
+	flowMap = make(map[string]flow, 0)
 )
 
 type Bytearry struct {
@@ -36,6 +36,7 @@ type Process struct {
 	UserTask         []UserTask         `xml:"userTask"`
 	SequenceFlow     []SequenceFlow     `xml:"sequenceFlow"`
 	ExclusiveGateway []ExclusiveGateway `xml:"ExclusiveGateway"`
+	Folw             flow
 }
 
 type FlowElement struct {
@@ -47,8 +48,8 @@ type Flow struct {
 	FlowElement
 	Id           string `xml:"id,attr"`
 	Name         string `xml:"name,attr"`
-	IncomingFlow *FlowElement
-	OutgoingFlow *FlowElement
+	IncomingFlow *[]flow
+	OutgoingFlow *[]flow
 }
 
 type StartEvent struct {
@@ -70,6 +71,7 @@ type UserTask struct {
 	CandidateUsers string   `xml:"candidateUsers,attr"`
 }
 type SequenceFlow struct {
+	Flow
 	SequenceFlowName xml.Name `xml:"sequenceFlow"`
 	Id               string   `xml:"id,attr"`
 	SourceRef        string   `xml:"sourceRef,attr"`
@@ -79,13 +81,88 @@ type ExclusiveGateway struct {
 	Flow
 }
 
-func (flow Flow) setIncoming(f *FlowElement) {
-	flow.IncomingFlow = f
+type flow interface {
+	setIncoming(f []flow)
 }
-func (flow Flow) setOutgoing(f *FlowElement) {
-	flow.OutgoingFlow = f
+
+func (flow *Flow) setIncoming(f []flow) {
+	flow.IncomingFlow = &f
+}
+func (flow *Flow) setOutgoing(f []flow) {
+	flow.OutgoingFlow = &f
 }
 
 func setFow() {
+	task := UserTask{}
+	sequence := SequenceFlow{}
+	m := []flow{}
+	m[0] = &sequence
+	task.setIncoming(m)
+}
 
+func Converter(d *Definitions) {
+	processes := d.Process
+	if processes != nil {
+		for _, p := range processes {
+			start := p.StartEvent
+			if start != nil {
+				for _, sta := range start {
+					flowMap[sta.Id] = &sta
+				}
+			}
+			se := p.SequenceFlow
+			if se != nil {
+				for _, s := range se {
+					flowMap[s.Id] = &s
+				}
+			}
+			user := p.UserTask
+			if user != nil {
+				for _, u := range user {
+					flowMap[u.Id] = &u
+				}
+			}
+			end := p.EndEvent
+			if end != nil {
+				for _, e := range end {
+					flowMap[e.Id] = &e
+				}
+			}
+		}
+	}
+}
+
+func convertXMLToElement(model *Definitions) {
+	processes := model.Process
+	if processes != nil {
+		for _, p := range processes {
+			start := p.StartEvent
+			if start != nil {
+				for _, sta := range start {
+					value := flowMap[sta.Id]
+					m := []flow{}
+					m[0] = value
+					sta.setIncoming(m)
+				}
+			}
+			se := p.SequenceFlow
+			if se != nil {
+				for _, s := range se {
+					flowMap[s.Id] = &s
+				}
+			}
+			user := p.UserTask
+			if user != nil {
+				for _, u := range user {
+					flowMap[u.Id] = &u
+				}
+			}
+			end := p.EndEvent
+			if end != nil {
+				for _, e := range end {
+					flowMap[e.Id] = &e
+				}
+			}
+		}
+	}
 }

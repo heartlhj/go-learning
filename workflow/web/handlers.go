@@ -55,7 +55,7 @@ func create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, http.StatusInternalServerError, "XML转换异常")
 		return
 	}
-
+	dbops.Converter(data)
 	//导出xml文件
 	headerBytes := []byte(xml.Header)                //加入XML头
 	xmlOutPutData := append(headerBytes, dataStr...) //拼接XML头和实际XML内容
