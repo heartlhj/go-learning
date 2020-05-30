@@ -36,7 +36,7 @@ type Process struct {
 	UserTask         []UserTask         `xml:"userTask"`
 	SequenceFlow     []SequenceFlow     `xml:"sequenceFlow"`
 	ExclusiveGateway []ExclusiveGateway `xml:"ExclusiveGateway"`
-	Folw             flow
+	Flow             []flow
 }
 
 type FlowElement struct {
@@ -136,40 +136,40 @@ func ConvertXMLToElement(model *Definitions) {
 	processes := model.Process
 	if processes != nil {
 		for _, p := range processes {
-			start := p.StartEvent
+			var start = p.StartEvent
 			if start != nil {
-				for _, sta := range start {
+				for i, sta := range start {
 					value := flowMap[sta.Id]
-					m := make([]flow, len(start))
+					m := make([]flow, 1)
 					m[0] = value
-					sta.setIncoming(m)
+					start[i].setIncoming(m)
 				}
 			}
 			se := p.SequenceFlow
 			if se != nil {
-				for _, s := range se {
+				for i, s := range se {
 					value := flowMap[s.Id]
-					m := make([]flow, len(se))
+					m := make([]flow, 1)
 					m[0] = value
-					s.setIncoming(m)
+					se[i].setIncoming(m)
 				}
 			}
 			user := p.UserTask
 			if user != nil {
-				for _, u := range user {
+				for i, u := range user {
 					value := flowMap[u.Id]
-					m := make([]flow, len(user))
+					m := make([]flow, 1)
 					m[0] = value
-					u.setIncoming(m)
+					user[i].setIncoming(m)
 				}
 			}
 			end := p.EndEvent
 			if end != nil {
-				for _, e := range end {
+				for i, e := range end {
 					value := flowMap[e.Id]
-					m := make([]flow, len(end))
+					m := make([]flow, 1)
 					m[0] = value
-					e.setIncoming(m)
+					end[i].setIncoming(m)
 				}
 			}
 		}
