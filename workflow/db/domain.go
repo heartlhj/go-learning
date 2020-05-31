@@ -65,10 +65,12 @@ type BaseElement struct {
 
 type Flow struct {
 	BaseElement
-	Id           string `xml:"id,attr"`
-	Name         string `xml:"name,attr"`
-	IncomingFlow []*flow
-	OutgoingFlow []*flow
+	Id                string `xml:"id,attr"`
+	Name              string `xml:"name,attr"`
+	IncomingFlow      []*flow
+	OutgoingFlow      []*flow
+	SourceFlowElement *flow
+	TargetFlowElement *flow
 }
 
 type StartEvent struct {
@@ -96,8 +98,6 @@ type SequenceFlow struct {
 	SourceRef           string   `xml:"sourceRef,attr"`
 	TargetRef           string   `xml:"targetRef,attr"`
 	ConditionExpression string   `xml:"conditionExpression"`
-	SourceFlowElement   *flow
-	TargetFlowElement   *flow
 }
 
 type ExclusiveGateway struct {
@@ -140,6 +140,11 @@ type flow interface {
 	setOutgoing(f []*flow)
 	getIncoming() []*flow
 	getOutgoing() []*flow
+
+	setSourceFlowElement(f *flow)
+	setTargetFlowElement(f *flow)
+	getSourceFlowElement() *flow
+	getTargetFlowElement() *flow
 }
 
 func (flow *Flow) setIncoming(f []*flow) {
@@ -154,6 +159,20 @@ func (flow *Flow) getIncoming() []*flow {
 }
 func (flow *Flow) getOutgoing() []*flow {
 	return flow.OutgoingFlow
+}
+
+func (flow *Flow) setSourceFlowElement(f *flow) {
+	flow.SourceFlowElement = f
+}
+func (flow *Flow) setTargetFlowElement(f *flow) {
+	flow.TargetFlowElement = f
+}
+
+func (flow *Flow) getSourceFlowElement() *flow {
+	return flow.SourceFlowElement
+}
+func (flow *Flow) getTargetFlowElement() *flow {
+	return flow.TargetFlowElement
 }
 
 func Converter(d *Definitions) {
@@ -215,7 +234,7 @@ func ConvertXMLToElement(model *Definitions) {
 						//设置上一个节点出口
 						lastFlow.setOutgoing(newOut)
 						//设置当前连线入口
-						value.SourceFlowElement = &lastFlow
+						flows[i].setSourceFlowElement(&lastFlow)
 
 					}
 					//下一个节点
@@ -230,11 +249,10 @@ func ConvertXMLToElement(model *Definitions) {
 						m := make([]*flow, 1)
 						m[0] = &nextFlow
 						//设置当前连线出口
-						value.TargetFlowElement = &nextFlow
+						flows[i].setTargetFlowElement(&nextFlow)
 						//设置写一个节点入口
 						nextFlow.setIncoming(newIn)
 					}
-					flows[i] = &value
 				}
 			}
 		}
