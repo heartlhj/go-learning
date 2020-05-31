@@ -48,21 +48,25 @@ type Process struct {
 	Flow                   []flow
 }
 
+//子流程
 type SubProcess struct {
 	*Process
 	SubProcessName xml.Name `xml:"subProcess"`
 }
 
+//消息订阅
 type Message struct {
 	*BaseElement
 	MessageName xml.Name `xml:"message"`
 }
 
+//通用字段
 type BaseElement struct {
 	Id   string `xml:"id,attr"`
 	Name string `xml:"name,attr"`
 }
 
+//父类实现体
 type Flow struct {
 	BaseElement
 	Id                string `xml:"id,attr"`
@@ -73,6 +77,7 @@ type Flow struct {
 	TargetFlowElement *flow
 }
 
+//开始节点
 type StartEvent struct {
 	*Flow
 	StartEventName xml.Name `xml:"startEvent"`
@@ -80,17 +85,21 @@ type StartEvent struct {
 	FormKey        string   `xml:"formKey,attr"`
 }
 
+//结束节点
 type EndEvent struct {
 	*Flow
 	EndEventName xml.Name `xml:"endEvent"`
 }
 
+//用户任务
 type UserTask struct {
 	*Flow
 	UserTaskName   xml.Name `xml:"userTask"`
 	Assignee       string   `xml:"assignee,attr"`
 	CandidateUsers string   `xml:"candidateUsers,attr"`
 }
+
+//连线
 type SequenceFlow struct {
 	*Flow
 	SequenceFlowName    xml.Name `xml:"sequenceFlow"`
@@ -100,18 +109,22 @@ type SequenceFlow struct {
 	ConditionExpression string   `xml:"conditionExpression"`
 }
 
+//排他网关
 type ExclusiveGateway struct {
 	*Flow
 }
 
+//包容网关
 type InclusiveGateway struct {
 	*Flow
 }
 
+//并行网关
 type ParallelGateway struct {
 	*Flow
 }
 
+//边界事件
 type BoundaryEvent struct {
 	*Flow
 	BoundaryEventName    xml.Name             `xml:"boundaryEvent"`
@@ -120,21 +133,26 @@ type BoundaryEvent struct {
 	TimerEventDefinition TimerEventDefinition `xml:"timerEventDefinition"`
 }
 
+//定时任务
 type TimerEventDefinition struct {
 	TimerEventDefinitionName xml.Name `xml:"timerEventDefinition"`
 	TimeDuration             string   `xml:"timeDuration"`
 }
 
+//中间抛出事件
 type IntermediateCatchEvent struct {
 	*Flow
 	IntermediateCatchEventName xml.Name               `xml:"intermediateCatchEvent"`
 	MessageEventDefinition     MessageEventDefinition `xml:"messageEventDefinition"`
 }
 
+//消息事件
 type MessageEventDefinition struct {
 	MessageEventDefinitionName xml.Name `xml:"messageEventDefinition"`
 	MessageRef                 string   `xml:"messageRef,attr"`
 }
+
+//接口
 type flow interface {
 	setIncoming(f []*flow)
 	setOutgoing(f []*flow)
@@ -175,6 +193,7 @@ func (flow *Flow) getTargetFlowElement() *flow {
 	return flow.TargetFlowElement
 }
 
+//将元素存入map
 func Converter(d *Definitions) {
 	processes := d.Process
 	if processes != nil {
@@ -214,6 +233,7 @@ func Converter(d *Definitions) {
 	}
 }
 
+//设置元素的出入口
 func ConvertXMLToElement(model *Definitions) {
 	processes := model.Process
 	if processes != nil {
