@@ -14,7 +14,7 @@ type Bytearry struct {
 	Bytes string `json:"bytes"`
 }
 type Definitions struct {
-	Definitionsname    xml.Name  `xml:"definitions"`
+	DefinitionsName    xml.Name  `xml:"definitions"`
 	Xmlns              string    `xml:"xmlns,attr"`
 	Xsi                string    `xml:"xsi,attr"`
 	Xsd                string    `xml:"xsd,attr"`
@@ -27,18 +27,35 @@ type Definitions struct {
 	ExpressionLanguage string    `xml:"expressionLanguage,attr"`
 	TargetNamespace    string    `xml:"targetNamespace,attr"`
 	Process            []Process `xml:"process"`
+	Message            []Message `xml:"message"`
 }
 type Process struct {
-	ProcessName      xml.Name           `xml:"process"`
-	Id               string             `xml:"id,attr"`
-	Name             string             `xml:"name,attr"`
-	IsExecutable     string             `xml:"isExecutable,attr"`
-	StartEvent       []StartEvent       `xml:"startEvent"`
-	EndEvent         []EndEvent         `xml:"endEvent"`
-	UserTask         []UserTask         `xml:"userTask"`
-	SequenceFlow     []SequenceFlow     `xml:"sequenceFlow"`
-	ExclusiveGateway []ExclusiveGateway `xml:"ExclusiveGateway"`
-	Flow             []flow
+	ProcessName            xml.Name `xml:"process"`
+	Id                     string   `xml:"id,attr"`
+	Name                   string
+	Documentation          string                   `xml:"documentation"`
+	IsExecutable           string                   `xml:"isExecutable,attr"`
+	StartEvent             []StartEvent             `xml:"startEvent"`
+	EndEvent               []EndEvent               `xml:"endEvent"`
+	UserTask               []UserTask               `xml:"userTask"`
+	SequenceFlow           []SequenceFlow           `xml:"sequenceFlow"`
+	ExclusiveGateway       []ExclusiveGateway       `xml:"exclusiveGateway"`
+	InclusiveGateway       []InclusiveGateway       `xml:"inclusiveGateway"`
+	ParallelGateway        []ParallelGateway        `xml:"parallelGateway"`
+	BoundaryEvent          []BoundaryEvent          `xml:"boundaryEvent"`
+	IntermediateCatchEvent []IntermediateCatchEvent `xml:"intermediateCatchEvent"`
+	SubProcess             []SubProcess             `xml:"subProcess"`
+	Flow                   []flow
+}
+
+type SubProcess struct {
+	*Process
+	SubProcessName xml.Name `xml:"subProcess"`
+}
+
+type Message struct {
+	*BaseElement
+	MessageName xml.Name `xml:"message"`
 }
 
 type BaseElement struct {
@@ -74,17 +91,50 @@ type UserTask struct {
 }
 type SequenceFlow struct {
 	*Flow
-	SequenceFlowName  xml.Name `xml:"sequenceFlow"`
-	Id                string   `xml:"id,attr"`
-	SourceRef         string   `xml:"sourceRef,attr"`
-	TargetRef         string   `xml:"targetRef,attr"`
-	SourceFlowElement *flow
-	TargetFlowElement *flow
+	SequenceFlowName    xml.Name `xml:"sequenceFlow"`
+	Id                  string   `xml:"id,attr"`
+	SourceRef           string   `xml:"sourceRef,attr"`
+	TargetRef           string   `xml:"targetRef,attr"`
+	ConditionExpression string   `xml:"conditionExpression"`
+	SourceFlowElement   *flow
+	TargetFlowElement   *flow
 }
+
 type ExclusiveGateway struct {
 	*Flow
 }
 
+type InclusiveGateway struct {
+	*Flow
+}
+
+type ParallelGateway struct {
+	*Flow
+}
+
+type BoundaryEvent struct {
+	*Flow
+	BoundaryEventName    xml.Name             `xml:"boundaryEvent"`
+	AttachedToRef        string               `xml:"attachedToRef,attr"`
+	CancelActivity       string               `xml:"cancelActivity,attr"`
+	TimerEventDefinition TimerEventDefinition `xml:"timerEventDefinition"`
+}
+
+type TimerEventDefinition struct {
+	TimerEventDefinitionName xml.Name `xml:"timerEventDefinition"`
+	TimeDuration             string   `xml:"timeDuration"`
+}
+
+type IntermediateCatchEvent struct {
+	*Flow
+	IntermediateCatchEventName xml.Name               `xml:"intermediateCatchEvent"`
+	MessageEventDefinition     MessageEventDefinition `xml:"messageEventDefinition"`
+}
+
+type MessageEventDefinition struct {
+	MessageEventDefinitionName xml.Name `xml:"messageEventDefinition"`
+	MessageRef                 string   `xml:"messageRef,attr"`
+}
 type flow interface {
 	setIncoming(f []*flow)
 	setOutgoing(f []*flow)
