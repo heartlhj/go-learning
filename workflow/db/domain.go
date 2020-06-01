@@ -1,6 +1,8 @@
 package db
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+)
 
 var (
 	flowMap = make(map[string]flow, 0)
@@ -12,7 +14,7 @@ type Bytearry struct {
 	Bytes string `json:"bytes"`
 }
 type Definitions struct {
-	Definitionsname    xml.Name  `xml:"definitions"`
+	DefinitionsName    xml.Name  `xml:"definitions"`
 	Xmlns              string    `xml:"xmlns,attr"`
 	Xsi                string    `xml:"xsi,attr"`
 	Xsd                string    `xml:"xsd,attr"`
@@ -25,151 +27,252 @@ type Definitions struct {
 	ExpressionLanguage string    `xml:"expressionLanguage,attr"`
 	TargetNamespace    string    `xml:"targetNamespace,attr"`
 	Process            []Process `xml:"process"`
+	Message            []Message `xml:"message"`
 }
 type Process struct {
-	ProcessName      xml.Name           `xml:"process"`
-	Id               string             `xml:"id,attr"`
-	Name             string             `xml:"name,attr"`
-	IsExecutable     string             `xml:"isExecutable,attr"`
-	StartEvent       []StartEvent       `xml:"startEvent"`
-	EndEvent         []EndEvent         `xml:"endEvent"`
-	UserTask         []UserTask         `xml:"userTask"`
-	SequenceFlow     []SequenceFlow     `xml:"sequenceFlow"`
-	ExclusiveGateway []ExclusiveGateway `xml:"ExclusiveGateway"`
-	Folw             flow
+	ProcessName            xml.Name `xml:"process"`
+	Id                     string   `xml:"id,attr"`
+	Name                   string
+	Documentation          string                   `xml:"documentation"`
+	IsExecutable           string                   `xml:"isExecutable,attr"`
+	StartEvent             []StartEvent             `xml:"startEvent"`
+	EndEvent               []EndEvent               `xml:"endEvent"`
+	UserTask               []UserTask               `xml:"userTask"`
+	SequenceFlow           []SequenceFlow           `xml:"sequenceFlow"`
+	ExclusiveGateway       []ExclusiveGateway       `xml:"exclusiveGateway"`
+	InclusiveGateway       []InclusiveGateway       `xml:"inclusiveGateway"`
+	ParallelGateway        []ParallelGateway        `xml:"parallelGateway"`
+	BoundaryEvent          []BoundaryEvent          `xml:"boundaryEvent"`
+	IntermediateCatchEvent []IntermediateCatchEvent `xml:"intermediateCatchEvent"`
+	SubProcess             []SubProcess             `xml:"subProcess"`
+	Flow                   []flow
 }
 
-type FlowElement struct {
+//子流程
+type SubProcess struct {
+	*Process
+	SubProcessName xml.Name `xml:"subProcess"`
+}
+
+//消息订阅
+type Message struct {
+	*BaseElement
+	MessageName xml.Name `xml:"message"`
+}
+
+//通用字段
+type BaseElement struct {
 	Id   string `xml:"id,attr"`
 	Name string `xml:"name,attr"`
 }
 
+//父类实现体
 type Flow struct {
-	FlowElement
-	Id           string `xml:"id,attr"`
-	Name         string `xml:"name,attr"`
-	IncomingFlow *[]flow
-	OutgoingFlow *[]flow
+	BaseElement
+	Id                string `xml:"id,attr"`
+	Name              string `xml:"name,attr"`
+	IncomingFlow      []*flow
+	OutgoingFlow      []*flow
+	SourceFlowElement *flow
+	TargetFlowElement *flow
 }
 
+//开始节点
 type StartEvent struct {
-	Flow
+	*Flow
 	StartEventName xml.Name `xml:"startEvent"`
 	Initiator      string   `xml:"initiator,attr"`
 	FormKey        string   `xml:"formKey,attr"`
 }
 
+//结束节点
 type EndEvent struct {
-	Flow
+	*Flow
 	EndEventName xml.Name `xml:"endEvent"`
 }
 
+//用户任务
 type UserTask struct {
-	Flow
+	*Flow
 	UserTaskName   xml.Name `xml:"userTask"`
 	Assignee       string   `xml:"assignee,attr"`
 	CandidateUsers string   `xml:"candidateUsers,attr"`
 }
+
+//连线
 type SequenceFlow struct {
-	Flow
-	SequenceFlowName xml.Name `xml:"sequenceFlow"`
-	Id               string   `xml:"id,attr"`
-	SourceRef        string   `xml:"sourceRef,attr"`
-	TargetRef        string   `xml:"targetRef,attr"`
+	*Flow
+	SequenceFlowName    xml.Name `xml:"sequenceFlow"`
+	Id                  string   `xml:"id,attr"`
+	SourceRef           string   `xml:"sourceRef,attr"`
+	TargetRef           string   `xml:"targetRef,attr"`
+	ConditionExpression string   `xml:"conditionExpression"`
 }
+
+//排他网关
 type ExclusiveGateway struct {
-	Flow
+	*Flow
 }
 
+//包容网关
+type InclusiveGateway struct {
+	*Flow
+}
+
+//并行网关
+type ParallelGateway struct {
+	*Flow
+}
+
+//边界事件
+type BoundaryEvent struct {
+	*Flow
+	BoundaryEventName    xml.Name             `xml:"boundaryEvent"`
+	AttachedToRef        string               `xml:"attachedToRef,attr"`
+	CancelActivity       string               `xml:"cancelActivity,attr"`
+	TimerEventDefinition TimerEventDefinition `xml:"timerEventDefinition"`
+}
+
+//定时任务
+type TimerEventDefinition struct {
+	TimerEventDefinitionName xml.Name `xml:"timerEventDefinition"`
+	TimeDuration             string   `xml:"timeDuration"`
+}
+
+//中间抛出事件
+type IntermediateCatchEvent struct {
+	*Flow
+	IntermediateCatchEventName xml.Name               `xml:"intermediateCatchEvent"`
+	MessageEventDefinition     MessageEventDefinition `xml:"messageEventDefinition"`
+}
+
+//消息事件
+type MessageEventDefinition struct {
+	MessageEventDefinitionName xml.Name `xml:"messageEventDefinition"`
+	MessageRef                 string   `xml:"messageRef,attr"`
+}
+
+//接口
 type flow interface {
-	setIncoming(f []flow)
+	setIncoming(f []*flow)
+	setOutgoing(f []*flow)
+	getIncoming() []*flow
+	getOutgoing() []*flow
+
+	setSourceFlowElement(f *flow)
+	setTargetFlowElement(f *flow)
+	getSourceFlowElement() *flow
+	getTargetFlowElement() *flow
 }
 
-func (flow *Flow) setIncoming(f []flow) {
-	flow.IncomingFlow = &f
+func (flow *Flow) setIncoming(f []*flow) {
+	flow.IncomingFlow = f
 }
-func (flow *Flow) setOutgoing(f []flow) {
-	flow.OutgoingFlow = &f
-}
-
-func setFow() {
-	task := UserTask{}
-	sequence := SequenceFlow{}
-	m := []flow{}
-	m[0] = &sequence
-	task.setIncoming(m)
+func (flow *Flow) setOutgoing(f []*flow) {
+	flow.OutgoingFlow = f
 }
 
+func (flow *Flow) getIncoming() []*flow {
+	return flow.IncomingFlow
+}
+func (flow *Flow) getOutgoing() []*flow {
+	return flow.OutgoingFlow
+}
+
+func (flow *Flow) setSourceFlowElement(f *flow) {
+	flow.SourceFlowElement = f
+}
+func (flow *Flow) setTargetFlowElement(f *flow) {
+	flow.TargetFlowElement = f
+}
+
+func (flow *Flow) getSourceFlowElement() *flow {
+	return flow.SourceFlowElement
+}
+func (flow *Flow) getTargetFlowElement() *flow {
+	return flow.TargetFlowElement
+}
+
+//将元素存入map
 func Converter(d *Definitions) {
 	processes := d.Process
 	if processes != nil {
-		for _, p := range processes {
+		for j, p := range processes {
 			start := p.StartEvent
 			if start != nil {
-				for _, sta := range start {
-					flowMap[sta.Id] = &sta
+				for i, sta := range start {
+					flowMap[sta.Id] = start[i]
 				}
 			}
 			se := p.SequenceFlow
 			if se != nil {
-				for _, s := range se {
-					flowMap[s.Id] = &s
+				for i, s := range se {
+					flowMap[s.Id] = se[i]
 				}
 			}
 			user := p.UserTask
 			if user != nil {
-				for _, u := range user {
-					flowMap[u.Id] = &u
+				for i, u := range user {
+					flowMap[u.Id] = user[i]
 				}
 			}
 			end := p.EndEvent
 			if end != nil {
-				for _, e := range end {
-					flowMap[e.Id] = &e
+				for i, e := range end {
+					flowMap[e.Id] = end[i]
 				}
 			}
+			flows := make([]flow, len(flowMap))
+			count := 0
+			for _, v := range flowMap {
+				flows[count] = v
+				count++
+			}
+			processes[j].Flow = flows
 		}
 	}
 }
 
+//设置元素的出入口
 func ConvertXMLToElement(model *Definitions) {
 	processes := model.Process
 	if processes != nil {
 		for _, p := range processes {
-			start := p.StartEvent
-			if start != nil {
-				for _, sta := range start {
-					value := flowMap[sta.Id]
-					m := make([]flow, len(start))
-					m[0] = value
-					sta.setIncoming(m)
-				}
-			}
-			se := p.SequenceFlow
-			if se != nil {
-				for _, s := range se {
-					value := flowMap[s.Id]
-					m := make([]flow, len(se))
-					m[0] = value
-					s.setIncoming(m)
-				}
-			}
-			user := p.UserTask
-			if user != nil {
-				for _, u := range user {
-					value := flowMap[u.Id]
-					m := make([]flow, len(user))
-					m[0] = value
-					u.setIncoming(m)
-				}
-			}
-			end := p.EndEvent
-			if end != nil {
-				for _, e := range end {
-					value := flowMap[e.Id]
-					m := make([]flow, len(end))
-					m[0] = value
-					e.setIncoming(m)
+			flows := p.Flow
+			for i := range flows {
+				value, ok := flows[i].(SequenceFlow)
+				if ok {
+					SourceRef := value.SourceRef
+					//上一个节点
+					lastFlow := flowMap[SourceRef]
+					if lastFlow != nil {
+						var outgoing = lastFlow.getOutgoing()
+						if outgoing == nil {
+							outgoing = make([]*flow, 0)
+						}
+						newOut := append(outgoing, &flows[i])
+						//设置上一个节点出口
+						lastFlow.setOutgoing(newOut)
+						//设置当前连线入口
+						flows[i].setSourceFlowElement(&lastFlow)
+
+					}
+					//下一个节点
+					TargetRef := value.TargetRef
+					nextFlow := flowMap[TargetRef]
+					if nextFlow != nil {
+						incoming := nextFlow.getIncoming()
+						if incoming == nil {
+							incoming = make([]*flow, 0)
+						}
+						newIn := append(incoming, &flows[i])
+						m := make([]*flow, 1)
+						m[0] = &nextFlow
+						//设置当前连线出口
+						flows[i].setTargetFlowElement(&nextFlow)
+						//设置写一个节点入口
+						nextFlow.setIncoming(newIn)
+					}
 				}
 			}
 		}
