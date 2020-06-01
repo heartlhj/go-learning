@@ -3,6 +3,13 @@ package expression
 import "strings"
 
 type TemplateAwareExpressionParser struct {
+	Bracket
+}
+
+type Bracket struct {
+	bracket byte
+
+	pos int
 }
 
 func (t *TemplateAwareExpressionParser) parseExpression(expressionString string) Expression {
