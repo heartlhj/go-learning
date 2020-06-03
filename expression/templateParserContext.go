@@ -6,6 +6,10 @@ type TemplateParserContext struct {
 	expressionSuffix string
 }
 
+func (t *TemplateParserContext) isTemplate() bool {
+	return true
+}
+
 func (t *TemplateParserContext) getExpressionPrefix() string {
 	return t.expressionPrefix
 }
