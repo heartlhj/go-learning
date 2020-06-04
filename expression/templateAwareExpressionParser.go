@@ -7,10 +7,6 @@ import (
 	"strings"
 )
 
-type TemplateAwareExpression interface {
-	doParseExpression(var1 string) Expression
-}
-
 type TemplateAwareExpressionParser struct {
 	Bracket
 }
@@ -20,30 +16,26 @@ type Bracket struct {
 	pos     int
 }
 
-func (t *TemplateAwareExpressionParser) doParseExpression(expressionString string) Expression {
-	return nil
-}
-
-func (t *TemplateAwareExpressionParser) parseExpression(expressionString string) Expression {
-	return t.doParseExpression(expressionString)
+func (t *TemplateAwareExpressionParser) ParseExpression(expressionString string) Expression {
+	return t.parseExpressionContext(expressionString, nil)
 }
 
 func (t *TemplateAwareExpressionParser) parseExpressionContext(expressionString string, context ParserContext) Expression {
 	if context != nil && context.isTemplate() {
 		return t.parseTemplate(expressionString, context)
 	}
-	return t.doParseExpression(expressionString)
+	return t.DoParseExpression(expressionString)
 }
 
 func (t *TemplateAwareExpressionParser) parseTemplate(expressionString string, context ParserContext) Expression {
 	if expressionString == "" {
-		return &LiteralExpression{""}
+		return &LiteralExpression{}
 	}
 	expressions := t.parseExpressions(expressionString, context)
 	if len(expressions) == 1 {
 		return expressions[0]
 	}
-	return &CompositeStringExpression{expressionString, expressions}
+	return &CompositeStringExpression{ExpressionString: expressionString, Expressions: expressions}
 }
 
 func (t *TemplateAwareExpressionParser) parseExpressions(expressionString string, context ParserContext) []Expression {
@@ -56,7 +48,7 @@ func (t *TemplateAwareExpressionParser) parseExpressions(expressionString string
 		if prefixIndex >= startIdx {
 			if prefixIndex > startIdx {
 				runes := []rune(expressionString)
-				expressions = append(expressions, &LiteralExpression{string(runes[startIdx:prefixIndex])})
+				expressions = append(expressions, &LiteralExpression{literalValue: string(runes[startIdx:prefixIndex])})
 			}
 			afterPrefixIndex := prefixIndex + len(prefix)
 			suffixIndex := skipToCorrectEndSuffix(suffix, expressionString, afterPrefixIndex)
@@ -76,7 +68,7 @@ func (t *TemplateAwareExpressionParser) parseExpressions(expressionString string
 					string(prefix)+string(suffix)+
 					"' at character "+string(prefixIndex))
 			}
-			expressions = append(expressions, t.doParseExpression(expressionString))
+			expressions = append(expressions, t.ParseExpression(expressionString))
 		}
 	}
 	return nil

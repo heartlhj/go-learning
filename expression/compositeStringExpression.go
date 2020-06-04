@@ -1,15 +1,18 @@
 package expression
 
+import "go-learning/expression/spel"
+
 type CompositeStringExpression struct {
-	expressionString string
-	expressions      []Expression
+	*spel.ExpressionImpl
+	ExpressionString string
+	Expressions      []Expression
 }
 
-func (c *CompositeStringExpression) getExpressionString() string {
-	return c.expressionString
+func (c *CompositeStringExpression) GetExpressionString() string {
+	return c.ExpressionString
 }
 
-func (c *CompositeStringExpression) getValue() interface{} {
+func (c *CompositeStringExpression) GetValue() interface{} {
 	//s := ""
 
 	return "c.literalValue"

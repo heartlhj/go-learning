@@ -56,10 +56,30 @@ const (
 	SELECT_LAST TokenKindType = "$["
 
 	IDENTIFIER
+
+	LITERAL_INT
+
+	LITERAL_LONG
+
+	LITERAL_HEXINT
+
+	LITERAL_HEXLONG
+
+	LITERAL_STRING
+
+	LITERAL_REAL
+
+	LITERAL_REAL_FLOAT
 )
 
 type TokenKind struct {
 	TokenChars    []rune
 	HasPayload    bool
 	TokenKindType TokenKindType
+}
+
+func (t *TokenKind) InitTokenKind() *TokenKind {
+	t.TokenChars = []rune(t.TokenKindType)
+	t.HasPayload = len(t.TokenChars) == 0
+	return t
 }

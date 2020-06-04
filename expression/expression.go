@@ -1,7 +1,11 @@
 package expression
 
-type Expression interface {
-	getExpressionString() string
+import "go-learning/expression/spel"
 
-	getValue() interface{}
+type Expression interface {
+	GetExpressionString() string
+
+	GetValue() interface{}
+
+	GetValueContext(context spel.EvaluationContext) interface{}
 }

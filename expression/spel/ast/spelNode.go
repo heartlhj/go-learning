@@ -1,7 +1,10 @@
 package ast
 
-import "go-learning/expression/spel"
+import (
+	. "go-learning/expression/spel"
+)
 
 type SpelNode interface {
-	getValue(expressionState spel.ExpressionState) interface{}
+	GetValue(expressionState ExpressionState) interface{}
+	GetValueInternal(expressionState ExpressionState) TypedValue
 }

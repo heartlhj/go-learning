@@ -1,13 +1,16 @@
 package expression
 
+import "go-learning/expression/spel"
+
 type LiteralExpression struct {
+	*spel.ExpressionImpl
 	literalValue string
 }
 
-func (l *LiteralExpression) getExpressionString() string {
+func (l *LiteralExpression) GetExpressionString() string {
 	return l.literalValue
 }
 
-func (l *LiteralExpression) getValue() interface{} {
+func (l *LiteralExpression) GetValue() interface{} {
 	return l.literalValue
 }

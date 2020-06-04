@@ -1,13 +1,15 @@
 package support
 
-import . "go-learning/expression"
+import (
+	"go-learning/expression/spel"
+)
 
 type BooleanTypedValue struct {
-	*TypedValue
+	*spel.TypedValue
 }
 
-func (b *BooleanTypedValue) ForValue(bool2 bool) TypedValue {
-	boo := TypedValue{}
+func (b *BooleanTypedValue) ForValue(bool2 bool) spel.TypedValue {
+	boo := spel.TypedValue{}
 	if bool2 {
 		boo.Value = true
 		return boo

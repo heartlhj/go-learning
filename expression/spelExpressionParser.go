@@ -4,6 +4,7 @@ type SpelExpressionParser struct {
 	*TemplateAwareExpressionParser
 }
 
-func (s *SpelExpressionParser) doParseExpression(var1 string) Expression {
-	return nil
+func (s *TemplateAwareExpressionParser) DoParseExpression(expressionString string) Expression {
+	parser := InternalSpelExpressionParser{}
+	return parser.DoParseExpression(expressionString)
 }

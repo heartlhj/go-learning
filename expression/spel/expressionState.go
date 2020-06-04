@@ -1,9 +1,12 @@
 package spel
 
-import . "go-learning/expression"
-
 type ExpressionState struct {
-	relatedContext EvaluationContext
+	RelatedContext EvaluationContext
 
-	rootObject TypedValue
+	RootObject TypedValue
+}
+
+func (e *ExpressionState) LookupVariable(name string) TypedValue {
+	variable := e.RelatedContext.LookupVariable(name)
+	return TypedValue{variable}
 }

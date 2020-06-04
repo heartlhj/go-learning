@@ -1,7 +1,6 @@
 package ast
 
 import (
-	. "go-learning/expression"
 	. "go-learning/expression/spel"
 )
 
@@ -11,10 +10,11 @@ type SpelNodeImpl struct {
 	Pos                int
 	exitTypeDescriptor string
 }
-type SpelNodeValue interface {
-	getValueInternal(expressionState ExpressionState) TypedValue
+
+func (o *SpelNodeImpl) GetValueInternal(expressionState ExpressionState) TypedValue {
+	return o.GetValueInternal(expressionState)
 }
 
-func (o *SpelNodeImpl) getValue(expressionState ExpressionState) interface{} {
-	return o.getValue(expressionState)
+func (o *SpelNodeImpl) GetValue(expressionState ExpressionState) interface{} {
+	return o.GetValue(expressionState)
 }

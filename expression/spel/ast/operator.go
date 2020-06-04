@@ -9,11 +9,11 @@ type Operator struct {
 	rightActualDescriptor string
 }
 
-func (s *SpelNodeImpl) getLeftOperand() SpelNodeValue {
+func (s *SpelNodeImpl) getLeftOperand() SpelNode {
 	return s.Children[0]
 }
 
-func (s *SpelNodeImpl) getRightOperand() SpelNodeValue {
+func (s *SpelNodeImpl) getRightOperand() SpelNode {
 	return s.Children[1]
 }
 

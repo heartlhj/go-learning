@@ -1,7 +1,6 @@
 package ast
 
 import (
-	. "go-learning/expression"
 	. "go-learning/expression/spel"
 )
 
@@ -15,6 +14,6 @@ type VariableReference struct {
 	Name string
 }
 
-func (v VariableReference) getValueInternal(state ExpressionState) TypedValue {
-	return TypedValue{}
+func (v VariableReference) GetValueInternal(state ExpressionState) TypedValue {
+	return state.LookupVariable(v.Name)
 }
