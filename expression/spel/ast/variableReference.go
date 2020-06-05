@@ -4,6 +4,7 @@ import (
 	. "go-learning/expression/spel"
 )
 
+//map参数
 const (
 	THIS = "this"
 	ROOT = "root"

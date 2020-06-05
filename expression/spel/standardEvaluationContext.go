@@ -1,5 +1,6 @@
 package spel
 
+//map存储
 type StandardEvaluationContext struct {
 	Variables map[string]interface{}
 }

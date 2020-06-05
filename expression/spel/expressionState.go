@@ -1,5 +1,6 @@
 package spel
 
+//根据KEY获取MAP的value
 type ExpressionState struct {
 	RelatedContext EvaluationContext
 

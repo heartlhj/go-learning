@@ -6,13 +6,14 @@ import (
 	"go-learning/expression/spel"
 )
 
+//测试
 func main() {
 	context := spel.StandardEvaluationContext{}
 	m := make(map[string]interface{})
-	m["name"] = "lisi"
+	m["name"] = 200
 	context.SetVariables(m)
 	parser := SpelExpressionParser{}
-	valueContext := parser.ParseExpression("#name=='lisi'").GetValueContext(&context)
+	valueContext := parser.ParseExpression("#name <= 700").GetValueContext(&context)
 	fmt.Println("结果为：", valueContext)
 }
 

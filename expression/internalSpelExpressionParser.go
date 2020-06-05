@@ -9,6 +9,7 @@ import (
 	. "go-learning/expression/spel/standard"
 	"strconv"
 	"strings"
+	"unsafe"
 )
 
 type InternalSpelExpressionParser struct {
@@ -80,29 +81,55 @@ func (i *InternalSpelExpressionParser) maybeEatRelationalOperator() (Token, erro
 }
 
 func (i *InternalSpelExpressionParser) eatRelationalExpression() (SpelNode, error) {
-	expr, err := i.eatSumExpression()
+	expr, _ := i.eatSumExpression()
 	relationalOperatorToken, err1 := i.maybeEatRelationalOperator()
 	if err1 == nil {
 		t := i.takeToken()
-		rhExpr, err3 := i.eatSumExpression()
-		if err != nil {
-			panic("Problem parsing left operand")
-		}
-		if err3 != nil {
-			panic("Problem parsing right operand")
-		}
+		rhExpr, _ := i.eatSumExpression()
+		checkOperands(t, expr, rhExpr)
 		kindType := relationalOperatorToken.Kind.TokenKindType
 
 		if relationalOperatorToken.IsNumericRelationalOperator() {
 			pos := toPos(t.StartPos, t.EndPos)
+			nodes := make([]SpelNode, 0)
+			nodes = append(nodes, expr)
+			nodes = append(nodes, rhExpr)
+			spelNodeImpl := SpelNodeImpl{Children: nodes}
+			spelNodeImpl.Pos = pos
+			operator := Operator{SpelNodeImpl: &spelNodeImpl}
+			//不等
+			if kindType == NE {
+				eq := OpNE{Operator: &operator}
+				//eq.Parent = &eq
+				return &eq, nil
+			}
+			//相等
 			if kindType == EQ {
-				nodes := make([]SpelNode, 0)
-				nodes = append(nodes, expr)
-				nodes = append(nodes, rhExpr)
-				spelNodeImpl := SpelNodeImpl{Children: nodes}
-				spelNodeImpl.Pos = pos
-				operator := Operator{SpelNodeImpl: &spelNodeImpl}
 				eq := OpEQ{Operator: &operator}
+				//eq.Parent = &eq
+				return &eq, nil
+			}
+			//大于
+			if kindType == GT {
+				eq := OpGE{Operator: &operator}
+				//eq.Parent = &eq
+				return &eq, nil
+			}
+			//小于
+			if kindType == LT {
+				eq := OpLE{Operator: &operator}
+				//eq.Parent = &eq
+				return &eq, nil
+			}
+			//大于等于
+			if kindType == GE {
+				eq := OpGE{Operator: &operator}
+				//eq.Parent = &eq
+				return &eq, nil
+			}
+			//小于等于
+			if kindType == LE {
+				eq := OpLE{Operator: &operator}
 				//eq.Parent = &eq
 				return &eq, nil
 			}
@@ -174,8 +201,10 @@ func (i *InternalSpelExpressionParser) maybeEatLiteral() bool {
 	}
 	kindType := t.Kind.TokenKindType
 	if kindType == LITERAL_LONG {
-		value, err := strconv.ParseInt(t.Data, 10, 64)
+		value, err := strconv.ParseInt(t.Data, 10, 32)
 		if err != nil {
+			// 将 int64 转化为 int
+			value := *(*int)(unsafe.Pointer(&value))
 			pos := toPos(t.StartPos, t.EndPos)
 			spelNodeImpl := SpelNodeImpl{Pos: pos}
 			typedValue := TypedValue{Value: value}
@@ -185,7 +214,9 @@ func (i *InternalSpelExpressionParser) maybeEatLiteral() bool {
 		}
 	} else if kindType == LITERAL_INT {
 		value, err := strconv.ParseInt(t.Data, 10, 64)
-		if err != nil {
+		if err == nil {
+			// 将 int64 转化为 int
+			value := *(*int)(unsafe.Pointer(&value))
 			pos := toPos(t.StartPos, t.EndPos)
 			spelNodeImpl := SpelNodeImpl{Pos: pos}
 			typedValue := TypedValue{Value: value}
@@ -275,19 +306,45 @@ func (i *InternalSpelExpressionParser) eatExpression() (SpelNode, error) {
 }
 
 func (i *InternalSpelExpressionParser) eatLogicalOrExpression() (SpelNode, error) {
-	node, err := i.eatLogicalAndExpression()
-	if err == nil {
-		return node, err
+	expr, _ := i.eatLogicalAndExpression()
+	var result SpelNode
+	result = expr
+	for i.peekIdentifierToken("and") || i.peekTokenOnly(SYMBOLIC_AND) {
+		t := i.takeToken()
+		rhExpr, _ := i.eatRelationalExpression()
+		checkOperands(t, expr, rhExpr)
+		pos := toPos(t.StartPos, t.EndPos)
+		nodes := make([]SpelNode, 0)
+		nodes = append(nodes, expr)
+		nodes = append(nodes, rhExpr)
+		spelNodeImpl := SpelNodeImpl{Children: nodes}
+		spelNodeImpl.Pos = pos
+		operator := Operator{SpelNodeImpl: &spelNodeImpl}
+		expr := OpOr{&operator}
+		result = &expr
 	}
-	return &SpelNodeImpl{}, nil
+	return result, nil
 }
 
 func (i *InternalSpelExpressionParser) eatLogicalAndExpression() (SpelNode, error) {
-	node, err := i.eatRelationalExpression()
-	if err == nil {
-		return node, err
+	expr, _ := i.eatRelationalExpression()
+	var result SpelNode
+	result = expr
+	for i.peekIdentifierToken("and") || i.peekTokenOnly(SYMBOLIC_AND) {
+		t := i.takeToken()
+		rhExpr, _ := i.eatRelationalExpression()
+		checkOperands(t, expr, rhExpr)
+		pos := toPos(t.StartPos, t.EndPos)
+		nodes := make([]SpelNode, 0)
+		nodes = append(nodes, expr)
+		nodes = append(nodes, rhExpr)
+		spelNodeImpl := SpelNodeImpl{Children: nodes}
+		spelNodeImpl.Pos = pos
+		operator := Operator{SpelNodeImpl: &spelNodeImpl}
+		expr := OpAnd{&operator}
+		result = &expr
 	}
-	return &SpelNodeImpl{}, nil
+	return result, nil
 }
 
 func (i *InternalSpelExpressionParser) eatToken(expectedKind TokenKindType) Token {
@@ -321,4 +378,29 @@ func (i *InternalSpelExpressionParser) peekTokens(possible1 TokenKindType, possi
 		return false
 	}
 	return (token.Kind.TokenKindType == possible1) || token.Kind.TokenKindType == possible2 || token.Kind.TokenKindType == possible3
+}
+
+func (i *InternalSpelExpressionParser) peekIdentifierToken(identifierString string) bool {
+	token, err := i.peekToken()
+	if err != nil {
+		return false
+	}
+	return token.Kind.TokenKindType == IDENTIFIER && token.Data == identifierString
+}
+
+func checkOperands(token Token, left SpelNode, right SpelNode) {
+	checkLeftOperand(token, left)
+	checkRightOperand(token, right)
+}
+
+func checkLeftOperand(token Token, left SpelNode) {
+	if left == nil {
+		panic("Problem parsing left operand")
+	}
+}
+
+func checkRightOperand(token Token, right SpelNode) {
+	if right == nil {
+		panic("Problem parsing right operand")
+	}
 }

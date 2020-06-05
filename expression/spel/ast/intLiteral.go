@@ -4,6 +4,7 @@ import (
 	. "go-learning/expression/spel"
 )
 
+// int 类型
 type IntLiteral struct {
 	*Literal
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+//将EL表达一些输入数据转换成令牌流，然后可以对其进行解析
 const (
 	IS_DIGIT    = 0x01
 	IS_HEXDIGIT = 0x02
@@ -149,20 +150,44 @@ func (t *Tokenizer) Process() []Token {
 				}
 				break
 			case "0":
+				t.lexNumericLiteral(ch == '0')
+				break
 			case "1":
+				t.lexNumericLiteral(ch == '0')
+				break
 			case "2":
+				t.lexNumericLiteral(ch == '0')
+				break
 			case "3":
+				t.lexNumericLiteral(ch == '0')
+				break
 			case "4":
+				t.lexNumericLiteral(ch == '0')
+				break
 			case "5":
+				t.lexNumericLiteral(ch == '0')
+				break
 			case "6":
+				t.lexNumericLiteral(ch == '0')
+				break
 			case "7":
+				t.lexNumericLiteral(ch == '0')
+				break
 			case "8":
+				t.lexNumericLiteral(ch == '0')
+				break
 			case "9":
-				//
+				t.lexNumericLiteral(ch == '0')
 				break
 			case " ":
+				t.pos++
+				break
 			case "\t":
+				t.pos++
+				break
 			case "\r":
+				t.pos++
+				break
 			case "\n":
 				t.pos++
 				break
@@ -201,9 +226,15 @@ func (t *Tokenizer) pushOneCharOrTwoCharToken(kind TokenKind, pos int, data []ru
 	t.tokens = append(t.tokens, Token{Kind: kind, StartPos: pos, Data: string(data), EndPos: pos + len(kind.TokenKindType)})
 }
 
-func (t *Tokenizer) pushIntToken(data []rune, start int, end int) {
-	kind := TokenKind{TokenKindType: LITERAL_INT, TokenChars: []rune(LITERAL_INT), HasPayload: len([]rune(LITERAL_INT)) == 0}
-	t.tokens = append(t.tokens, Token{Kind: kind, StartPos: start, Data: string(data), EndPos: end})
+func (t *Tokenizer) pushIntToken(data []rune, isLong bool, start int, end int) {
+	if isLong {
+		kind := TokenKind{TokenKindType: LITERAL_LONG, TokenChars: []rune(LITERAL_LONG), HasPayload: len([]rune(LITERAL_LONG)) == 0}
+		t.tokens = append(t.tokens, Token{Kind: kind, StartPos: start, Data: string(data), EndPos: end})
+	} else {
+		kind := TokenKind{TokenKindType: LITERAL_INT, TokenChars: []rune(LITERAL_INT), HasPayload: len([]rune(LITERAL_INT)) == 0}
+		t.tokens = append(t.tokens, Token{Kind: kind, StartPos: start, Data: string(data), EndPos: end})
+	}
+
 }
 
 func isAlphabetic(ch rune) bool {
@@ -214,6 +245,7 @@ func isAlphabetic(ch rune) bool {
 	return (FLAGS[ch] & IS_ALPHA) != 0
 }
 
+//判断是否是数字
 func isDigit(ch rune) bool {
 	char := int(ch)
 	if char > 255 {
@@ -253,14 +285,99 @@ func (t *Tokenizer) lexIdentifier() {
 	t.tokens = append(t.tokens, Token{TokenKind{TokenKindType: IDENTIFIER, TokenChars: []rune(IDENTIFIER), HasPayload: len([]rune(IDENTIFIER)) == 0}, string(runes), start, t.pos})
 }
 
-func (t *Tokenizer) lexNumericLiteral(ch rune) {
-	//start := t.pos
-	//i,_ := strconv.Atoi(string(r))
-	//t.pos++
-	//endOfNumber := t.pos
-	//r := t.charsToProcess[t.pos]
-	//
-
+//处理数字判断
+func (t *Tokenizer) lexNumericLiteral(firstCharIsZero bool) {
+	isReal := false
+	start := t.pos
+	ch := t.charsToProcess[t.pos+1]
+	//处理16进制
+	isHex := ch == 'x' || ch == 'X'
+	if firstCharIsZero && isHex {
+		t.pos = t.pos + 1
+		t.pos++
+		for isHexadecimalDigit(t.charsToProcess[t.pos]) && t.pos < t.max-1 {
+			t.pos++
+		}
+		if t.isChar('L', 'l') {
+			t.pushHexIntToken(t.subarray(start+2, t.pos), true, start, t.pos)
+			t.pos++
+		} else {
+			t.pushHexIntToken(t.subarray(start+2, t.pos), false, start, t.pos)
+		}
+		return
+	}
+	t.pos++
+	//迭代数字
+	for isDigit(t.charsToProcess[t.pos]) && t.pos < t.max-1 {
+		t.pos++
+	}
+	if t.pos == t.max-1 {
+		t.pos++
+		t.pushIntToken(t.subarray(start, t.pos), false, start, t.pos)
+		return
+	}
+	t.pos++
+	ch = t.charsToProcess[t.pos]
+	if ch == '.' {
+		isReal = true
+		dotpos := t.pos
+		t.pos++
+		for isDigit(t.charsToProcess[t.pos]) && t.pos < t.max-1 {
+			t.pos++
+		}
+		if t.pos == dotpos {
+			t.pos = dotpos
+			t.pushIntToken(t.subarray(start, t.pos), false, start, t.pos)
+			return
+		}
+	}
+	endOfNumber := t.pos
+	if t.isChar('L', 'l') {
+		if isReal {
+			panic("Real number cannot be suffixed with a long (L or l) suffix")
+		}
+		t.pushIntToken(t.subarray(start, endOfNumber), true, start, endOfNumber)
+		t.pos++
+	} else if t.isExponentChar(t.charsToProcess[t.pos]) {
+		isReal = true
+		t.pos++
+		possibleSign := t.charsToProcess[t.pos]
+		if t.isSign(possibleSign) {
+			t.pos++
+		}
+		t.pos++
+		for isDigit(t.charsToProcess[t.pos]) && t.pos < t.max-1 {
+			t.pos++
+		}
+		isFloat := false
+		if t.isFloatSuffix(t.charsToProcess[t.pos]) {
+			isFloat = true
+			t.pos++
+			endOfNumber = t.pos
+		} else if t.isDoubleSuffix(t.charsToProcess[t.pos]) {
+			t.pos++
+			endOfNumber = t.pos
+		}
+		t.pushRealToken(t.subarray(start, t.pos), isFloat, start, t.pos)
+	} else {
+		ch := t.charsToProcess[t.pos]
+		isFloat := false
+		if t.isFloatSuffix(ch) {
+			isReal = true
+			isFloat = true
+			t.pos++
+			endOfNumber = t.pos
+		} else if t.isDoubleSuffix(ch) {
+			isReal = true
+			t.pos++
+			endOfNumber = t.pos
+		}
+		if isReal {
+			t.pushRealToken(t.subarray(start, endOfNumber), isFloat, start, endOfNumber)
+		} else {
+			t.pushIntToken(t.subarray(start, endOfNumber), false, start, endOfNumber)
+		}
+	}
 }
 
 func (t *Tokenizer) lexQuotedStringLiteral() {
@@ -310,8 +427,56 @@ func (t *Tokenizer) lexDoubleQuotedStringLiteral() {
 	process := t.charsToProcess[start:t.pos]
 	t.tokens = append(t.tokens, Token{TokenKind{TokenKindType: LITERAL_STRING, TokenChars: []rune(LITERAL_STRING), HasPayload: len([]rune(LITERAL_STRING)) == 0}, string(process), start, t.pos})
 }
+
+func (t *Tokenizer) isExponentChar(ch rune) bool {
+	return ch == 'e' || ch == 'E'
+}
+
+func (t *Tokenizer) isFloatSuffix(ch rune) bool {
+	return ch == 'f' || ch == 'F'
+}
+
+func (t *Tokenizer) isDoubleSuffix(ch rune) bool {
+	return ch == 'd' || ch == 'D'
+}
+
+func (t *Tokenizer) isSign(ch rune) bool {
+	return ch == '+' || ch == '-'
+}
+
 func (t *Tokenizer) isChar(a rune, b rune) bool {
 	r := t.charsToProcess[t.pos]
 	return r == a || r == b
 
+}
+
+func (t *Tokenizer) pushHexIntToken(data []rune, isLong bool, start int, end int) {
+	if len(data) == 0 {
+		if isLong {
+			panic("The value  cannot be parsed as a long")
+		} else {
+			panic("The value  cannot be parsed as a int")
+		}
+	}
+
+	if isLong {
+		t.tokens = append(t.tokens, Token{TokenKind{TokenKindType: LITERAL_HEXLONG, TokenChars: []rune(LITERAL_HEXLONG), HasPayload: len([]rune(LITERAL_HEXLONG)) == 0}, string(data), start, end})
+	} else {
+		t.tokens = append(t.tokens, Token{TokenKind{TokenKindType: LITERAL_HEXINT, TokenChars: []rune(LITERAL_HEXINT), HasPayload: len([]rune(LITERAL_HEXINT)) == 0}, string(data), start, end})
+	}
+}
+
+func (t *Tokenizer) pushRealToken(data []rune, isFloat bool, start int, end int) {
+	if isFloat {
+		t.tokens = append(t.tokens, Token{TokenKind{TokenKindType: LITERAL_REAL_FLOAT, TokenChars: []rune(LITERAL_REAL_FLOAT), HasPayload: len([]rune(LITERAL_REAL_FLOAT)) == 0}, string(data), start, end})
+	} else {
+		t.tokens = append(t.tokens, Token{TokenKind{TokenKindType: LITERAL_REAL, TokenChars: []rune(LITERAL_REAL), HasPayload: len([]rune(LITERAL_REAL)) == 0}, string(data), start, end})
+	}
+}
+
+func (t *Tokenizer) subarray(start int, end int) []rune {
+	result := make([]rune, 0)
+	runes := t.charsToProcess[start:end]
+	result = runes
+	return result
 }
