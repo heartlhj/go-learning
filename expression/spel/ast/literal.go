@@ -11,12 +11,5 @@ type GetLiteralValue interface {
 type Literal struct {
 	*SpelNodeImpl
 	OriginalValue string
-}
-
-func (l *Literal) GetValueInternal(expressionState ExpressionState) TypedValue {
-	return l.GetLiteralValue()
-}
-
-func (l *Literal) GetLiteralValue() TypedValue {
-	return l.GetLiteralValue()
+	Value         TypedValue
 }

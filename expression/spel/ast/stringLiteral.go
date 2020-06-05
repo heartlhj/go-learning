@@ -1,14 +1,13 @@
 package ast
 
 import (
-	"go-learning/expression/spel"
+	. "go-learning/expression/spel"
 )
 
 type StringLiteral struct {
 	*Literal
-	Value spel.TypedValue
 }
 
-func (l *StringLiteral) GetLiteralValue() spel.TypedValue {
+func (l StringLiteral) GetValueInternal(expressionState ExpressionState) TypedValue {
 	return l.Value
 }

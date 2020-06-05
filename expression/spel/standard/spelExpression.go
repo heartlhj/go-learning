@@ -6,7 +6,6 @@ import (
 )
 
 type SpelExpression struct {
-	*ExpressionImpl
 	Expression        string
 	Configuration     SpelParserConfiguration
 	EvaluationContext EvaluationContext

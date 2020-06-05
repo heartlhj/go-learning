@@ -8,6 +8,7 @@ import (
 	. "go-learning/expression/spel/ast"
 	. "go-learning/expression/spel/standard"
 	"strconv"
+	"strings"
 )
 
 type InternalSpelExpressionParser struct {
@@ -81,13 +82,13 @@ func (i *InternalSpelExpressionParser) maybeEatRelationalOperator() (Token, erro
 func (i *InternalSpelExpressionParser) eatRelationalExpression() (SpelNode, error) {
 	expr, err := i.eatSumExpression()
 	relationalOperatorToken, err1 := i.maybeEatRelationalOperator()
-	if err1 != nil {
+	if err1 == nil {
 		t := i.takeToken()
 		rhExpr, err3 := i.eatSumExpression()
-		if err == nil {
+		if err != nil {
 			panic("Problem parsing left operand")
 		}
-		if err3 == nil {
+		if err3 != nil {
 			panic("Problem parsing right operand")
 		}
 		kindType := relationalOperatorToken.Kind.TokenKindType
@@ -95,13 +96,14 @@ func (i *InternalSpelExpressionParser) eatRelationalExpression() (SpelNode, erro
 		if relationalOperatorToken.IsNumericRelationalOperator() {
 			pos := toPos(t.StartPos, t.EndPos)
 			if kindType == EQ {
-				eq := OpEQ{}
-				eq.Pos = pos
-				var nodes []SpelNode
-				nodes[0] = expr
-				nodes[1] = rhExpr
-				eq.Children = nodes
-				eq.Parent = &eq
+				nodes := make([]SpelNode, 0)
+				nodes = append(nodes, expr)
+				nodes = append(nodes, rhExpr)
+				spelNodeImpl := SpelNodeImpl{Children: nodes}
+				spelNodeImpl.Pos = pos
+				operator := Operator{SpelNodeImpl: &spelNodeImpl}
+				eq := OpEQ{Operator: &operator}
+				//eq.Parent = &eq
 				return &eq, nil
 			}
 		}
@@ -148,7 +150,7 @@ func (i *InternalSpelExpressionParser) eatUnaryExpression() (SpelNode, error) {
 
 func (i *InternalSpelExpressionParser) eatPrimaryExpression() (SpelNode, error) {
 	node, err := i.eatStartNode()
-	if err != nil {
+	if err == nil {
 		return node, err
 	}
 	return &SpelNodeImpl{}, nil
@@ -174,30 +176,34 @@ func (i *InternalSpelExpressionParser) maybeEatLiteral() bool {
 	if kindType == LITERAL_LONG {
 		value, err := strconv.ParseInt(t.Data, 10, 64)
 		if err != nil {
+			pos := toPos(t.StartPos, t.EndPos)
+			spelNodeImpl := SpelNodeImpl{Pos: pos}
 			typedValue := TypedValue{Value: value}
-			literal := LongLiteral{Value: typedValue}
-			literal.OriginalValue = t.Data
-			literal.Pos = toPos(t.StartPos, t.EndPos)
+			l := Literal{OriginalValue: t.Data, SpelNodeImpl: &spelNodeImpl, Value: typedValue}
+			literal := IntLiteral{Literal: &l}
 			i.push(literal)
 		}
 	} else if kindType == LITERAL_INT {
 		value, err := strconv.ParseInt(t.Data, 10, 64)
 		if err != nil {
+			pos := toPos(t.StartPos, t.EndPos)
+			spelNodeImpl := SpelNodeImpl{Pos: pos}
 			typedValue := TypedValue{Value: value}
-			literal := IntLiteral{Value: typedValue}
-			literal.OriginalValue = t.Data
-			literal.Pos = toPos(t.StartPos, t.EndPos)
+			l := Literal{OriginalValue: t.Data, SpelNodeImpl: &spelNodeImpl, Value: typedValue}
+			literal := IntLiteral{Literal: &l}
 			i.push(literal)
 		}
 	} else if kindType == LITERAL_STRING {
-		value, err := strconv.ParseInt(t.Data, 10, 64)
-		if err != nil {
-			typedValue := TypedValue{Value: value}
-			literal := StringLiteral{Value: typedValue}
-			literal.OriginalValue = t.Data
-			literal.Pos = toPos(t.StartPos, t.EndPos)
-			i.push(literal)
-		}
+		data := t.Data
+		valueWithinQuotes := data[1 : len(data)-1]
+		valueWithinQuotes = strings.ReplaceAll(valueWithinQuotes, "''", "'")
+		valueWithinQuotes = strings.ReplaceAll(valueWithinQuotes, "\"\"", "\"")
+		typedValue := TypedValue{Value: valueWithinQuotes}
+		pos := toPos(t.StartPos, t.EndPos)
+		spelNodeImpl := SpelNodeImpl{Pos: pos}
+		l := Literal{OriginalValue: valueWithinQuotes, SpelNodeImpl: &spelNodeImpl, Value: typedValue}
+		literal := StringLiteral{Literal: &l}
+		i.push(literal)
 	} else {
 		return false
 	}
@@ -216,7 +222,8 @@ func (i *InternalSpelExpressionParser) maybeEatFunctionOrVar() bool {
 	if args == nil {
 		reference := VariableReference{Name: functionOrVariableName.StringValue()}
 		pos := toPos(token.StartPos, functionOrVariableName.EndPos)
-		reference.Pos = pos
+		impl := SpelNodeImpl{Pos: pos}
+		reference.SpelNodeImpl = &impl
 		i.push(reference)
 		return true
 	}
@@ -261,7 +268,7 @@ func (i *InternalSpelExpressionParser) consumeArguments(accumulatedArguments []S
 }
 func (i *InternalSpelExpressionParser) eatExpression() (SpelNode, error) {
 	node, err := i.eatLogicalOrExpression()
-	if err != nil {
+	if err == nil {
 		return node, err
 	}
 	return &SpelNodeImpl{}, nil
@@ -269,7 +276,7 @@ func (i *InternalSpelExpressionParser) eatExpression() (SpelNode, error) {
 
 func (i *InternalSpelExpressionParser) eatLogicalOrExpression() (SpelNode, error) {
 	node, err := i.eatLogicalAndExpression()
-	if err != nil {
+	if err == nil {
 		return node, err
 	}
 	return &SpelNodeImpl{}, nil
@@ -277,7 +284,7 @@ func (i *InternalSpelExpressionParser) eatLogicalOrExpression() (SpelNode, error
 
 func (i *InternalSpelExpressionParser) eatLogicalAndExpression() (SpelNode, error) {
 	node, err := i.eatRelationalExpression()
-	if err != nil {
+	if err == nil {
 		return node, err
 	}
 	return &SpelNodeImpl{}, nil

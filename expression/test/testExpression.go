@@ -12,7 +12,8 @@ func main() {
 	m["name"] = "lisi"
 	context.SetVariables(m)
 	parser := SpelExpressionParser{}
-	parser.ParseExpression("#name=='li'").GetValueContext(&context)
+	valueContext := parser.ParseExpression("#name=='lisi'").GetValueContext(&context)
+	fmt.Println("结果为：", valueContext)
 }
 
 func add(start int, end int) int {

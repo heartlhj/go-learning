@@ -18,3 +18,7 @@ func (o *SpelNodeImpl) GetValueInternal(expressionState ExpressionState) TypedVa
 func (o *SpelNodeImpl) GetValue(expressionState ExpressionState) interface{} {
 	return o.GetValue(expressionState)
 }
+
+func (o *SpelNodeImpl) SetPos(pos int) {
+	o.Pos = pos
+}

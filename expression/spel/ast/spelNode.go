@@ -7,4 +7,5 @@ import (
 type SpelNode interface {
 	GetValue(expressionState ExpressionState) interface{}
 	GetValueInternal(expressionState ExpressionState) TypedValue
+	SetPos(pos int)
 }
