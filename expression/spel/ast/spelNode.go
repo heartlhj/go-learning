@@ -7,5 +7,6 @@ import (
 //表达式对象
 type SpelNode interface {
 	GetValue(expressionState ExpressionState) interface{}
+
 	GetValueInternal(expressionState ExpressionState) TypedValue
 }

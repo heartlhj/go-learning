@@ -5,6 +5,7 @@ import (
 	. "go-learning/expression/support"
 )
 
+//与操作 eg:  "#name=='lisi' && #age>=18"
 type OpAnd struct {
 	*Operator
 }
@@ -14,15 +15,15 @@ func (o *OpAnd) GetValueInternal(expressionState ExpressionState) TypedValue {
 		value := BooleanTypedValue{}
 		return value.ForValue(false)
 	}
-	booleanValue := getBooleanValue(expressionState, o.getLeftOperand())
+	booleanValue := getBooleanValue(expressionState, o.getRightOperand())
 	value := BooleanTypedValue{}
 	return value.ForValue(booleanValue)
 }
 
 func getBooleanValue(state ExpressionState, operand SpelNode) bool {
-	value := operand.GetValue(state)
-	if value == nil {
+	value := operand.GetValueInternal(state)
+	if value.Value == nil {
 		panic("Type conversion problem, cannot convert from [null] to bool")
 	}
-	return value.(bool)
+	return value.Value.(bool)
 }

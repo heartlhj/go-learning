@@ -16,5 +16,5 @@ func (o *SpelNodeImpl) GetValueInternal(expressionState ExpressionState) TypedVa
 }
 
 func (o *SpelNodeImpl) GetValue(expressionState ExpressionState) interface{} {
-	return o.GetValue(expressionState)
+	return o.GetValueInternal(expressionState)
 }
