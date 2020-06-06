@@ -1,8 +1,8 @@
 package expression
 
 import (
+	"container/list"
 	"fmt"
-	. "go-learning/expression/common"
 	. "go-learning/expression/utils"
 	"strings"
 )
@@ -81,8 +81,8 @@ func skipToCorrectEndSuffix(suffix string, expressionString string, afterPrefixI
 	if nextSuffix == -1 {
 		return -1
 	} else {
-		stack := Node{}
-		for pos < maxlen && (!isSuffixHere(expressionString, pos, suffix) || stack.Value != nil) {
+		stack := list.List{}
+		for pos < maxlen && (!isSuffixHere(expressionString, pos, suffix) || stack.Len() != 0) {
 			pos++
 			ch := string(expressionString[pos])
 			switch ch {
@@ -101,21 +101,19 @@ func skipToCorrectEndSuffix(suffix string, expressionString string, afterPrefixI
 			case "{":
 				{
 					var bracket = Bracket{ch, pos}
-
-					node := Node{Value: bracket}
-					Push(node)
+					stack.PushFront(bracket)
 					break
 				}
 			case ")":
 			case "]":
 			case "}":
 				{
-					if stack.Value == nil {
+					if stack.Len() != 0 {
 						fmt.Errorf(expressionString, pos, "Found closing"+ch+"'at postion'"+string(pos)+
 							" without an opening"+theOpenBracketFor(ch)+"")
 					}
-					pop, b := Pop(&stack)
-					if b {
+					pop := stack.Front().Value
+					if pop != nil {
 						bracket := pop.(Bracket)
 						closeBracket := bracket.compatibleWithCloseBracket(ch)
 						if !closeBracket {
@@ -126,9 +124,8 @@ func skipToCorrectEndSuffix(suffix string, expressionString string, afterPrefixI
 			}
 
 		}
-		//stack := Node{}
-		if stack.Value != nil {
-			pop, _ := Pop(&stack)
+		if stack.Len() != 0 {
+			pop := stack.Front().Value
 			fmt.Errorf(expressionString, pop.(Bracket).pos, "Missing closing"+theCloseBracketFor(pop.(Bracket).bracket)+"'for'"+
 				pop.(Bracket).bracket+"'at postion'"+string(pop.(Bracket).pos))
 		} else {

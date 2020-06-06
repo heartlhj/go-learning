@@ -2,15 +2,17 @@ package main
 
 import (
 	"github.com/julienschmidt/httprouter"
+	. "go-learning/workflow/web"
+
 	"log"
 	"net/http"
 )
 
 func RegisterHandler() *httprouter.Router {
 	router := httprouter.New()
-	router.GET("/", index)
-	router.POST("/import", create)
-	router.POST("/select", query)
+	router.GET("/", Index)
+	router.POST("/import", Create)
+	router.POST("/select", Query)
 	return router
 }
 

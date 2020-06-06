@@ -13,7 +13,7 @@ func main() {
 	m["name"] = 200
 	context.SetVariables(m)
 	parser := SpelExpressionParser{}
-	valueContext := parser.ParseExpression("#name <= 700").GetValueContext(&context)
+	valueContext := parser.ParseExpression("#name <= 1000").GetValueContext(&context)
 	fmt.Println("结果为：", valueContext)
 }
 

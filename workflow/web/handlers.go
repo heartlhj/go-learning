@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ const (
 	MAX_UPLOAD_SIZE = 50 * 1024 * 1024 // 文件大小 50MB
 )
 
-func index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	t, e := template.ParseFiles("workflow\\templates\\index.html")
 	if e != nil {
 		log.Printf("Parsing template index.htmlerror: %s", e)
@@ -27,7 +27,7 @@ func index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 }
 
-func create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	r.Body = http.MaxBytesReader(w, r.Body, MAX_UPLOAD_SIZE)
 	if err := r.ParseMultipartForm(MAX_UPLOAD_SIZE); err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, "File is too big")
@@ -68,7 +68,7 @@ func create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	sendNormalResponse(w, string(xmlOutPutData), 201)
 }
 
-func query(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func Query(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	name := r.FormValue("nameCode")
 	bytearries, err2 := dbops.Select(name, "nil")
 	dbErr := err2

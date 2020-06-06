@@ -289,6 +289,11 @@ func (t *Tokenizer) lexIdentifier() {
 func (t *Tokenizer) lexNumericLiteral(firstCharIsZero bool) {
 	isReal := false
 	start := t.pos
+	if start == t.max-1 {
+		t.pos++
+		t.pushIntToken(t.subarray(start, t.pos), false, start, t.pos)
+		return
+	}
 	ch := t.charsToProcess[t.pos+1]
 	//处理16进制
 	isHex := ch == 'x' || ch == 'X'

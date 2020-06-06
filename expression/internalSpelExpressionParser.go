@@ -36,6 +36,7 @@ func (i *InternalSpelExpressionParser) DoParseExpression(expressionString string
 	i.tokenStream = tokenizer.Process()
 	i.tokenStreamLength = len(i.tokenStream)
 	i.tokenStreamPointer = 0
+	i.constructedNodes.Init()
 	expression, err := i.eatExpression()
 	if err != nil {
 		panic("No node")
@@ -266,11 +267,11 @@ func toPos(start int, end int) int {
 }
 
 func (i *InternalSpelExpressionParser) push(newNode SpelNode) {
-	i.constructedNodes.PushBack(newNode)
+	i.constructedNodes.PushFront(newNode)
 }
 
 func (i *InternalSpelExpressionParser) pop() SpelNode {
-	return i.constructedNodes.Back().Value.(SpelNode)
+	return i.constructedNodes.Front().Value.(SpelNode)
 }
 
 func (i *InternalSpelExpressionParser) maybeEatMethodArgs() []SpelNodeImpl {
