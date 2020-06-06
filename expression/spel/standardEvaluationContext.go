@@ -13,6 +13,6 @@ func (s *StandardEvaluationContext) SetVariables(var2 map[string]interface{}) {
 	s.Variables = var2
 }
 
-func (s *StandardEvaluationContext) LookupVariable(name string) interface{} {
+func (s StandardEvaluationContext) LookupVariable(name string) interface{} {
 	return s.Variables[name]
 }

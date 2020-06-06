@@ -14,7 +14,7 @@ func (o *OpLT) GetValueInternal(expressionState ExpressionState) TypedValue {
 	value := support.BooleanTypedValue{}
 	left := o.getLeftOperand().GetValueInternal(expressionState).Value
 	right := o.getRightOperand().GetValueInternal(expressionState).Value
-	checkType := o.checkType(left, right)
+	checkType := checkType(left, right)
 	if !checkType {
 		return value.ForValue(checkType)
 	}
