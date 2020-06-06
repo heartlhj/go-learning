@@ -10,10 +10,10 @@ import (
 func main() {
 	context := spel.StandardEvaluationContext{}
 	m := make(map[string]interface{})
-	m["name"] = 200
+	m["name"] = 2.3
 	context.SetVariables(m)
 	parser := SpelExpressionParser{}
-	valueContext := parser.ParseExpression("#name <= 1000").GetValueContext(&context)
+	valueContext := parser.ParseExpression("#name>=2.3").GetValueContext(&context)
 	fmt.Println("结果为：", valueContext)
 }
 

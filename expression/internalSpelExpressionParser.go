@@ -225,6 +225,16 @@ func (i *InternalSpelExpressionParser) maybeEatLiteral() bool {
 			literal := IntLiteral{Literal: &l}
 			i.push(literal)
 		}
+	} else if kindType == LITERAL_REAL {
+		value, err := strconv.ParseFloat(t.Data, 64)
+		if err == nil {
+			pos := toPos(t.StartPos, t.EndPos)
+			spelNodeImpl := SpelNodeImpl{Pos: pos}
+			typedValue := TypedValue{Value: value}
+			l := Literal{OriginalValue: t.Data, SpelNodeImpl: &spelNodeImpl, Value: typedValue}
+			literal := FloatLiteral{Literal: &l}
+			i.push(literal)
+		}
 	} else if kindType == LITERAL_STRING {
 		data := t.Data
 		valueWithinQuotes := data[1 : len(data)-1]

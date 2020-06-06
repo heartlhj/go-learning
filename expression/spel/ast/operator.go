@@ -29,3 +29,12 @@ func (s *SpelNodeImpl) equalityCheck(left interface{}, right interface{}) bool {
 	}
 	return false
 }
+
+func (s *SpelNodeImpl) checkType(left interface{}, right interface{}) bool {
+	leftType := reflect.TypeOf(left)
+	rightType := reflect.TypeOf(right)
+	if leftType.String() != rightType.String() {
+		return false
+	}
+	return true
+}

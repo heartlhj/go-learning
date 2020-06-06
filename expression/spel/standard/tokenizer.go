@@ -269,7 +269,7 @@ func isHexadecimalDigit(ch rune) bool {
 func (t *Tokenizer) lexIdentifier() {
 	start := t.pos
 	t.pos++
-	for isIdentifier(t.charsToProcess[t.pos]) {
+	for t.pos < t.max && isIdentifier(t.charsToProcess[t.pos]) {
 		t.pos++
 	}
 	runes := t.charsToProcess[start:t.pos]
@@ -310,77 +310,77 @@ func (t *Tokenizer) lexNumericLiteral(firstCharIsZero bool) {
 			t.pushHexIntToken(t.subarray(start+2, t.pos), false, start, t.pos)
 		}
 		return
-	}
-	t.pos++
-	//迭代数字
-	for isDigit(t.charsToProcess[t.pos]) && t.pos < t.max-1 {
+	} else {
 		t.pos++
-	}
-	if t.pos == t.max-1 {
-		t.pos++
-		t.pushIntToken(t.subarray(start, t.pos), false, start, t.pos)
-		return
-	}
-	t.pos++
-	ch = t.charsToProcess[t.pos]
-	if ch == '.' {
-		isReal = true
-		dotpos := t.pos
-		t.pos++
+		//迭代数字
 		for isDigit(t.charsToProcess[t.pos]) && t.pos < t.max-1 {
 			t.pos++
 		}
-		if t.pos == dotpos {
-			t.pos = dotpos
+		if t.pos == t.max-1 {
+			t.pos++
 			t.pushIntToken(t.subarray(start, t.pos), false, start, t.pos)
 			return
 		}
-	}
-	endOfNumber := t.pos
-	if t.isChar('L', 'l') {
-		if isReal {
-			panic("Real number cannot be suffixed with a long (L or l) suffix")
-		}
-		t.pushIntToken(t.subarray(start, endOfNumber), true, start, endOfNumber)
-		t.pos++
-	} else if t.isExponentChar(t.charsToProcess[t.pos]) {
-		isReal = true
-		t.pos++
-		possibleSign := t.charsToProcess[t.pos]
-		if t.isSign(possibleSign) {
-			t.pos++
-		}
-		t.pos++
-		for isDigit(t.charsToProcess[t.pos]) && t.pos < t.max-1 {
-			t.pos++
-		}
-		isFloat := false
-		if t.isFloatSuffix(t.charsToProcess[t.pos]) {
-			isFloat = true
-			t.pos++
-			endOfNumber = t.pos
-		} else if t.isDoubleSuffix(t.charsToProcess[t.pos]) {
-			t.pos++
-			endOfNumber = t.pos
-		}
-		t.pushRealToken(t.subarray(start, t.pos), isFloat, start, t.pos)
-	} else {
-		ch := t.charsToProcess[t.pos]
-		isFloat := false
-		if t.isFloatSuffix(ch) {
+		ch = t.charsToProcess[t.pos]
+		endOfNumber := t.pos
+		if ch == '.' {
 			isReal = true
-			isFloat = true
-			t.pos++
 			endOfNumber = t.pos
-		} else if t.isDoubleSuffix(ch) {
+			t.pos++
+			for isDigit(t.charsToProcess[t.pos]) && t.pos < t.max-1 {
+				t.pos++
+			}
+			if t.pos == endOfNumber {
+				t.pos = endOfNumber
+				t.pushIntToken(t.subarray(start, t.pos), false, start, t.pos)
+				return
+			}
+		}
+		endOfNumber = t.pos
+		if t.isChar('L', 'l') {
+			if isReal {
+				panic("Real number cannot be suffixed with a long (L or l) suffix")
+			}
+			t.pushIntToken(t.subarray(start, endOfNumber), true, start, endOfNumber)
+			t.pos++
+		} else if t.isExponentChar(t.charsToProcess[t.pos]) {
 			isReal = true
 			t.pos++
-			endOfNumber = t.pos
-		}
-		if isReal {
-			t.pushRealToken(t.subarray(start, endOfNumber), isFloat, start, endOfNumber)
+			possibleSign := t.charsToProcess[t.pos]
+			if t.isSign(possibleSign) {
+				t.pos++
+			}
+			t.pos++
+			for isDigit(t.charsToProcess[t.pos]) && t.pos < t.max-1 {
+				t.pos++
+			}
+			isFloat := false
+			if t.isFloatSuffix(t.charsToProcess[t.pos]) {
+				isFloat = true
+				t.pos++
+				endOfNumber = t.pos
+			} else if t.isDoubleSuffix(t.charsToProcess[t.pos]) {
+				t.pos++
+				endOfNumber = t.pos
+			}
+			t.pushRealToken(t.subarray(start, t.pos), isFloat, start, t.pos)
 		} else {
-			t.pushIntToken(t.subarray(start, endOfNumber), false, start, endOfNumber)
+			ch := t.charsToProcess[t.pos]
+			isFloat := false
+			if t.isFloatSuffix(ch) {
+				isReal = true
+				isFloat = true
+
+			} else if t.isDoubleSuffix(ch) {
+				isReal = true
+			}
+			t.pos++
+			endOfNumber = t.pos
+			if isReal {
+				t.pushRealToken(t.subarray(start, endOfNumber), isFloat, start, endOfNumber)
+			} else {
+				t.pushIntToken(t.subarray(start, endOfNumber), false, start, endOfNumber)
+			}
 		}
 	}
 }

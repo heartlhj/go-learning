@@ -11,14 +11,26 @@ type OpLE struct {
 }
 
 func (o *OpLE) GetValueInternal(expressionState ExpressionState) TypedValue {
+	value := support.BooleanTypedValue{}
 	left := o.getLeftOperand().GetValueInternal(expressionState).Value
 	right := o.getRightOperand().GetValueInternal(expressionState).Value
+	checkType := o.checkType(left, right)
+	if !checkType {
+		return value.ForValue(checkType)
+	}
 	o.leftActualDescriptor = o.toDescriptorFromObject(left)
 	o.rightActualDescriptor = o.toDescriptorFromObject(right)
-
-	leftV := left.(int)
-	rightV := right.(int)
-	check := leftV <= rightV
-	value := support.BooleanTypedValue{}
+	var check bool
+	leftV, ok := left.(int)
+	if ok {
+		rightV := right.(int)
+		check = leftV <= rightV
+	} else {
+		leftV, ok := left.(float64)
+		if ok {
+			rightV := right.(float64)
+			check = leftV <= rightV
+		}
+	}
 	return value.ForValue(check)
 }
