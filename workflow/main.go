@@ -1,8 +1,8 @@
 package main
 
 import (
+	. "github.com/heartlhj/go-learning/workflow/web"
 	"github.com/julienschmidt/httprouter"
-	. "go-learning/workflow/web"
 
 	"log"
 	"net/http"

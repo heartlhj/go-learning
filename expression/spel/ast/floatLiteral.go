@@ -1,7 +1,7 @@
 package ast
 
 import (
-	. "go-learning/expression/spel"
+	. "github.com/heartlhj/go-learning/expression/spel"
 )
 
 // Float64 类型

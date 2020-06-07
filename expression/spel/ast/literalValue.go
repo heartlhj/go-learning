@@ -1,6 +1,6 @@
 package ast
 
-import . "go-learning/expression/spel"
+import . "github.com/heartlhj/go-learning/expression/spel"
 
 type LiteralValue struct {
 	*SpelNodeImpl

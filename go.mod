@@ -1,4 +1,4 @@
-module go-learning
+module github.com/heartlhj/go-learning
 
 go 1.12
 

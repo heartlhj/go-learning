@@ -1,7 +1,7 @@
 package ast
 
 import (
-	. "go-learning/expression/spel"
+	. "github.com/heartlhj/go-learning/expression/spel"
 )
 
 //表达式对象

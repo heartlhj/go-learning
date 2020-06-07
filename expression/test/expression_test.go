@@ -2,8 +2,8 @@ package test
 
 import (
 	"fmt"
-	. "go-learning/expression"
-	"go-learning/expression/spel"
+	. "github.com/heartlhj/go-learning/expression"
+	"github.com/heartlhj/go-learning/expression/spel"
 	"testing"
 )
 

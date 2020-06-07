@@ -1,8 +1,8 @@
 package standard
 
 import (
-	. "go-learning/expression/spel"
-	. "go-learning/expression/spel/ast"
+	. "github.com/heartlhj/go-learning/expression/spel"
+	. "github.com/heartlhj/go-learning/expression/spel/ast"
 )
 
 type SpelExpression struct {

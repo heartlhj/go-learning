@@ -1,8 +1,8 @@
 package ast
 
 import (
-	. "go-learning/expression/spel"
-	"go-learning/expression/support"
+	. "github.com/heartlhj/go-learning/expression/spel"
+	"github.com/heartlhj/go-learning/expression/support"
 )
 
 type OpEQ struct {

@@ -1,7 +1,7 @@
 package support
 
 import (
-	"go-learning/expression/spel"
+	"github.com/heartlhj/go-learning/expression/spel"
 )
 
 type BooleanTypedValue struct {

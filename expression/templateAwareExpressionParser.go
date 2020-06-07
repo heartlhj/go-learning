@@ -3,7 +3,7 @@ package expression
 import (
 	"container/list"
 	"fmt"
-	. "go-learning/expression/utils"
+	. "github.com/heartlhj/go-learning/expression/utils"
 	"strings"
 )
 
