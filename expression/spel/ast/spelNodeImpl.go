@@ -11,10 +11,21 @@ type SpelNodeImpl struct {
 	exitTypeDescriptor string
 }
 
-func (o *SpelNodeImpl) GetValueInternal(expressionState ExpressionState) TypedValue {
-	return o.GetValueInternal(expressionState)
+func (this SpelNodeImpl) GetValueInternal(expressionState ExpressionState) TypedValue {
+	return this.GetValueInternal(expressionState)
 }
 
-func (o *SpelNodeImpl) GetValue(expressionState ExpressionState) interface{} {
-	return o.GetValueInternal(expressionState)
+func (this SpelNodeImpl) GetValue(expressionState ExpressionState) interface{} {
+	return this.GetValueInternal(expressionState)
+}
+
+func (this SpelNodeImpl) GetValueRef(state ExpressionState) ValueRef {
+	return nil
+}
+func (this SpelNodeImpl) GetStartPosition() int {
+	return this.Pos >> 16
+}
+
+func (this SpelNodeImpl) GetEndPosition() int {
+	return this.Pos & 0xffff
 }

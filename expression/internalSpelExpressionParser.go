@@ -2,11 +2,11 @@ package expression
 
 import (
 	"container/list"
-	"fmt"
 	. "github.com/heartlhj/go-learning/expression/err"
 	. "github.com/heartlhj/go-learning/expression/spel"
 	. "github.com/heartlhj/go-learning/expression/spel/ast"
 	. "github.com/heartlhj/go-learning/expression/spel/standard"
+	"reflect"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -47,7 +47,7 @@ func (i *InternalSpelExpressionParser) DoParseExpression(expressionString string
 
 func (i *InternalSpelExpressionParser) takeToken() Token {
 	if i.tokenStreamPointer >= i.tokenStreamLength {
-		fmt.Errorf("No token")
+		panic("No token")
 	}
 	token := i.tokenStream[i.tokenStreamPointer]
 	i.tokenStreamPointer++
@@ -73,12 +73,13 @@ func (i *InternalSpelExpressionParser) peekToken() (Token, error) {
 
 func (i *InternalSpelExpressionParser) maybeEatRelationalOperator() (Token, error) {
 	token, err := i.peekToken()
-	if err != nil {
+	//BUG修复 token不为空时处理
+	if err == nil {
 		if token.IsNumericRelationalOperator() {
 			return token, nil
 		}
 	}
-	return token, err
+	return token, ExpressionErr{}
 }
 
 func (i *InternalSpelExpressionParser) eatRelationalExpression() (SpelNode, error) {
@@ -177,23 +178,35 @@ func (i *InternalSpelExpressionParser) eatUnaryExpression() (SpelNode, error) {
 }
 
 func (i *InternalSpelExpressionParser) eatPrimaryExpression() (SpelNode, error) {
-	node, err := i.eatStartNode()
-	if err == nil {
-		return node, err
+	start, err := i.eatStartNode()
+	node, err := i.eatNode()
+	var nodes []SpelNode
+	for node != nil {
+		if nodes == nil {
+			nodes = append(nodes, start)
+
+		}
+		nodes = append(nodes, node)
+		node, _ = i.eatNode()
 	}
-	return &SpelNodeImpl{}, nil
+	if start == nil || len(nodes) == 0 {
+		return start, err
+	}
+	impl := SpelNodeImpl{Pos: toPos(start.GetStartPosition(), nodes[len(nodes)-1].GetEndPosition()), Children: nodes}
+	expression := CompoundExpression{&impl}
+	return &expression, nil
 }
 
 func (i *InternalSpelExpressionParser) eatStartNode() (SpelNode, error) {
 
 	if i.maybeEatLiteral() {
 		return i.pop(), nil
-	}
-
-	if i.maybeEatFunctionOrVar() {
+	} else if i.maybeEatFunctionOrVar() {
+		return i.pop(), nil
+	} else if i.maybeEatIndexer() {
 		return i.pop(), nil
 	}
-	return &SpelNodeImpl{}, nil
+	return nil, nil
 }
 func (i *InternalSpelExpressionParser) maybeEatLiteral() bool {
 	t, err := i.peekToken()
@@ -235,6 +248,16 @@ func (i *InternalSpelExpressionParser) maybeEatLiteral() bool {
 			literal := FloatLiteral{Literal: &l}
 			i.push(literal)
 		}
+	} else if kindType == LITERAL_REAL_FLOAT {
+		value, err := strconv.ParseFloat(t.Data, 64)
+		if err == nil {
+			pos := toPos(t.StartPos, t.EndPos)
+			spelNodeImpl := SpelNodeImpl{Pos: pos}
+			typedValue := TypedValue{Value: value}
+			l := Literal{OriginalValue: t.Data, SpelNodeImpl: &spelNodeImpl, Value: typedValue}
+			literal := FloatLiteral{Literal: &l}
+			i.push(literal)
+		}
 	} else if kindType == LITERAL_STRING {
 		data := t.Data
 		valueWithinQuotes := data[1 : len(data)-1]
@@ -255,7 +278,7 @@ func (i *InternalSpelExpressionParser) maybeEatLiteral() bool {
 
 func (i *InternalSpelExpressionParser) maybeEatFunctionOrVar() bool {
 	if !i.peekTokenOnly(HASH) {
-		return true
+		return false
 	}
 	token := i.takeToken()
 
@@ -270,6 +293,69 @@ func (i *InternalSpelExpressionParser) maybeEatFunctionOrVar() bool {
 		return true
 	}
 	return true
+}
+
+func (i *InternalSpelExpressionParser) maybeEatMethodOrProperty(nullSafeNavigation bool) bool {
+	if i.peekTokenOnly(IDENTIFIER) {
+		methodOrPropertyName := i.takeToken()
+		impl := SpelNodeImpl{Pos: toPos(methodOrPropertyName.StartPos, methodOrPropertyName.EndPos)}
+		i.push(PropertyOrFieldReference{NullSafe: nullSafeNavigation, Name: methodOrPropertyName.Data, SpelNodeImpl: &impl})
+		return true
+	}
+	return false
+}
+
+func (i *InternalSpelExpressionParser) maybeEatIndexer() bool {
+
+	/*DOTO 后续完善*/
+	token, err := i.peekToken()
+	if !i.peekTokenMatched(LSQUARE, true) {
+		return false
+	}
+	equal := reflect.DeepEqual(token, Token{})
+
+	if equal {
+		panic("No token")
+	}
+	expr, err := i.eatExpression()
+	if err != nil {
+		panic("No node")
+	}
+	i.eatToken(RSQUARE)
+	impl := SpelNodeImpl{Pos: toPos(token.StartPos, token.EndPos), Children: []SpelNode{expr}}
+	i.push(Indexer{SpelNodeImpl: &impl})
+	return true
+}
+
+func (i *InternalSpelExpressionParser) eatNode() (SpelNode, error) {
+	two := i.peekTokenTwo(DOT, SAFE_NAVI)
+	if two {
+		return i.eatDottedNode(), nil
+	}
+	return i.eatNonDottedNode(), nil
+}
+
+//包含"."
+func (i *InternalSpelExpressionParser) eatDottedNode() SpelNode {
+	t := i.takeToken()
+	nullSafeNavigation := t.Kind.TokenKindType == SAFE_NAVI
+	if i.maybeEatMethodOrProperty(nullSafeNavigation) || i.maybeEatFunctionOrVar() {
+		return i.pop()
+	}
+	if _, err := i.peekToken(); err != nil {
+		panic("Unexpectedly ran out of input")
+	} else {
+		panic("Unexpected data after ''.'': ''{0}''")
+	}
+}
+
+func (i *InternalSpelExpressionParser) eatNonDottedNode() SpelNode {
+	if i.peekTokenOnly(LSQUARE) {
+		if i.maybeEatIndexer() {
+			return i.pop()
+		}
+	}
+	return nil
 }
 
 func toPos(start int, end int) int {
@@ -309,11 +395,16 @@ func (i *InternalSpelExpressionParser) consumeArguments(accumulatedArguments []S
 
 }
 func (i *InternalSpelExpressionParser) eatExpression() (SpelNode, error) {
-	node, err := i.eatLogicalOrExpression()
+	expr, _ := i.eatLogicalOrExpression()
+	_, err := i.peekToken()
 	if err == nil {
-		return node, err
+
 	}
-	return &SpelNodeImpl{}, nil
+	//bug修复
+	if expr == nil {
+		return nil, nil
+	}
+	return expr, nil
 }
 
 func (i *InternalSpelExpressionParser) eatLogicalOrExpression() (SpelNode, error) {
@@ -374,6 +465,24 @@ func (i *InternalSpelExpressionParser) peekTokenOnly(possible1 TokenKindType) bo
 		return false
 	}
 	return token.Kind.TokenKindType == possible1
+}
+
+func (i *InternalSpelExpressionParser) peekTokenMatched(desiredTokenKind TokenKindType, consumeIfMatched bool) bool {
+	token, err := i.peekToken()
+	if err != nil {
+		return false
+	}
+	if token.Kind.TokenKindType == desiredTokenKind {
+		if consumeIfMatched {
+			i.tokenStreamPointer++
+		}
+		return true
+	}
+	if desiredTokenKind == IDENTIFIER {
+		return true
+
+	}
+	return false
 }
 
 func (i *InternalSpelExpressionParser) peekTokenTwo(possible1 TokenKindType, possible2 TokenKindType) bool {

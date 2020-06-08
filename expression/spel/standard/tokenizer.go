@@ -75,6 +75,24 @@ func (t *Tokenizer) Process() []Token {
 					t.pushCharToken(TokenKind{TokenKindType: MINUS, TokenChars: []rune(MINUS), HasPayload: len([]rune(MINUS)) == 0})
 				}
 				break
+			case ":":
+				t.pushCharToken(TokenKind{TokenKindType: COLON, TokenChars: []rune(COLON), HasPayload: len([]rune(COLON)) == 0})
+				break
+			case ".":
+				t.pushCharToken(TokenKind{TokenKindType: DOT, TokenChars: []rune(DOT), HasPayload: len([]rune(DOT)) == 0})
+				break
+			case ",":
+				t.pushCharToken(TokenKind{TokenKindType: COMMA, TokenChars: []rune(COMMA), HasPayload: len([]rune(COMMA)) == 0})
+				break
+			case "*":
+				t.pushCharToken(TokenKind{TokenKindType: STAR, TokenChars: []rune(STAR), HasPayload: len([]rune(STAR)) == 0})
+				break
+			case "/":
+				t.pushCharToken(TokenKind{TokenKindType: DIV, TokenChars: []rune(DIV), HasPayload: len([]rune(DIV)) == 0})
+				break
+			case "%":
+				t.pushCharToken(TokenKind{TokenKindType: MOD, TokenChars: []rune(MOD), HasPayload: len([]rune(MOD)) == 0})
+				break
 			case "(":
 				t.pushCharToken(TokenKind{TokenKindType: LPAREN, TokenChars: []rune(LPAREN), HasPayload: len([]rune(LPAREN)) == 0})
 				break
@@ -370,12 +388,18 @@ func (t *Tokenizer) lexNumericLiteral(firstCharIsZero bool) {
 			if t.isFloatSuffix(ch) {
 				isReal = true
 				isFloat = true
-
+				t.pos++
+				endOfNumber = t.pos
 			} else if t.isDoubleSuffix(ch) {
 				isReal = true
+				t.pos++
+				endOfNumber = t.pos
 			}
-			t.pos++
-			endOfNumber = t.pos
+			if t.pos == t.max-1 {
+				t.pos++
+				endOfNumber = t.pos
+			}
+
 			if isReal {
 				t.pushRealToken(t.subarray(start, endOfNumber), isFloat, start, endOfNumber)
 			} else {

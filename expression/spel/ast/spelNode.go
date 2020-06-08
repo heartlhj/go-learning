@@ -9,4 +9,10 @@ type SpelNode interface {
 	GetValue(expressionState ExpressionState) interface{}
 
 	GetValueInternal(expressionState ExpressionState) TypedValue
+
+	GetValueRef(state ExpressionState) ValueRef
+
+	GetStartPosition() int
+
+	GetEndPosition() int
 }

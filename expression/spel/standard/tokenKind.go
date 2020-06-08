@@ -27,6 +27,7 @@ const (
 
 	STAR TokenKindType = "*"
 
+	DIV     TokenKindType = "/"
 	GE      TokenKindType = ">="
 	GT      TokenKindType = ">"
 	LE      TokenKindType = "<="

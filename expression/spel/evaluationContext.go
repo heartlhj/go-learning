@@ -7,4 +7,6 @@ type EvaluationContext interface {
 	SetVariables(var2 map[string]interface{})
 
 	LookupVariable(name string) interface{}
+
+	GetPropertyAccessors() []PropertyAccessor
 }
