@@ -56,7 +56,7 @@ func (i *InternalSpelExpressionParser) takeToken() Token {
 
 func (i *InternalSpelExpressionParser) nextToken() (Token, error) {
 	if i.tokenStreamPointer >= i.tokenStreamLength {
-		return Token{}, ExpressionErr{Code: "123", Msg: "321"}
+		return Token{}, ExpressionErr{}
 	}
 	token := i.tokenStream[i.tokenStreamPointer]
 	i.tokenStreamPointer++
@@ -65,7 +65,7 @@ func (i *InternalSpelExpressionParser) nextToken() (Token, error) {
 
 func (i *InternalSpelExpressionParser) peekToken() (Token, error) {
 	if i.tokenStreamPointer >= i.tokenStreamLength {
-		return Token{}, ExpressionErr{Code: "123", Msg: "321"}
+		return Token{}, ExpressionErr{}
 	}
 	token := i.tokenStream[i.tokenStreamPointer]
 	return token, nil
@@ -307,7 +307,7 @@ func (i *InternalSpelExpressionParser) maybeEatMethodOrProperty(nullSafeNavigati
 
 func (i *InternalSpelExpressionParser) maybeEatIndexer() bool {
 
-	/*DOTO 后续完善*/
+	//bug修复 获取token提前，否则报越界
 	token, err := i.peekToken()
 	if !i.peekTokenMatched(LSQUARE, true) {
 		return false

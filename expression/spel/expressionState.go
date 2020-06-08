@@ -27,7 +27,7 @@ func (this *ExpressionState) PushActiveContextObject(obj TypedValue) {
 	this.ContextObjects.PushFront(obj)
 }
 
-func (this *ExpressionState) PopActiveContextObject(obj TypedValue) {
+func (this *ExpressionState) PopActiveContextObject() {
 	front := this.ContextObjects.Front()
 	this.ContextObjects.Remove(front)
 }
@@ -38,4 +38,8 @@ func (this *ExpressionState) GetActiveContextObject() TypedValue {
 
 func (this *ExpressionState) GetEvaluationContext() EvaluationContext {
 	return this.RelatedContext
+}
+
+func (this *ExpressionState) GetRootContextObject() TypedValue {
+	return this.RootObject
 }

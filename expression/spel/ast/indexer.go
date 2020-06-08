@@ -12,10 +12,35 @@ type Indexer struct {
 }
 
 func (this Indexer) GetValueRef(state ExpressionState) ValueRef {
-	//context := state.GetActiveContextObject()
-	//target := context.Value
-	//targetDescriptor := context.GetTypeDescriptor()
+	context := state.GetActiveContextObject()
+	target := context.Value
+	targetDescriptor := context.GetTypeDescriptor()
+	var indexValue TypedValue
+	var index interface{}
+	_, ok := target.(map[interface{}]interface{})
+	reference, isOK := this.Children[0].(PropertyOrFieldReference)
+	if ok && isOK {
+		index = reference.Name
+		indexValue = TypedValue{Value: index}
+	} else {
+		defer state.PopActiveContextObject()
+		state.PushActiveContextObject(state.GetRootContextObject())
+		indexValue = this.Children[0].GetValueInternal(state)
+		index = indexValue.Value
+		if index == nil {
+			panic("No index")
+		}
+	}
 
+	if target == nil {
+		panic("Cannot index into a null value")
+	}
+	_, okArr := target.([]interface{})
+	if okArr {
+		var key interface{}
+		key = index
+
+	}
 	return nil
 }
 
