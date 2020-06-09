@@ -20,7 +20,10 @@ func TestIndex(t *testing.T) {
 	m["name"] = "lisi"
 	m["age"] = 18
 	m1 := make(map[string]interface{})
-	orders := make([]Order, 2)
+	//切片
+	//orders := make([]Order, 2)
+	//数组
+	orders := [2]Order{}
 	orders[0] = Order{name: "lisi", age: 12}
 	orders[1] = Order{name: "wang", age: 24}
 	m1["code"] = orders
