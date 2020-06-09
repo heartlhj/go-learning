@@ -27,11 +27,11 @@ func TestIndex(t *testing.T) {
 	m["order"] = m1
 	context.SetVariables(m)
 	parser := SpelExpressionParser{}
-	valueContext := parser.ParseExpression("#order.code[0].age==12").GetValueContext(&context)
+	valueContext := parser.ParseExpression("#order.code[0].name=='lisi'").GetValueContext(&context)
 	fmt.Println("结果为：", valueContext)
 }
 
-//测试符合属性，对象里的字段
+//测试复合属性，对象里的字段
 func TestCompound(t *testing.T) {
 	context := spel.StandardEvaluationContext{}
 	context.AddPropertyAccessor(spel.MapAccessor{})

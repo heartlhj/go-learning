@@ -1,5 +1,7 @@
 package spel
 
+import "reflect"
+
 type MapAccessor struct {
 }
 
@@ -18,4 +20,8 @@ func (this MapAccessor) Read(context EvaluationContext, target interface{}, name
 		panic("Map does not contain a value for key")
 	}
 	return TypedValue{Value: value}
+}
+
+func (this MapAccessor) GetSpecificTargetClasses() interface{} {
+	return reflect.Map
 }

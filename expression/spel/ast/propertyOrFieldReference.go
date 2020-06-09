@@ -2,8 +2,10 @@ package ast
 
 import (
 	. "github.com/heartlhj/go-learning/expression/spel"
+	"reflect"
 )
 
+//对象属性处理
 type PropertyOrFieldReference struct {
 	*SpelNodeImpl
 	NullSafe                            bool
@@ -41,13 +43,35 @@ func (this PropertyOrFieldReference) getValueInternal(contextObject TypedValue, 
 }
 
 func (this PropertyOrFieldReference) readProperty(contextObject TypedValue, evalContext EvaluationContext, name string) TypedValue {
-	accessors := evalContext.GetPropertyAccessors()
+	accessors := getPropertyAccessorsToTry(contextObject.Value, evalContext.GetPropertyAccessors())
 	for _, accessor := range accessors {
-		_, ok := accessor.(ReflectivePropertyAccessor)
-		if !ok {
-			this.CachedReadAccessor = accessor
-			return accessor.Read(evalContext, contextObject.Value, name)
-		}
+		this.CachedReadAccessor = accessor
+		return accessor.Read(evalContext, contextObject.Value, name)
 	}
 	return TypedValue{}
+}
+
+func getPropertyAccessorsToTry(contextObject interface{}, propertyAccessors []PropertyAccessor) []PropertyAccessor {
+	var targetType reflect.Kind
+	if contextObject != nil {
+		targetType = reflect.TypeOf(contextObject).Kind()
+	}
+	var specificAccessors []PropertyAccessor
+	var generalAccessors []PropertyAccessor
+	for _, accessor := range propertyAccessors {
+		classes := accessor.GetSpecificTargetClasses()
+		if classes == nil {
+			generalAccessors = append(generalAccessors, accessor)
+		} else {
+			//是否是子类
+			if classes == targetType {
+				generalAccessors = append(specificAccessors, accessor)
+			} else {
+				specificAccessors = append(generalAccessors, accessor)
+			}
+		}
+	}
+	var resolvers []PropertyAccessor
+	resolvers = generalAccessors
+	return resolvers
 }
