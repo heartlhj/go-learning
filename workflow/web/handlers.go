@@ -3,7 +3,9 @@ package web
 import (
 	"encoding/json"
 	"encoding/xml"
-	dbops "github.com/heartlhj/go-learning/workflow/db"
+	. "github.com/heartlhj/go-learning/workflow/converter"
+	"github.com/heartlhj/go-learning/workflow/mapper"
+	"github.com/heartlhj/go-learning/workflow/model"
 	"github.com/julienschmidt/httprouter"
 	"html/template"
 	"io/ioutil"
@@ -21,7 +23,7 @@ func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		log.Printf("Parsing template index.htmlerror: %s", e)
 		return
 	}
-	var bytearry = &dbops.Bytearry{Name: "你好"}
+	var bytearry = &model.Bytearry{Name: "你好"}
 	t.Execute(w, bytearry)
 	return
 
@@ -42,21 +44,21 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 	body, err := ioutil.ReadAll(file)
 	//保存数据
-	dbErr := dbops.CreateByteArry(string(name), string(body))
+	dbErr := mapper.CreateByteArry(string(name), string(body))
 	if dbErr != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, "创建数据异常")
 		return
 	}
 	//解析xml数据
-	data := new(dbops.Definitions)
+	data := new(model.Definitions)
 	err = xml.Unmarshal(body, &data)
 	dataStr, err := xml.MarshalIndent(data, "", " ")
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, "XML转换异常")
 		return
 	}
-	dbops.Converter(data)
-	dbops.ConvertXMLToElement(data)
+	Converter(data)
+	ConvertXMLToElement(data)
 	//导出xml文件
 	headerBytes := []byte(xml.Header)                //加入XML头
 	xmlOutPutData := append(headerBytes, dataStr...) //拼接XML头和实际XML内容
@@ -70,7 +72,7 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func Query(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	name := r.FormValue("nameCode")
-	bytearries, err2 := dbops.Select(name, "nil")
+	bytearries, err2 := mapper.Select(name, "nil")
 	dbErr := err2
 	if dbErr != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, "查询数据异常")

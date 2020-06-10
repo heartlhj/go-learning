@@ -4,6 +4,7 @@ import (
 	"fmt"
 	. "github.com/heartlhj/go-expression/expression"
 	"github.com/heartlhj/go-expression/expression/spel"
+	"reflect"
 	"testing"
 )
 
@@ -99,4 +100,34 @@ func TestFloat(t *testing.T) {
 	parser := SpelExpressionParser{}
 	valueContext := parser.ParseExpression("#num>=9f").GetValueContext(&context)
 	fmt.Println("结果为：", valueContext)
+}
+
+//从interface获取数组/切片指定下标结构体的某一字段
+func TestReflect(t *testing.T) {
+	orders := make([]Order, 2)
+	orders[0] = Order{name: "lisi", age: 18}
+	orders[1] = Order{name: "wang", age: 24}
+	var test interface{}
+	test = orders
+	//获取orders切片下标为1的数据
+	index := reflect.ValueOf(test).Index(1)
+	//取得Order对象类型
+	orderType := index.Type()
+	//取得name属性
+	nameFile, _ := orderType.FieldByName("name")
+	//取得name的类型
+	nameType := nameFile.Type.Kind()
+	//取得name字段
+	name := index.FieldByName("name")
+	var nameValue interface{}
+	switch nameType {
+	case reflect.String:
+		nameValue = name.String()
+		break
+	case reflect.Int:
+		nameValue = name.Int()
+		break
+	}
+	fmt.Println("name字段类型为：", nameType)
+	fmt.Println("name字段值为：", nameValue)
 }

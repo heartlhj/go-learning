@@ -1,11 +1,7 @@
-package db
+package model
 
 import (
 	"encoding/xml"
-)
-
-var (
-	flowMap = make(map[string]flow, 0)
 )
 
 type Bytearry struct {
@@ -45,7 +41,8 @@ type Process struct {
 	BoundaryEvent          []BoundaryEvent          `xml:"boundaryEvent"`
 	IntermediateCatchEvent []IntermediateCatchEvent `xml:"intermediateCatchEvent"`
 	SubProcess             []SubProcess             `xml:"subProcess"`
-	Flow                   []flow
+	Flow                   []FlowElement
+	InitialFlowElement     FlowElement
 }
 
 //子流程
@@ -71,10 +68,10 @@ type Flow struct {
 	BaseElement
 	Id                string `xml:"id,attr"`
 	Name              string `xml:"name,attr"`
-	IncomingFlow      []*flow
-	OutgoingFlow      []*flow
-	SourceFlowElement *flow
-	TargetFlowElement *flow
+	IncomingFlow      []*FlowElement
+	OutgoingFlow      []*FlowElement
+	SourceFlowElement *FlowElement
+	TargetFlowElement *FlowElement
 }
 
 //开始节点
@@ -153,128 +150,42 @@ type MessageEventDefinition struct {
 }
 
 //接口
-type flow interface {
-	setIncoming(f []*flow)
-	setOutgoing(f []*flow)
-	getIncoming() []*flow
-	getOutgoing() []*flow
+type FlowElement interface {
+	SetIncoming(f []*FlowElement)
+	SetOutgoing(f []*FlowElement)
+	GetIncoming() []*FlowElement
+	GetOutgoing() []*FlowElement
 
-	setSourceFlowElement(f *flow)
-	setTargetFlowElement(f *flow)
-	getSourceFlowElement() *flow
-	getTargetFlowElement() *flow
+	SetSourceFlowElement(f *FlowElement)
+	SetTargetFlowElement(f *FlowElement)
+	GetSourceFlowElement() *FlowElement
+	GetTargetFlowElement() *FlowElement
 }
 
-func (flow *Flow) setIncoming(f []*flow) {
+func (flow *Flow) SetIncoming(f []*FlowElement) {
 	flow.IncomingFlow = f
 }
-func (flow *Flow) setOutgoing(f []*flow) {
+func (flow *Flow) SetOutgoing(f []*FlowElement) {
 	flow.OutgoingFlow = f
 }
 
-func (flow *Flow) getIncoming() []*flow {
+func (flow *Flow) GetIncoming() []*FlowElement {
 	return flow.IncomingFlow
 }
-func (flow *Flow) getOutgoing() []*flow {
+func (flow *Flow) GetOutgoing() []*FlowElement {
 	return flow.OutgoingFlow
 }
 
-func (flow *Flow) setSourceFlowElement(f *flow) {
+func (flow *Flow) SetSourceFlowElement(f *FlowElement) {
 	flow.SourceFlowElement = f
 }
-func (flow *Flow) setTargetFlowElement(f *flow) {
+func (flow *Flow) SetTargetFlowElement(f *FlowElement) {
 	flow.TargetFlowElement = f
 }
 
-func (flow *Flow) getSourceFlowElement() *flow {
+func (flow *Flow) GetSourceFlowElement() *FlowElement {
 	return flow.SourceFlowElement
 }
-func (flow *Flow) getTargetFlowElement() *flow {
+func (flow *Flow) GetTargetFlowElement() *FlowElement {
 	return flow.TargetFlowElement
-}
-
-//将元素存入map
-func Converter(d *Definitions) {
-	processes := d.Process
-	if processes != nil {
-		for j, p := range processes {
-			start := p.StartEvent
-			if start != nil {
-				for i, sta := range start {
-					flowMap[sta.Id] = start[i]
-				}
-			}
-			se := p.SequenceFlow
-			if se != nil {
-				for i, s := range se {
-					flowMap[s.Id] = se[i]
-				}
-			}
-			user := p.UserTask
-			if user != nil {
-				for i, u := range user {
-					flowMap[u.Id] = user[i]
-				}
-			}
-			end := p.EndEvent
-			if end != nil {
-				for i, e := range end {
-					flowMap[e.Id] = end[i]
-				}
-			}
-			flows := make([]flow, len(flowMap))
-			count := 0
-			for _, v := range flowMap {
-				flows[count] = v
-				count++
-			}
-			processes[j].Flow = flows
-		}
-	}
-}
-
-//设置元素的出入口
-func ConvertXMLToElement(model *Definitions) {
-	processes := model.Process
-	if processes != nil {
-		for _, p := range processes {
-			flows := p.Flow
-			for i := range flows {
-				value, ok := flows[i].(SequenceFlow)
-				if ok {
-					SourceRef := value.SourceRef
-					//上一个节点
-					lastFlow := flowMap[SourceRef]
-					if lastFlow != nil {
-						var outgoing = lastFlow.getOutgoing()
-						if outgoing == nil {
-							outgoing = make([]*flow, 0)
-						}
-						newOut := append(outgoing, &flows[i])
-						//设置上一个节点出口
-						lastFlow.setOutgoing(newOut)
-						//设置当前连线入口
-						flows[i].setSourceFlowElement(&lastFlow)
-
-					}
-					//下一个节点
-					TargetRef := value.TargetRef
-					nextFlow := flowMap[TargetRef]
-					if nextFlow != nil {
-						incoming := nextFlow.getIncoming()
-						if incoming == nil {
-							incoming = make([]*flow, 0)
-						}
-						newIn := append(incoming, &flows[i])
-						m := make([]*flow, 1)
-						m[0] = &nextFlow
-						//设置当前连线出口
-						flows[i].setTargetFlowElement(&nextFlow)
-						//设置写一个节点入口
-						nextFlow.setIncoming(newIn)
-					}
-				}
-			}
-		}
-	}
 }
