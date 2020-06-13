@@ -4,11 +4,7 @@ import (
 	"encoding/xml"
 )
 
-type Bytearry struct {
-	Id    int    `json:"id" xorm:"pk autoincr"`
-	Name  string `json:"name"`
-	Bytes string `json:"bytes"`
-}
+//流程定义对象
 type Definitions struct {
 	DefinitionsName    xml.Name  `xml:"definitions"`
 	Xmlns              string    `xml:"xmlns,attr"`
