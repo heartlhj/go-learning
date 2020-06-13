@@ -1,5 +1,6 @@
 package model
 
+//流程实例
 type Procinst struct {
 	Id          int    `json:"id" xorm:"pk autoincr"`
 	Key         string `json:"key"`

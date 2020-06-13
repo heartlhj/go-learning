@@ -1,5 +1,6 @@
 package model
 
+//部署
 type Deployment struct {
 	Id         int    `json:"id" xorm:"pk autoincr"`
 	Key        string `json:"key"`
