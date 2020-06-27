@@ -72,7 +72,8 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func Query(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	name := r.FormValue("nameCode")
-	bytearries, err2 := mapper.Select(name, "nil")
+	bytearries, err2 := mapper.SelectByteByKey(name, "nil")
+
 	dbErr := err2
 	if dbErr != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, "查询数据异常")

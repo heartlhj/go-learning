@@ -19,7 +19,7 @@ func CreateByteArry(name string, bytes string) error {
 	return nil
 }
 
-func Select(name string, bytes string) ([]*model.Bytearry, error) {
+func SelectByteByKey(name string, bytes string) ([]*model.Bytearry, error) {
 	tmpArticle := make([]*model.Bytearry, 0)
 	err := db.MasterDB.Where("name=?", name).Find(&tmpArticle)
 	if err != nil {
