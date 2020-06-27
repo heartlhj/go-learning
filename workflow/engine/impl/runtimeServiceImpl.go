@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"github.com/heartlhj/go-learning/workflow/context"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	. "github.com/heartlhj/go-learning/workflow/persistence"
 )
@@ -13,9 +14,12 @@ func (runtime RuntimeServiceImpl) StartProcessInstanceByKey(processDefinitionKey
 	businessKey string, tenantId string) {
 	process := FindDeployedProcessDefinitionByKey(processDefinitionKey)
 	instance := ProcessInstance{BusinessKey: businessKey, TenantId: tenantId}
-	CreateProcessInstance(&instance)
+	manager := ProcessInstanceManager{Instance: &instance}
+	manager.CreateProcessInstance()
 	flowElement := process.InitialFlowElement
 	element := flowElement.(StartEvent)
-	element.GetOutgoing()
-
+	outgoing := element.GetOutgoing()
+	execution := ExecutionEntityImpl{}
+	execution.SetCurrentFlowElement(outgoing[0])
+	context.GetAgenda().PlanContinueProcessOperation(execution)
 }

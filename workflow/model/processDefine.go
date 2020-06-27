@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/xml"
+	. "github.com/heartlhj/go-learning/workflow/behavior"
 )
 
 //流程定义对象
@@ -68,6 +69,7 @@ type Flow struct {
 	OutgoingFlow      []*FlowElement
 	SourceFlowElement *FlowElement
 	TargetFlowElement *FlowElement
+	Behavior          ActivityBehavior
 }
 
 //开始节点
@@ -156,6 +158,9 @@ type FlowElement interface {
 	SetTargetFlowElement(f *FlowElement)
 	GetSourceFlowElement() *FlowElement
 	GetTargetFlowElement() *FlowElement
+
+	GetBehavior() ActivityBehavior
+	SetBehavior(behavior ActivityBehavior)
 }
 
 func (flow *Flow) SetIncoming(f []*FlowElement) {
@@ -184,4 +189,11 @@ func (flow *Flow) GetSourceFlowElement() *FlowElement {
 }
 func (flow *Flow) GetTargetFlowElement() *FlowElement {
 	return flow.TargetFlowElement
+}
+
+func (flow *Flow) GetBehavior() ActivityBehavior {
+	return flow.Behavior
+}
+func (flow *Flow) SetBehavior(behavior ActivityBehavior) {
+	flow.Behavior = behavior
 }

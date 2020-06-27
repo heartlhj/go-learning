@@ -6,13 +6,12 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-type ProcessInstanceManager struct {
-	Instance *ProcessInstance
+type TaskManager struct {
+	Task Task
 }
 
-//创建流程实例
-func (processInstanceManager ProcessInstanceManager) CreateProcessInstance() {
-	_, err := db.MasterDB.Insert(processInstanceManager.instance)
+func (taskManager TaskManager) Insert(execution ExecutionEntity) {
+	_, err := db.MasterDB.Insert(taskManager.Task)
 	if err != nil {
 		log.Infoln("新增数据异常", err)
 	}

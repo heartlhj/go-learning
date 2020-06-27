@@ -1,10 +1,24 @@
 package agenda
 
-import . "github.com/heartlhj/go-learning/workflow/model"
+import (
+	"container/list"
+	. "github.com/heartlhj/go-learning/workflow/model"
+)
 
 type DefaultActivitiEngineAgenda struct {
+	Operations list.List
 }
 
-func (agenda DefaultActivitiEngineAgenda) PlanContinueProcessOperation(execution ExecutionEntity) {
+//设置后续操作
+func (agenda *DefaultActivitiEngineAgenda) planOperation(operation Operation) {
+	agenda.Operations.PushFront(operation)
+}
 
+func (agenda *DefaultActivitiEngineAgenda) getNextOperation() Operation {
+	return agenda.Operations.Front().Value.(Operation)
+}
+
+//连线继续执行
+func (agenda *DefaultActivitiEngineAgenda) PlanContinueProcessOperation(execution ExecutionEntity) {
+	agenda.planOperation(ContinueProcessOperation{AbstractOperation{Execution: execution}})
 }

@@ -1,6 +1,7 @@
 package converter
 
 import (
+	. "github.com/heartlhj/go-learning/workflow/behavior"
 	. "github.com/heartlhj/go-learning/workflow/model"
 )
 
@@ -29,6 +30,8 @@ func Converter(d *Definitions) {
 			user := p.UserTask
 			if user != nil {
 				for i, u := range user {
+					behavior := UserTaskActivityBehavior{UserTask: user[i]}
+					user[i].SetBehavior(behavior)
 					flowMap[u.Id] = user[i]
 				}
 			}
