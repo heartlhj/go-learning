@@ -20,6 +20,6 @@ func (runtime RuntimeServiceImpl) StartProcessInstanceByKey(processDefinitionKey
 	element := flowElement.(StartEvent)
 	outgoing := element.GetOutgoing()
 	execution := ExecutionEntityImpl{}
-	execution.SetCurrentFlowElement(outgoing[0])
+	execution.SetCurrentFlowElement(*outgoing[0])
 	context.GetAgenda().PlanContinueProcessOperation(execution)
 }

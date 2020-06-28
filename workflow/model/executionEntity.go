@@ -5,5 +5,9 @@ type ExecutionEntity interface {
 
 	GetCurrentFlowElement() FlowElement
 
-	SetCurrentFlowElement(flow *FlowElement)
+	SetCurrentFlowElement(flow FlowElement)
+
+	GetDeploymentId() string
+
+	SetDeploymentId(deploymentId string)
 }
