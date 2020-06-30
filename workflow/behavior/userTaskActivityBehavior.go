@@ -14,5 +14,18 @@ func (user UserTaskActivityBehavior) Execute(execution ExecutionEntity) {
 
 	task := Task{Assignee: user.UserTask.Assignee}
 	manager := TaskManager{Task: task}
-	manager.Insert(execution)
+	manager.Insert()
+	handleAssignments(user.UserTask, task.Id)
+}
+
+//保存候选用户
+func handleAssignments(user UserTask, taskId int) {
+	users := user.CandidateUsers
+	if len(users) >= 0 {
+		for _, user := range users {
+			link := IdentityLink{TaskId: taskId, UserId: user}
+			manager := IdentityLinkManager{IdentityLink: link}
+			manager.CreateIdentityLink()
+		}
+	}
 }

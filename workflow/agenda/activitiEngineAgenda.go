@@ -14,8 +14,7 @@ type ActivitiEngineAgenda interface {
 	//planTakeOutgoingSequenceFlowsOperation(execution ExecutionEntity, evaluateConditions bool )
 	//
 	//planEndExecutionOperation(execution ExecutionEntity)
-	//
-	//planTriggerExecutionOperation(execution ExecutionEntity)
+	PlanTriggerExecutionOperation(execution ExecutionEntity)
 	//
 	//planDestroyScopeOperation(execution ExecutionEntity)
 	//

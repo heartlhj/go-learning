@@ -20,5 +20,9 @@ func (agenda *DefaultActivitiEngineAgenda) getNextOperation() Operation {
 
 //连线继续执行
 func (agenda *DefaultActivitiEngineAgenda) PlanContinueProcessOperation(execution ExecutionEntity) {
-	agenda.planOperation(ContinueProcessOperation{AbstractOperation{Execution: execution}})
+	agenda.planOperation(&ContinueProcessOperation{AbstractOperation{Execution: execution}})
+}
+
+func (agenda *DefaultActivitiEngineAgenda) PlanTriggerExecutionOperation(execution ExecutionEntity) {
+	agenda.planOperation(&TriggerExecutionOperation{AbstractOperation{Execution: execution}})
 }

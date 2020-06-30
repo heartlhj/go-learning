@@ -91,7 +91,7 @@ type UserTask struct {
 	*Flow
 	UserTaskName   xml.Name `xml:"userTask"`
 	Assignee       string   `xml:"assignee,attr"`
-	CandidateUsers string   `xml:"candidateUsers,attr"`
+	CandidateUsers []string `xml:"candidateUsers,attr"`
 }
 
 //连线
