@@ -10,8 +10,8 @@ type ActivitiEngineAgenda interface {
 	//planContinueProcessInCompensation(execution ExecutionEntity)
 	//
 	//planContinueMultiInstanceOperation(execution ExecutionEntity)
-	//
-	//planTakeOutgoingSequenceFlowsOperation(execution ExecutionEntity, evaluateConditions bool )
+
+	PlanTakeOutgoingSequenceFlowsOperation(execution ExecutionEntity, evaluateConditions bool)
 	//
 	//planEndExecutionOperation(execution ExecutionEntity)
 	PlanTriggerExecutionOperation(execution ExecutionEntity)

@@ -23,6 +23,12 @@ func (agenda *DefaultActivitiEngineAgenda) PlanContinueProcessOperation(executio
 	agenda.planOperation(&ContinueProcessOperation{AbstractOperation{Execution: execution}})
 }
 
+//任务出口执行
 func (agenda *DefaultActivitiEngineAgenda) PlanTriggerExecutionOperation(execution ExecutionEntity) {
 	agenda.planOperation(&TriggerExecutionOperation{AbstractOperation{Execution: execution}})
+}
+
+//任务出口执行
+func (agenda *DefaultActivitiEngineAgenda) PlanTakeOutgoingSequenceFlowsOperation(execution ExecutionEntity, valuateConditions bool) {
+	agenda.planOperation(&TakeOutgoingSequenceFlowsOperation{AbstractOperation{Execution: execution}})
 }

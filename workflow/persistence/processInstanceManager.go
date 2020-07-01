@@ -12,7 +12,7 @@ type ProcessInstanceManager struct {
 
 //创建流程实例
 func (processInstanceManager ProcessInstanceManager) CreateProcessInstance() {
-	_, err := db.MasterDB.Insert(processInstanceManager.instance)
+	_, err := db.MasterDB.Insert(processInstanceManager.Instance)
 	if err != nil {
 		log.Infoln("新增数据异常", err)
 	}

@@ -29,3 +29,13 @@ func handleAssignments(user UserTask, taskId int) {
 		}
 	}
 }
+
+//普通用户节点处理
+func (user UserTaskActivityBehavior) Trigger(execution ExecutionEntity) {
+
+	user.Leave(execution)
+}
+
+func (user UserTaskActivityBehavior) Leave(execution ExecutionEntity) {
+	element := execution.GetCurrentFlowElement()
+}
