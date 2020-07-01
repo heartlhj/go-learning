@@ -32,3 +32,8 @@ func (agenda *DefaultActivitiEngineAgenda) PlanTriggerExecutionOperation(executi
 func (agenda *DefaultActivitiEngineAgenda) PlanTakeOutgoingSequenceFlowsOperation(execution ExecutionEntity, valuateConditions bool) {
 	agenda.planOperation(&TakeOutgoingSequenceFlowsOperation{AbstractOperation{Execution: execution}})
 }
+
+//任务出口执行
+func (agenda *DefaultActivitiEngineAgenda) PlanEndExecutionOperation(execution ExecutionEntity, valuateConditions bool) {
+	agenda.planOperation(&TakeOutgoingSequenceFlowsOperation{AbstractOperation{Execution: execution}})
+}

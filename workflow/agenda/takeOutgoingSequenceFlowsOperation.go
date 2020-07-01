@@ -18,6 +18,8 @@ func (task TakeOutgoingSequenceFlowsOperation) run() {
 			execution.SetCurrentFlowElement(*flowElement)
 			context.GetAgenda().PlanContinueProcessOperation(execution)
 		}
+	} else {
+
 	}
 }
 

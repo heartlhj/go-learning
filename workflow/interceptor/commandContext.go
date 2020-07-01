@@ -11,6 +11,10 @@ type CommandContext struct {
 	ProcessEngineConfiguration ProcessEngineConfiguration
 }
 
+func GetProcessInstanceManager() ProcessInstanceManager {
+	return ProcessInstanceManager{}
+}
+
 func GetTaskManager() TaskManager {
 	return TaskManager{}
 }

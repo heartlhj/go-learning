@@ -17,3 +17,11 @@ func (processInstanceManager ProcessInstanceManager) CreateProcessInstance() {
 		log.Infoln("新增数据异常", err)
 	}
 }
+
+//创建流程实例
+func (processInstanceManager ProcessInstanceManager) DeleteProcessInstance(processInstanceId int) {
+	_, err := db.MasterDB.Id(processInstanceId).Delete(processInstanceManager.Instance)
+	if err != nil {
+		log.Infoln("新增数据异常", err)
+	}
+}
