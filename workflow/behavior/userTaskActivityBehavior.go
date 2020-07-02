@@ -1,6 +1,7 @@
 package behavior
 
 import (
+	"github.com/heartlhj/go-learning/workflow/context"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	. "github.com/heartlhj/go-learning/workflow/persistence"
 )
@@ -32,10 +33,11 @@ func handleAssignments(user UserTask, taskId int) {
 
 //普通用户节点处理
 func (user UserTaskActivityBehavior) Trigger(execution ExecutionEntity) {
-
 	user.Leave(execution)
 }
 
 func (user UserTaskActivityBehavior) Leave(execution ExecutionEntity) {
 	element := execution.GetCurrentFlowElement()
+	execution.SetCurrentFlowElement(element)
+	context.GetAgenda().PlanContinueProcessOperation(execution)
 }

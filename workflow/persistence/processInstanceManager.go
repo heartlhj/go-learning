@@ -18,7 +18,7 @@ func (processInstanceManager ProcessInstanceManager) CreateProcessInstance() {
 	}
 }
 
-//创建流程实例
+//删除流程实例
 func (processInstanceManager ProcessInstanceManager) DeleteProcessInstance(processInstanceId int) {
 	_, err := db.MasterDB.Id(processInstanceId).Delete(processInstanceManager.Instance)
 	if err != nil {
