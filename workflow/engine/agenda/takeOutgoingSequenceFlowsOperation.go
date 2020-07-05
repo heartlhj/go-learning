@@ -1,0 +1,27 @@
+package agenda
+
+import (
+	"github.com/heartlhj/go-learning/workflow/engine"
+)
+
+type TakeOutgoingSequenceFlowsOperation struct {
+	AbstractOperation
+}
+
+func (task TakeOutgoingSequenceFlowsOperation) Run() {
+	execution := task.Execution
+	element := task.getCurrentFlowElement(execution)
+	flowElements := element.GetOutgoing()
+	if len(flowElements) > 0 {
+		for _, flowElement := range flowElements {
+			execution.SetCurrentFlowElement(*flowElement)
+			PlanContinueProcessOperation(execution)
+		}
+	} else {
+
+	}
+}
+
+func (task TakeOutgoingSequenceFlowsOperation) getCurrentFlowElement(execut engine.ExecutionEntity) engine.FlowElement {
+	return nil
+}

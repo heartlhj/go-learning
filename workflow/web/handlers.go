@@ -3,8 +3,9 @@ package web
 import (
 	"encoding/json"
 	"encoding/xml"
-	. "github.com/heartlhj/go-learning/workflow/converter"
-	"github.com/heartlhj/go-learning/workflow/mapper"
+	"github.com/heartlhj/go-learning/workflow/engine"
+	"github.com/heartlhj/go-learning/workflow/engine/behavior"
+	"github.com/heartlhj/go-learning/workflow/engine/persistence"
 	"github.com/heartlhj/go-learning/workflow/model"
 	"github.com/julienschmidt/httprouter"
 	"html/template"
@@ -43,22 +44,22 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		return
 	}
 	body, err := ioutil.ReadAll(file)
-	//保存数据
-	dbErr := mapper.CreateByteArry(string(name), string(body))
-	if dbErr != nil {
-		sendErrorResponse(w, http.StatusInternalServerError, "创建数据异常")
-		return
-	}
 	//解析xml数据
-	data := new(model.Definitions)
+	data := new(engine.Definitions)
 	err = xml.Unmarshal(body, &data)
 	dataStr, err := xml.MarshalIndent(data, "", " ")
 	if err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, "XML转换异常")
 		return
 	}
-	Converter(data)
-	ConvertXMLToElement(data)
+	behavior.Converter(data)
+	behavior.ConvertXMLToElement(data)
+	//保存数据
+	dbErr := persistence.CreateByteArry(data.Process[0].Name, data.Process[0].Id, string(body))
+	if dbErr != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, "创建数据异常")
+		return
+	}
 	//导出xml文件
 	headerBytes := []byte(xml.Header)                //加入XML头
 	xmlOutPutData := append(headerBytes, dataStr...) //拼接XML头和实际XML内容
@@ -72,13 +73,11 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func Query(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	name := r.FormValue("nameCode")
-	bytearries, err2 := mapper.SelectByteByKey(name, "nil")
+	define := persistence.FindDeployedProcessDefinitionByKey(name)
 
-	dbErr := err2
-	if dbErr != nil {
-		sendErrorResponse(w, http.StatusInternalServerError, "查询数据异常")
-		return
+	marshal, err2 := json.Marshal(define)
+	if err2 != nil {
+
 	}
-	marshal, err2 := json.Marshal(bytearries)
 	sendNormalResponse(w, string(marshal), 201)
 }

@@ -5,7 +5,7 @@ type Deployment struct {
 	Id         int    `json:"id" xorm:"pk autoincr"`
 	Key        string `json:"key"`
 	Name       string `json:"name"`
-	Version    string `json:"version"`
+	Version    int    `json:"version"`
 	TenantId   string `json:"tenant_id"`
 	DeployTime string `json:"deploy_time"`
 }

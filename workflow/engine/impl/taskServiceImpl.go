@@ -1,8 +1,8 @@
 package engine
 
 import (
-	"github.com/heartlhj/go-learning/workflow/context"
-	. "github.com/heartlhj/go-learning/workflow/interceptor"
+	"github.com/heartlhj/go-learning/workflow/engine/entity"
+	"github.com/heartlhj/go-learning/workflow/engine/interceptor"
 	. "github.com/heartlhj/go-learning/workflow/model"
 )
 
@@ -12,7 +12,7 @@ type TaskServiceImpl struct {
 //流程审批完成
 func (task TaskServiceImpl) Complete(taskId int, variables map[string]interface{}) Task {
 
-	manager := GetTaskManager()
+	manager := interceptor.GetTaskManager()
 	tasks := manager.FindById(taskId)
 	if len(tasks) > 0 {
 		task := tasks[0]
@@ -23,8 +23,8 @@ func (task TaskServiceImpl) Complete(taskId int, variables map[string]interface{
 }
 
 func executeTaskComplete(task Task) {
-	manager := GetTaskManager()
+	manager := interceptor.GetTaskManager()
 	manager.DeleteTask(task.Id)
-	execution := ExecutionEntityImpl{}
-	context.GetAgenda().PlanTriggerExecutionOperation(execution)
+	execution := entity.ExecutionEntityImpl{}
+	interceptor.GetAgenda().PlanTriggerExecutionOperation(execution)
 }
