@@ -1,4 +1,4 @@
-package agenda
+package behavior
 
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
@@ -15,7 +15,7 @@ func (task TakeOutgoingSequenceFlowsOperation) Run() {
 	if len(flowElements) > 0 {
 		for _, flowElement := range flowElements {
 			execution.SetCurrentFlowElement(*flowElement)
-			PlanContinueProcessOperation(execution)
+			GetAgenda().PlanContinueProcessOperation(execution)
 		}
 	} else {
 

@@ -1,8 +1,7 @@
-package agenda
+package behavior
 
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
-	. "github.com/heartlhj/go-learning/workflow/engine/behavior"
 )
 
 type TriggerExecutionOperation struct {

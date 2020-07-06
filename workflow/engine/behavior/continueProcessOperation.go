@@ -1,8 +1,7 @@
-package agenda
+package behavior
 
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
-	"github.com/heartlhj/go-learning/workflow/engine/interceptor"
 )
 
 type ContinueProcessOperation struct {
@@ -24,7 +23,7 @@ func (cont *ContinueProcessOperation) Run() {
 func (cont *ContinueProcessOperation) continueThroughSequenceFlow(sequenceFlow engine.SequenceFlow) {
 	flowElement := sequenceFlow.TargetFlowElement
 	cont.Execution.SetCurrentFlowElement(*flowElement)
-	interceptor.GetAgenda().PlanContinueProcessOperation(cont.Execution)
+	GetAgenda().PlanContinueProcessOperation(cont.Execution)
 }
 
 func (cont *ContinueProcessOperation) continueThroughFlowNode(element engine.FlowElement) {

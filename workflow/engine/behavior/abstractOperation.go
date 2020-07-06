@@ -1,11 +1,10 @@
-package agenda
+package behavior
 
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
-	"github.com/heartlhj/go-learning/workflow/engine/interceptor"
 )
 
 type AbstractOperation struct {
-	CommandContext interceptor.CommandContext
+	CommandContext CommandContext
 	Execution      engine.ExecutionEntity
 }

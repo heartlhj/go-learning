@@ -4,10 +4,7 @@ import (
 	"encoding/xml"
 	"github.com/heartlhj/go-learning/workflow/engine"
 	"github.com/heartlhj/go-learning/workflow/engine/behavior"
-
-	//"github.com/heartlhj/go-learning/workflow/engine/behavior"
 	"github.com/heartlhj/go-learning/workflow/engine/entity"
-	. "github.com/heartlhj/go-learning/workflow/engine/interceptor"
 	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	"time"
@@ -20,7 +17,7 @@ type StartProcessInstanceByKeyCmd struct {
 	TenantId             string
 }
 
-func (start StartProcessInstanceByKeyCmd) Execute(interceptor CommandContext) interface{} {
+func (start StartProcessInstanceByKeyCmd) Execute(interceptor behavior.CommandContext) interface{} {
 	bytearries := FindDeployedProcessDefinitionByKey(start.ProcessDefinitionKey)
 	//解析xml数据
 	define := new(engine.Definitions)
@@ -35,10 +32,10 @@ func (start StartProcessInstanceByKeyCmd) Execute(interceptor CommandContext) in
 	outgoing := element.GetOutgoing()
 	execution := entity.ExecutionEntityImpl{}
 	execution.SetCurrentFlowElement(*outgoing[0])
-	context, e := GetCommandContext()
+	context, e := behavior.GetCommandContext()
 	if e != nil {
 
 	}
-	context.Agenda.PlanContinueProcessOperation(execution)
+	context.Agenda.PlanContinueProcessOperation(&execution)
 	return process
 }

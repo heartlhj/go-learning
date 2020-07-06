@@ -1,4 +1,4 @@
-package interceptor
+package behavior
 
 type CommandInvoker struct {
 	Next CommandInterceptor

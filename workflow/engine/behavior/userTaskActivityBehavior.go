@@ -2,7 +2,6 @@ package behavior
 
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
-	"github.com/heartlhj/go-learning/workflow/engine/interceptor"
 	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
 	. "github.com/heartlhj/go-learning/workflow/model"
 )
@@ -40,5 +39,5 @@ func (user UserTaskActivityBehavior) Trigger(execution engine.ExecutionEntity) {
 func (user UserTaskActivityBehavior) Leave(execution engine.ExecutionEntity) {
 	element := execution.GetCurrentFlowElement()
 	execution.SetCurrentFlowElement(element)
-	interceptor.GetAgenda().PlanContinueProcessOperation(execution)
+	GetAgenda().PlanContinueProcessOperation(execution)
 }
