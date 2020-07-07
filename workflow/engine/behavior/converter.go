@@ -87,7 +87,7 @@ func ConvertXMLToElement(model *Definitions) {
 						m[0] = &nextFlow
 						//设置当前连线出口
 						flows[i].SetTargetFlowElement(&nextFlow)
-						//设置写一个节点入口
+						//设置下一个节点入口
 						nextFlow.SetIncoming(newIn)
 					}
 				}
