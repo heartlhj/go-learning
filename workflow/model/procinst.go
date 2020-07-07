@@ -6,15 +6,15 @@ import (
 
 //流程实例
 type ProcessInstance struct {
-	Id           int       `json:"id" xorm:"pk autoincr"`
-	Key          string    `json:"key"`
-	Name         string    `json:"name"`
-	Version      int       `json:"version"`
-	BusinessKey  string    `json:"business_key"`
-	TenantId     string    `json:"tenant_id"`
-	DeploymentId int       `json:"deployment_id"`
-	StartTime    time.Time `json:"start_time"`
-	StartUserId  string    `json:"start_user_id"`
+	Id           int       `xorm:"id" xorm:"pk autoincr"`
+	Key          string    `xorm:"key"`
+	Name         string    `xorm:"name"`
+	Version      int       `xorm:"version"`
+	BusinessKey  string    `xorm:"business_key"`
+	TenantId     string    `xorm:"tenant_id"`
+	DeploymentId int       `xorm:"deployment_id"`
+	StartTime    time.Time `xorm:"start_time"`
+	StartUserId  string    `xorm:"start_user_id"`
 }
 
 func (processInstance ProcessInstance) setBusinessKey(businessKey string) {

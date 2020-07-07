@@ -7,7 +7,7 @@ import (
 )
 
 type TaskManager struct {
-	Task Task
+	Task *Task
 }
 
 func (taskManager TaskManager) Insert() {

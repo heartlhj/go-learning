@@ -10,6 +10,11 @@ type DefaultActivitiEngineAgenda struct {
 }
 
 //设置后续操作
+func (agenda *DefaultActivitiEngineAgenda) IsEmpty() bool {
+	return agenda.Operations.Len() == 0
+}
+
+//设置后续操作
 func (agenda *DefaultActivitiEngineAgenda) PlanOperation(operation engine.Operation) {
 	agenda.Operations.PushFront(operation)
 }
@@ -17,6 +22,7 @@ func (agenda *DefaultActivitiEngineAgenda) PlanOperation(operation engine.Operat
 //设置后续操作
 func (agenda *DefaultActivitiEngineAgenda) GetNextOperation() engine.Operation {
 	value := agenda.Operations.Front()
+	agenda.Operations.Remove(value)
 	return value.Value.(engine.Operation)
 }
 

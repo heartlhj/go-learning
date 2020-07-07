@@ -1,6 +1,8 @@
 package engine
 
 type ActivitiEngineAgenda interface {
+	IsEmpty() bool
+
 	PlanOperation(operation Operation)
 
 	GetNextOperation() Operation

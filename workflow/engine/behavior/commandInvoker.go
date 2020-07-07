@@ -15,7 +15,10 @@ func (a CommandInvoker) Execute(command Command) interface{} {
 }
 
 func executeOperations(context CommandContext) {
-	context.Agenda.GetNextOperation().Run()
+	for !context.Agenda.IsEmpty() {
+		context.Agenda.GetNextOperation().Run()
+	}
+
 }
 
 func (a *CommandInvoker) SetNext(next CommandInterceptor) {

@@ -4,6 +4,7 @@ import (
 	"github.com/heartlhj/go-learning/workflow/engine"
 	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
 	. "github.com/heartlhj/go-learning/workflow/model"
+	"time"
 )
 
 type UserTaskActivityBehavior struct {
@@ -13,8 +14,8 @@ type UserTaskActivityBehavior struct {
 //普通用户节点处理
 func (user UserTaskActivityBehavior) Execute(execution engine.ExecutionEntity) {
 
-	task := Task{Assignee: user.UserTask.Assignee}
-	manager := TaskManager{Task: task}
+	task := Task{Assignee: user.UserTask.Assignee, StartTime: time.Now()}
+	manager := TaskManager{Task: &task}
 	manager.Insert()
 	handleAssignments(user.UserTask, task.Id)
 }

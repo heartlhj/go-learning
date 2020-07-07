@@ -1,10 +1,10 @@
 package model
 
 type IdentityLink struct {
-	Id                int    `json:"id" xorm:"pk autoincr"`
-	Type              string `json:"type"`
-	TaskId            int    `json:"task_id"`
-	ProcessInstanceId int    `json:"processInstance_id"`
-	GroupId           string `json:"group_id"`
-	UserId            string `json:"user_id"`
+	Id                int    `xorm:"id" xorm:"pk autoincr"`
+	Type              string `xorm:"type"`
+	TaskId            int    `xorm:"task_id"`
+	ProcessInstanceId int    `xorm:"proc_inst_id"`
+	GroupId           string `xorm:"group_id"`
+	UserId            string `xorm:"user_id"`
 }

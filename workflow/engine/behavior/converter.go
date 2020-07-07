@@ -1,13 +1,13 @@
 package behavior
 
-import "github.com/heartlhj/go-learning/workflow/engine"
+import . "github.com/heartlhj/go-learning/workflow/engine"
 
 var (
-	flowMap = make(map[string]engine.FlowElement, 0)
+	flowMap = make(map[string]FlowElement, 0)
 )
 
 //将元素存入map
-func Converter(d *engine.Definitions) {
+func Converter(d *Definitions) {
 	processes := d.Process
 	if processes != nil {
 		for j, p := range processes {
@@ -38,7 +38,7 @@ func Converter(d *engine.Definitions) {
 					flowMap[e.Id] = end[i]
 				}
 			}
-			flows := make([]engine.FlowElement, len(flowMap))
+			flows := make([]FlowElement, len(flowMap))
 			count := 0
 			for _, v := range flowMap {
 				flows[count] = v
@@ -51,13 +51,13 @@ func Converter(d *engine.Definitions) {
 }
 
 //设置元素的出入口
-func ConvertXMLToElement(model *engine.Definitions) {
+func ConvertXMLToElement(model *Definitions) {
 	processes := model.Process
 	if processes != nil {
 		for _, p := range processes {
 			flows := p.Flow
 			for i := range flows {
-				value, ok := flows[i].(engine.SequenceFlow)
+				value, ok := flows[i].(SequenceFlow)
 				if ok {
 					SourceRef := value.SourceRef
 					//上一个节点
@@ -65,13 +65,13 @@ func ConvertXMLToElement(model *engine.Definitions) {
 					if lastFlow != nil {
 						var outgoing = lastFlow.GetOutgoing()
 						if outgoing == nil {
-							outgoing = make([]*engine.FlowElement, 0)
+							outgoing = make([]*FlowElement, 0)
 						}
 						newOut := append(outgoing, &flows[i])
 						//设置上一个节点出口
 						lastFlow.SetOutgoing(newOut)
 						//设置当前连线入口
-						lastFlow.SetSourceFlowElement(&lastFlow)
+						flows[i].SetSourceFlowElement(&lastFlow)
 
 					}
 					//下一个节点
@@ -80,13 +80,13 @@ func ConvertXMLToElement(model *engine.Definitions) {
 					if nextFlow != nil {
 						incoming := nextFlow.GetIncoming()
 						if incoming == nil {
-							incoming = make([]*engine.FlowElement, 0)
+							incoming = make([]*FlowElement, 0)
 						}
 						newIn := append(incoming, &flows[i])
-						m := make([]*engine.FlowElement, 1)
+						m := make([]*FlowElement, 1)
 						m[0] = &nextFlow
 						//设置当前连线出口
-						nextFlow.SetTargetFlowElement(&nextFlow)
+						flows[i].SetTargetFlowElement(&nextFlow)
 						//设置写一个节点入口
 						nextFlow.SetIncoming(newIn)
 					}
