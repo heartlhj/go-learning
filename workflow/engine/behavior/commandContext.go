@@ -18,3 +18,7 @@ func GetProcessInstanceManager() persistence.ProcessInstanceManager {
 func GetTaskManager() persistence.TaskManager {
 	return persistence.TaskManager{}
 }
+
+func GetDefineManager() persistence.DefineManager {
+	return persistence.DefineManager{}
+}

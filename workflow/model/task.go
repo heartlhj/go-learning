@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Task struct {
-	Id                int       `xorm:"id" xorm:"pk autoincr"`
+	Id                int64
 	TaskDefineKey     string    `xorm:"task_define_key"`
 	TaskDefineName    string    `xorm:"task_define_name"`
 	Version           int       `xorm:"version"`
@@ -11,5 +11,5 @@ type Task struct {
 	DeploymentId      int       `xorm:"deployment_id"`
 	StartTime         time.Time `xorm:"start_time"`
 	Assignee          string    `xorm:"assignee"`
-	ProcessInstanceId int       `xorm:"proc_inst_id"`
+	ProcessInstanceId int64     `xorm:"proc_inst_id"`
 }

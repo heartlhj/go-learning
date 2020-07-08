@@ -1,16 +1,28 @@
 package behavior
 
-import . "github.com/heartlhj/go-learning/workflow/engine"
+import (
+	"encoding/xml"
+	. "github.com/heartlhj/go-learning/workflow/engine"
+)
 
 var (
+	//将元素存入map
 	flowMap = make(map[string]FlowElement, 0)
 )
 
-//将元素存入map
-func Converter(d *Definitions) {
-	processes := d.Process
+func FindCurrentTask(bytes string, taskDefineKey string) FlowElement {
+	Converter(bytes)
+	flowElement := flowMap[taskDefineKey]
+	return flowElement
+}
+
+func Converter(bytes string) Process {
+	define := new(Definitions)
+	xml.Unmarshal([]byte(bytes), &define)
+	processes := define.Process
 	if processes != nil {
 		for j, p := range processes {
+			processes[j].Name = p.Documentation
 			start := p.StartEvent
 			if start != nil {
 				for i, sta := range start {
@@ -47,7 +59,8 @@ func Converter(d *Definitions) {
 			processes[j].Flow = flows
 		}
 	}
-	ConvertXMLToElement(d)
+	ConvertXMLToElement(define)
+	return define.Process[0]
 }
 
 //设置元素的出入口

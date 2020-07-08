@@ -11,7 +11,7 @@ type ExecutionEntity interface {
 
 	SetDeploymentId(deploymentId int)
 
-	GetProcessInstanceId() int
+	GetProcessInstanceId() int64
 
-	SetProcessInstanceId(processInstanceId int)
+	SetProcessInstanceId(processInstanceId int64)
 }

@@ -14,14 +14,16 @@ type UserTaskActivityBehavior struct {
 //普通用户节点处理
 func (user UserTaskActivityBehavior) Execute(execution engine.ExecutionEntity) {
 
-	task := Task{Assignee: user.UserTask.Assignee, StartTime: time.Now()}
+	task := Task{ProcessInstanceId: execution.GetProcessInstanceId(), Assignee: user.UserTask.Assignee, StartTime: time.Now()}
+	task.TaskDefineKey = user.UserTask.Id
+	task.TaskDefineName = user.UserTask.Name
 	manager := TaskManager{Task: &task}
 	manager.Insert()
 	handleAssignments(user.UserTask, task.Id)
 }
 
 //保存候选用户
-func handleAssignments(user engine.UserTask, taskId int) {
+func handleAssignments(user engine.UserTask, taskId int64) {
 	users := user.CandidateUsers
 	if len(users) >= 0 {
 		for _, user := range users {
@@ -40,5 +42,5 @@ func (user UserTaskActivityBehavior) Trigger(execution engine.ExecutionEntity) {
 func (user UserTaskActivityBehavior) Leave(execution engine.ExecutionEntity) {
 	element := execution.GetCurrentFlowElement()
 	execution.SetCurrentFlowElement(element)
-	GetAgenda().PlanContinueProcessOperation(execution)
+	GetAgenda().PlanTakeOutgoingSequenceFlowsOperation(execution, true)
 }

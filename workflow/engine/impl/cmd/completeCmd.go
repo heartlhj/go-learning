@@ -26,6 +26,11 @@ func (task CompleteCmd) Execute(interceptor behavior.CommandContext) interface{}
 func executeTaskComplete(task Task, interceptor behavior.CommandContext) {
 	manager := behavior.GetTaskManager()
 	manager.DeleteTask(task.Id)
+	defineManager := behavior.GetDefineManager()
+	bytearry := defineManager.FindProcessByTask(task.ProcessInstanceId)
+	currentTask := behavior.FindCurrentTask(bytearry.Bytes, task.TaskDefineKey)
 	execution := entity.ExecutionEntityImpl{}
+	execution.SetCurrentFlowElement(currentTask)
+	execution.SetProcessInstanceId(task.ProcessInstanceId)
 	interceptor.Agenda.PlanTriggerExecutionOperation(&execution)
 }

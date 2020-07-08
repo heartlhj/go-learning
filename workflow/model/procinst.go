@@ -6,7 +6,7 @@ import (
 
 //流程实例
 type ProcessInstance struct {
-	Id           int       `xorm:"id" xorm:"pk autoincr"`
+	Id           int64
 	Key          string    `xorm:"key"`
 	Name         string    `xorm:"name"`
 	Version      int       `xorm:"version"`

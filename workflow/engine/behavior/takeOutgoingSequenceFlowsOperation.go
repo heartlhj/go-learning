@@ -23,5 +23,9 @@ func (task TakeOutgoingSequenceFlowsOperation) Run() {
 }
 
 func (task TakeOutgoingSequenceFlowsOperation) getCurrentFlowElement(execut engine.ExecutionEntity) engine.FlowElement {
+	currentFlowElement := execut.GetCurrentFlowElement()
+	if currentFlowElement != nil {
+		return currentFlowElement
+	}
 	return nil
 }

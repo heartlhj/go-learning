@@ -7,7 +7,10 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-func FindDeployedProcessDefinitionByKey(key string) []*model.Bytearry {
+type DefineManager struct {
+}
+
+func (define DefineManager) FindDeployedProcessDefinitionByKey(key string) []*model.Bytearry {
 	bytearries := make([]*model.Bytearry, 0)
 	err := db.MasterDB.Where("`key`=?", key).Find(&bytearries)
 	if err != nil {
@@ -16,8 +19,8 @@ func FindDeployedProcessDefinitionByKey(key string) []*model.Bytearry {
 	return bytearries
 }
 
-func CreateByteArry(name string, key string, bytes string) error {
-	bytearries := FindDeployedProcessDefinitionByKey(key)
+func (define DefineManager) CreateByteArry(name string, key string, bytes string) error {
+	bytearries := define.FindDeployedProcessDefinitionByKey(key)
 	var verion = 0
 	if bytearries != nil && len(bytearries) > 0 {
 		verion = bytearries[0].Version
@@ -31,4 +34,17 @@ func CreateByteArry(name string, key string, bytes string) error {
 	}
 	fmt.Println(insert)
 	return nil
+}
+
+func (define DefineManager) FindProcessByTask(processInstanceId int64) *model.Bytearry {
+	bytearries := make([]*model.Bytearry, 0)
+	var sql = "select b.* from bytearry b " +
+		"LEFT JOIN process_instance p on b.key = p.key " +
+		"WHERE p.id = ? "
+	e := db.MasterDB.SQL(sql, processInstanceId).Find(&bytearries)
+	if e == nil {
+
+	}
+	bytearry := bytearries[0]
+	return bytearry
 }

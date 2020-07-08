@@ -6,7 +6,7 @@ type ExecutionEntityImpl struct {
 	BusinessKey        string
 	CurrentFlowElement engine.FlowElement
 	DeploymentId       int
-	ProcessInstanceId  int
+	ProcessInstanceId  int64
 }
 
 func (execution *ExecutionEntityImpl) SetBusinessKey(businessKey string) {
@@ -29,10 +29,10 @@ func (execution *ExecutionEntityImpl) SetDeploymentId(deploymentId int) {
 	execution.DeploymentId = deploymentId
 }
 
-func (execution ExecutionEntityImpl) GetProcessInstanceId() int {
+func (execution ExecutionEntityImpl) GetProcessInstanceId() int64 {
 	return execution.ProcessInstanceId
 }
 
-func (execution ExecutionEntityImpl) SetProcessInstanceId(processInstanceId int) {
+func (execution *ExecutionEntityImpl) SetProcessInstanceId(processInstanceId int64) {
 	execution.ProcessInstanceId = processInstanceId
 }

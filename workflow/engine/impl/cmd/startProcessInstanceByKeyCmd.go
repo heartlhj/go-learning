@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/xml"
 	"github.com/heartlhj/go-learning/workflow/engine"
 	"github.com/heartlhj/go-learning/workflow/engine/behavior"
 	"github.com/heartlhj/go-learning/workflow/engine/entity"
@@ -18,19 +17,19 @@ type StartProcessInstanceByKeyCmd struct {
 }
 
 func (start StartProcessInstanceByKeyCmd) Execute(interceptor behavior.CommandContext) interface{} {
-	bytearries := FindDeployedProcessDefinitionByKey(start.ProcessDefinitionKey)
+	defineManager := behavior.GetDefineManager()
+	bytearries := defineManager.FindDeployedProcessDefinitionByKey(start.ProcessDefinitionKey)
 	//解析xml数据
-	define := new(engine.Definitions)
-	xml.Unmarshal([]byte(bytearries[0].Bytes), &define)
-	behavior.Converter(define)
+	process := behavior.Converter(bytearries[0].Bytes)
 	instance := ProcessInstance{BusinessKey: start.BusinessKey, TenantId: start.TenantId, StartTime: time.Now()}
+	instance.Key = process.Id
+	instance.Name = process.Name
 	manager := ProcessInstanceManager{Instance: &instance}
 	manager.CreateProcessInstance()
-	process := define.Process[0]
 	flowElement := process.InitialFlowElement
 	element := flowElement.(engine.StartEvent)
 	outgoing := element.GetOutgoing()
-	execution := entity.ExecutionEntityImpl{}
+	execution := entity.ExecutionEntityImpl{ProcessInstanceId: instance.Id}
 	execution.SetCurrentFlowElement(*outgoing[0])
 	context, e := behavior.GetCommandContext()
 	if e != nil {

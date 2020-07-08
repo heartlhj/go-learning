@@ -1,11 +1,9 @@
 package web
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"github.com/heartlhj/go-learning/workflow/engine"
 	"github.com/heartlhj/go-learning/workflow/engine/behavior"
-	"github.com/heartlhj/go-learning/workflow/engine/persistence"
 	"github.com/heartlhj/go-learning/workflow/model"
 	"github.com/julienschmidt/httprouter"
 	"html/template"
@@ -54,12 +52,6 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 	behavior.Converter(data)
 	behavior.ConvertXMLToElement(data)
-	//保存数据
-	dbErr := persistence.CreateByteArry(data.Process[0].Name, data.Process[0].Id, string(body))
-	if dbErr != nil {
-		sendErrorResponse(w, http.StatusInternalServerError, "创建数据异常")
-		return
-	}
 	//导出xml文件
 	headerBytes := []byte(xml.Header)                //加入XML头
 	xmlOutPutData := append(headerBytes, dataStr...) //拼接XML头和实际XML内容
@@ -69,15 +61,4 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Add("Content-Disposition", "attachment; filename=\""+name+"\".bpmn20.xml")
 
 	sendNormalResponse(w, string(xmlOutPutData), 201)
-}
-
-func Query(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	name := r.FormValue("nameCode")
-	define := persistence.FindDeployedProcessDefinitionByKey(name)
-
-	marshal, err2 := json.Marshal(define)
-	if err2 != nil {
-
-	}
-	sendNormalResponse(w, string(marshal), 201)
 }

@@ -27,9 +27,9 @@ func (taskManager TaskManager) FindById(taskId int) []Task {
 
 }
 
-func (taskManager TaskManager) DeleteTask(taskId int) {
-	task := make([]Task, 0)
-	_, err := db.MasterDB.Where("id=?", taskId).Delete(&task)
+func (taskManager TaskManager) DeleteTask(taskId int64) {
+	task := Task{}
+	_, err := db.MasterDB.Id(taskId).Delete(task)
 	if err != nil {
 		log.Infoln("新增数据异常", err)
 	}
