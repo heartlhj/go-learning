@@ -15,6 +15,9 @@ type ProcessEngineConfiguration struct {
 	CommandContextFactory CommandContextFactory
 }
 
+func GetProcessEngineConfiguration() *ProcessEngineConfiguration {
+	return &processEngineConfiguration
+}
 func init() {
 	processEngineConfiguration = ProcessEngineConfiguration{}
 	initCommandContextFactory()

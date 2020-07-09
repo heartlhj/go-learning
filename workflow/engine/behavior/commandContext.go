@@ -22,3 +22,6 @@ func GetTaskManager() persistence.TaskManager {
 func GetDefineManager() persistence.DefineManager {
 	return persistence.DefineManager{}
 }
+func GetVariableManager() persistence.VariableManager {
+	return persistence.VariableManager{}
+}

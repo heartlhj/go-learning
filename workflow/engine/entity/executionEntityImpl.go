@@ -1,6 +1,10 @@
 package entity
 
-import "github.com/heartlhj/go-learning/workflow/engine"
+import (
+	"github.com/heartlhj/go-learning/workflow/engine"
+	. "github.com/heartlhj/go-learning/workflow/engine/behavior"
+	"github.com/heartlhj/go-learning/workflow/model"
+)
 
 type ExecutionEntityImpl struct {
 	BusinessKey        string
@@ -35,4 +39,16 @@ func (execution ExecutionEntityImpl) GetProcessInstanceId() int64 {
 
 func (execution *ExecutionEntityImpl) SetProcessInstanceId(processInstanceId int64) {
 	execution.ProcessInstanceId = processInstanceId
+}
+
+func (execution *ExecutionEntityImpl) SetVariable(variables map[string]interface{}) {
+	engineConfiguration := GetProcessEngineConfiguration()
+	executor := engineConfiguration.CommandExecutor
+	if executor != nil {
+
+	}
+	variableManager := GetVariableManager()
+	variable := model.Variable{ProcessInstanceId: execution.ProcessInstanceId}
+	variableManager.Variable = variable
+	variableManager.Insert("")
 }

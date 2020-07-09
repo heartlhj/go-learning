@@ -31,6 +31,7 @@ func (start StartProcessInstanceByKeyCmd) Execute(interceptor behavior.CommandCo
 	outgoing := element.GetOutgoing()
 	execution := entity.ExecutionEntityImpl{ProcessInstanceId: instance.Id}
 	execution.SetCurrentFlowElement(*outgoing[0])
+	execution.SetVariable(start.Variables)
 	context, e := behavior.GetCommandContext()
 	if e != nil {
 
