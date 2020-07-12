@@ -1,6 +1,7 @@
 package behavior
 
 import (
+	. "github.com/heartlhj/go-learning/workflow/engine/variable"
 	. "github.com/heartlhj/go-learning/workflow/event"
 )
 
@@ -13,6 +14,7 @@ type ProcessEngineConfiguration struct {
 	Service               ServiceImpl
 	CommandExecutor       CommandExecutor
 	CommandContextFactory CommandContextFactory
+	VariableTypes         VariableTypes
 }
 
 func GetProcessEngineConfiguration() *ProcessEngineConfiguration {
@@ -26,6 +28,7 @@ func init() {
 	initCommandExecutor()
 	initService()
 	initCommandContext(processEngineConfiguration)
+	initVariableTypes()
 }
 
 func initCommandContext(configuration ProcessEngineConfiguration) {
@@ -85,4 +88,12 @@ func initInterceptorChain(interceptors []CommandInterceptor) CommandInterceptor 
 func initCommandContextFactory() {
 	factory := CommandContextFactory{}
 	processEngineConfiguration.CommandContextFactory = factory
+}
+
+func initVariableTypes() {
+	defaultVariableTypes := DefaultVariableTypes{}
+	defaultVariableTypes.AddType(BooleanType{})
+	defaultVariableTypes.AddType(IntType{})
+	defaultVariableTypes.AddType(StringType{})
+	processEngineConfiguration.VariableTypes = defaultVariableTypes
 }

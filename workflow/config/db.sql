@@ -90,3 +90,23 @@ CREATE TABLE `task` (
   `proc_inst_id` bigint(64) default NULL COMMENT '实例iD',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for task
+-- ----------------------------
+DROP TABLE IF EXISTS `variable`;
+CREATE TABLE `variable` (
+  `id` bigint(20) NOT NULL auto_increment COMMENT '主键id',
+  `version` bigint(2) default NULL COMMENT '版本',
+  `task_id` varchar(64) collate utf8_bin default NULL COMMENT '任务ID',
+  `proc_inst_id` bigint(2) default NULL COMMENT '流程实例id',
+  `name` varchar(64) collate utf8_bin default NULL COMMENT '变量名',
+  `type` varchar(10) default NULL COMMENT '类型',
+  `number` int default NULL COMMENT '类型',
+  `date` datetime default NULL COMMENT '时间类型',
+  `float` double collate utf8_bin default NULL COMMENT 'double',
+  `text` varchar(4000) default NULL COMMENT '字符',
+  `blob` longblob default NULL COMMENT '字符串',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+

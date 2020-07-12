@@ -9,9 +9,12 @@ var key = "task001"
 
 //测试发起流程
 func TestStartProcss(t *testing.T) {
+	variables := make(map[string]interface{}, 0)
+	variables["name"] = "lisi"
+	variables["age"] = 18
+	variables["isOld"] = true
 	runtime := peocess.RuntimeService{}
-
-	runtime.StartProcessInstanceByKey(key, nil, "", "")
+	runtime.StartProcessInstanceByKey(key, variables, "", "")
 }
 
 //测试完成任务
