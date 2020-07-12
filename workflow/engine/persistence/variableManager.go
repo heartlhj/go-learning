@@ -3,6 +3,7 @@ package persistence
 import (
 	"github.com/heartlhj/go-learning/workflow/db"
 	. "github.com/heartlhj/go-learning/workflow/engine/variable"
+	"github.com/heartlhj/go-learning/workflow/errs"
 	"github.com/prometheus/common/log"
 )
 
@@ -27,11 +28,14 @@ func (defineManager VariableManager) Insert(define *Variable) {
 	}
 }
 
-func (defineManager VariableManager) SelectProcessInstanceId(name string, processInstanceId int64) Variable {
-	variable := Variable{}
-	err := db.MasterDB.Where("proc_inst_id = ?", processInstanceId).Where("name = ?", name).Limit(1, 0).Find(&variable)
+func (defineManager VariableManager) SelectProcessInstanceId(name string, processInstanceId int64) (Variable, error) {
+	variables := make([]*Variable, 0)
+	err := db.MasterDB.Where("proc_inst_id = ?", processInstanceId).Where("name = ?", name).Limit(1, 0).Find(&variables)
 	if err != nil {
 		log.Infoln("新增数据异常", err)
 	}
-	return variable
+	if variables == nil || len(variables) <= 0 {
+		return Variable{}, errs.ProcessError{}
+	}
+	return *variables[0], nil
 }

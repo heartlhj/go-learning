@@ -14,7 +14,7 @@ type ProcessInstanceManager struct {
 func (processInstanceManager *ProcessInstanceManager) CreateProcessInstance() {
 	_, err := db.MasterDB.Insert(processInstanceManager.Instance)
 	if err != nil {
-		log.Infoln("新增数据异常", err)
+		log.Infoln("create processInstance err", err)
 	}
 }
 
@@ -22,6 +22,6 @@ func (processInstanceManager *ProcessInstanceManager) CreateProcessInstance() {
 func (processInstanceManager ProcessInstanceManager) DeleteProcessInstance(processInstanceId int64) {
 	_, err := db.MasterDB.Id(processInstanceId).Delete(processInstanceManager.Instance)
 	if err != nil {
-		log.Infoln("新增数据异常", err)
+		log.Infoln("delete processInstance err ", err)
 	}
 }

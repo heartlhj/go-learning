@@ -3,11 +3,11 @@ package variable
 type BooleanType struct {
 }
 
-func (bool BooleanType) GetTypeName() string {
+func (boolType BooleanType) GetTypeName() string {
 	return "bool"
 }
 
-func (bool BooleanType) GetValue(valueFields ValueFields) interface{} {
+func (boolType BooleanType) GetValue(valueFields ValueFields) interface{} {
 	return valueFields.GetNumberValue() == 1
 }
 

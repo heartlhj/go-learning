@@ -4,7 +4,7 @@ import (
 	"github.com/heartlhj/go-learning/workflow/engine"
 	. "github.com/heartlhj/go-learning/workflow/engine/behavior"
 	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
-	variable2 "github.com/heartlhj/go-learning/workflow/engine/variable"
+	. "github.com/heartlhj/go-learning/workflow/engine/variable"
 	"github.com/heartlhj/go-learning/workflow/errs"
 	"reflect"
 )
@@ -51,20 +51,23 @@ func (execution *ExecutionEntityImpl) SetVariable(variables map[string]interface
 	if variables != nil && len(variables) > 0 {
 		for k, v := range variables {
 			kind := reflect.TypeOf(v).Kind()
-			valueType := kind.String()
-			variableType := variableTypes.GetVariableType(valueType)
+			variableType := variableTypes.GetVariableType(kind.String())
 			if variableType == nil {
 				return errs.ProcessError{Code: "1001", Msg: "no type"}
 			}
-			//_ := execution.getSpecificVariable(k, variableManager)
-			create := variableManager.Create(k, variableType, v)
-			create.ProcessInstanceId = execution.ProcessInstanceId
-			variableManager.Insert(create)
+			variable := variableManager.Create(k, variableType, v)
+			//存在更新
+			specificVariable, e := execution.getSpecificVariable(k, variableManager)
+			if e != nil {
+				variable.Version = specificVariable.Version + 1
+			}
+			variable.ProcessInstanceId = execution.ProcessInstanceId
+			variableManager.Insert(variable)
 		}
 	}
 	return nil
 }
 
-func (execution *ExecutionEntityImpl) getSpecificVariable(variableName string, variableManager VariableManager) variable2.Variable {
+func (execution *ExecutionEntityImpl) getSpecificVariable(variableName string, variableManager VariableManager) (Variable, error) {
 	return variableManager.SelectProcessInstanceId(variableName, execution.ProcessInstanceId)
 }

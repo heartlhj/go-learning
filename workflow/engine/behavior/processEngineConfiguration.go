@@ -95,5 +95,6 @@ func initVariableTypes() {
 	defaultVariableTypes.AddType(BooleanType{})
 	defaultVariableTypes.AddType(IntType{})
 	defaultVariableTypes.AddType(StringType{})
+	defaultVariableTypes.AddType(MapType{})
 	processEngineConfiguration.VariableTypes = defaultVariableTypes
 }
