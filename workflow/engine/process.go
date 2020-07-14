@@ -4,6 +4,11 @@ import (
 	"encoding/xml"
 )
 
+var (
+	//将元素存入map
+	processMap = make(map[string]Process, 0)
+)
+
 //流程定义对象
 type Definitions struct {
 	DefinitionsName    xml.Name  `xml:"definitions"`
@@ -160,6 +165,19 @@ type FlowElement interface {
 
 	GetBehavior() ActivityBehavior
 	SetBehavior(behavior ActivityBehavior)
+}
+
+func SetProcess(process Process) {
+	//_,err := processMap[process.Id]
+	processMap[process.Id] = process
+}
+
+func GetProcess(id string) Process {
+	return processMap[id]
+}
+
+func (pocess Process) GetFlowElement(flowElementId string) {
+
 }
 
 func (flow *Flow) SetIncoming(f []*FlowElement) {

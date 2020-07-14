@@ -24,7 +24,15 @@ func (taskManager TaskManager) FindById(taskId int) []Task {
 		log.Infoln("新增数据异常", err)
 	}
 	return task
+}
 
+func (taskManager TaskManager) FindByProcessInstanceId(processInstanceId int64) []Task {
+	task := make([]Task, 0)
+	err := db.MasterDB.Where("proc_inst_id=?", processInstanceId).Find(&task)
+	if err != nil {
+		log.Infoln("新增数据异常", err)
+	}
+	return task
 }
 
 func (taskManager TaskManager) DeleteTask(taskId int64) {
