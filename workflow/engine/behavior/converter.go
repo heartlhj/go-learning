@@ -3,37 +3,43 @@ package behavior
 import (
 	"encoding/xml"
 	. "github.com/heartlhj/go-learning/workflow/engine"
+	"github.com/heartlhj/go-learning/workflow/model"
 )
 
-var (
-	//将元素存入map
-	flowMap = make(map[string]FlowElement, 0)
-)
-
-func FindCurrentTask(bytes string, taskDefineKey string) FlowElement {
-	Converter(bytes)
-	flowElement := flowMap[taskDefineKey]
+func FindCurrentTask(bytearries model.Bytearry, taskDefineKey string) FlowElement {
+	process := Converter(bytearries)
+	flowElement := process.FlowMap[taskDefineKey]
 	return flowElement
 }
+func GetBpmn(bytes model.Bytearry) Process {
+	return Converter(bytes)
+}
 
-func Converter(bytes string) Process {
+func Converter(bytes model.Bytearry) Process {
+	process, err := GetProcess(bytes.Id)
+	if err == nil {
+		return process
+	}
 	define := new(Definitions)
-	xml.Unmarshal([]byte(bytes), &define)
+	xml.Unmarshal([]byte(bytes.Bytes), &define)
 	processes := define.Process
 	if processes != nil {
 		for j, p := range processes {
+			flowMap := make(map[string]FlowElement, 0)
+			processes[j].FlowMap = flowMap
 			processes[j].Name = p.Documentation
 			start := p.StartEvent
 			if start != nil {
 				for i, sta := range start {
-					flowMap[sta.Id] = start[i]
+					//flowMap[sta.Id] = start[i]
+					processes[j].FlowMap[sta.Id] = start[i]
 					processes[j].InitialFlowElement = start[i]
 				}
 			}
 			se := p.SequenceFlow
 			if se != nil {
 				for i, s := range se {
-					flowMap[s.Id] = se[i]
+					processes[j].FlowMap[s.Id] = se[i]
 				}
 			}
 			user := p.UserTask
@@ -41,13 +47,13 @@ func Converter(bytes string) Process {
 				for i, u := range user {
 					behavior := UserTaskActivityBehavior{UserTask: user[i]}
 					user[i].SetBehavior(behavior)
-					flowMap[u.Id] = user[i]
+					processes[j].FlowMap[u.Id] = user[i]
 				}
 			}
 			end := p.EndEvent
 			if end != nil {
 				for i, e := range end {
-					flowMap[e.Id] = end[i]
+					processes[j].FlowMap[e.Id] = end[i]
 				}
 			}
 			flows := make([]FlowElement, len(flowMap))
@@ -60,6 +66,7 @@ func Converter(bytes string) Process {
 		}
 	}
 	ConvertXMLToElement(define)
+	SetProcess(bytes.Id, define.Process[0])
 	return define.Process[0]
 }
 
@@ -67,14 +74,14 @@ func Converter(bytes string) Process {
 func ConvertXMLToElement(model *Definitions) {
 	processes := model.Process
 	if processes != nil {
-		for _, p := range processes {
+		for j, p := range processes {
 			flows := p.Flow
 			for i := range flows {
 				value, ok := flows[i].(SequenceFlow)
 				if ok {
 					SourceRef := value.SourceRef
 					//上一个节点
-					lastFlow := flowMap[SourceRef]
+					lastFlow := processes[j].FlowMap[SourceRef]
 					if lastFlow != nil {
 						var outgoing = lastFlow.GetOutgoing()
 						if outgoing == nil {
@@ -89,7 +96,7 @@ func ConvertXMLToElement(model *Definitions) {
 					}
 					//下一个节点
 					TargetRef := value.TargetRef
-					nextFlow := flowMap[TargetRef]
+					nextFlow := processes[j].FlowMap[TargetRef]
 					if nextFlow != nil {
 						incoming := nextFlow.GetIncoming()
 						if incoming == nil {

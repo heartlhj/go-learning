@@ -19,6 +19,15 @@ func (define DefineManager) FindDeployedProcessDefinitionByKey(key string) []*mo
 	return bytearries
 }
 
+func (define DefineManager) GetBytearry(processDefineId int64) model.Bytearry {
+	bytearries := make([]model.Bytearry, 0)
+	err := db.MasterDB.Id(processDefineId).Find(bytearries)
+	if err != nil {
+		log.Infoln("create processInstance err", err)
+	}
+	return bytearries[0]
+}
+
 func (define DefineManager) CreateByteArry(name string, key string, bytes string) error {
 	bytearries := define.FindDeployedProcessDefinitionByKey(key)
 	var verion = 0

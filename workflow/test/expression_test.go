@@ -20,5 +20,5 @@ func TestStartProcss(t *testing.T) {
 //测试完成任务
 func TestComplete(t *testing.T) {
 	taskService := peocess.TaskServiceImpl{}
-	taskService.Complete(9, nil)
+	taskService.Complete(13, nil)
 }

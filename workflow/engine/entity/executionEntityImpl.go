@@ -14,6 +14,8 @@ type ExecutionEntityImpl struct {
 	CurrentFlowElement engine.FlowElement
 	DeploymentId       int
 	ProcessInstanceId  int64
+	ProcessDefineId    int64
+	CurrentActivityId  string
 }
 
 func (execution *ExecutionEntityImpl) SetBusinessKey(businessKey string) {
@@ -26,6 +28,7 @@ func (execution ExecutionEntityImpl) GetCurrentFlowElement() engine.FlowElement 
 
 func (execution *ExecutionEntityImpl) SetCurrentFlowElement(flow engine.FlowElement) {
 	execution.CurrentFlowElement = flow
+	execution.CurrentActivityId = flow.GetId()
 }
 
 func (execution ExecutionEntityImpl) GetDeploymentId() int {
@@ -42,6 +45,51 @@ func (execution ExecutionEntityImpl) GetProcessInstanceId() int64 {
 
 func (execution *ExecutionEntityImpl) SetProcessInstanceId(processInstanceId int64) {
 	execution.ProcessInstanceId = processInstanceId
+}
+
+func (execution *ExecutionEntityImpl) GetProcessDefineId() int64 {
+	return execution.ProcessDefineId
+}
+
+func (execution *ExecutionEntityImpl) SetProcessDefineId(processDefineId int64) {
+	execution.ProcessDefineId = processDefineId
+}
+
+func (execution *ExecutionEntityImpl) GetCurrentActivityId() string {
+	return execution.CurrentActivityId
+}
+
+func (execution *ExecutionEntityImpl) SetCurrentActivityId(currentActivityId string) {
+	execution.CurrentActivityId = currentActivityId
+}
+
+func (execution *ExecutionEntityImpl) GetTaskId() int64 {
+	return -1
+}
+
+func (execution *ExecutionEntityImpl) SetTaskId(taskId int64) {
+
+}
+
+func (execution *ExecutionEntityImpl) GetVariable() map[string]interface{} {
+	variableManager := GetVariableManager()
+	variables, err := variableManager.SelectByProcessInstanceId(execution.GetProcessInstanceId())
+	if err != nil {
+		return execution.HandleVariable(variables)
+	}
+	return nil
+}
+
+func (execution *ExecutionEntityImpl) HandleVariable(variables []Variable) map[string]interface{} {
+	engineConfiguration := GetProcessEngineConfiguration()
+	variableTypes := engineConfiguration.VariableTypes
+	var variableMap = make(map[string]interface{}, 0)
+	for _, variable := range variables {
+		variableType := variableTypes.GetVariableType(variable.Type)
+		value := variableType.GetValue(&variable)
+		variableMap[variable.Name] = value
+	}
+	return variableMap
 }
 
 func (execution *ExecutionEntityImpl) SetVariable(variables map[string]interface{}) error {
@@ -61,7 +109,7 @@ func (execution *ExecutionEntityImpl) SetVariable(variables map[string]interface
 			if e != nil {
 				variable.Version = specificVariable.Version + 1
 			}
-			variable.ProcessInstanceId = execution.ProcessInstanceId
+			execution.SetScope(variable)
 			variableManager.Insert(variable)
 		}
 	}
@@ -70,4 +118,8 @@ func (execution *ExecutionEntityImpl) SetVariable(variables map[string]interface
 
 func (execution *ExecutionEntityImpl) getSpecificVariable(variableName string, variableManager VariableManager) (Variable, error) {
 	return variableManager.SelectProcessInstanceId(variableName, execution.ProcessInstanceId)
+}
+
+func (execution *ExecutionEntityImpl) SetScope(variable *Variable) {
+	variable.ProcessInstanceId = execution.ProcessInstanceId
 }

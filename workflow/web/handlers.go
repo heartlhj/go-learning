@@ -50,7 +50,7 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, http.StatusInternalServerError, "XML转换异常")
 		return
 	}
-	behavior.Converter(data)
+	//behavior.Converter(data)
 	behavior.ConvertXMLToElement(data)
 	//导出xml文件
 	headerBytes := []byte(xml.Header)                //加入XML头

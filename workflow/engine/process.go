@@ -2,11 +2,12 @@ package engine
 
 import (
 	"encoding/xml"
+	"github.com/heartlhj/go-learning/workflow/errs"
 )
 
 var (
 	//将元素存入map
-	processMap = make(map[string]Process, 0)
+	processMap = make(map[int64]Process, 0)
 )
 
 //流程定义对象
@@ -44,6 +45,7 @@ type Process struct {
 	SubProcess             []SubProcess             `xml:"subProcess"`
 	Flow                   []FlowElement
 	InitialFlowElement     FlowElement
+	FlowMap                map[string]FlowElement
 }
 
 //子流程
@@ -107,20 +109,24 @@ type SequenceFlow struct {
 	TargetRef           string   `xml:"targetRef,attr"`
 	ConditionExpression string   `xml:"conditionExpression"`
 }
+type Gateway struct {
+	*Flow
+	DefaultFlow string
+}
 
 //排他网关
 type ExclusiveGateway struct {
-	*Flow
+	*Gateway
 }
 
 //包容网关
 type InclusiveGateway struct {
-	*Flow
+	*Gateway
 }
 
 //并行网关
 type ParallelGateway struct {
-	*Flow
+	*Gateway
 }
 
 //边界事件
@@ -165,19 +171,25 @@ type FlowElement interface {
 
 	GetBehavior() ActivityBehavior
 	SetBehavior(behavior ActivityBehavior)
+
+	GetId() string
 }
 
-func SetProcess(process Process) {
+func SetProcess(defineId int64, process Process) {
 	//_,err := processMap[process.Id]
-	processMap[process.Id] = process
+	processMap[defineId] = process
 }
 
-func GetProcess(id string) Process {
-	return processMap[id]
+func GetProcess(id int64) (Process, error) {
+	process, ok := processMap[id]
+	if !ok {
+		return Process{}, errs.ProcessError{}
+	}
+	return process, nil
 }
 
-func (pocess Process) GetFlowElement(flowElementId string) {
-
+func (pocess Process) GetFlowElement(flowElementId string) FlowElement {
+	return pocess.FlowMap[flowElementId]
 }
 
 func (flow *Flow) SetIncoming(f []*FlowElement) {
@@ -213,4 +225,8 @@ func (flow *Flow) GetBehavior() ActivityBehavior {
 }
 func (flow *Flow) SetBehavior(behavior ActivityBehavior) {
 	flow.Behavior = behavior
+}
+
+func (flow *Flow) GetId() string {
+	return flow.Id
 }

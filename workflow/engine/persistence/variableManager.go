@@ -39,3 +39,39 @@ func (defineManager VariableManager) SelectProcessInstanceId(name string, proces
 	}
 	return *variables[0], nil
 }
+
+func (defineManager VariableManager) SelectTakId(name string, taskId int64) (Variable, error) {
+	variables := make([]*Variable, 0)
+	err := db.MasterDB.Where("task_id = ?", taskId).Where("name = ?", name).Limit(1, 0).Find(&variables)
+	if err != nil {
+		log.Infoln("新增数据异常", err)
+	}
+	if variables == nil || len(variables) <= 0 {
+		return Variable{}, errs.ProcessError{}
+	}
+	return *variables[0], nil
+}
+
+func (defineManager VariableManager) SelectByProcessInstanceId(processInstanceId int64) ([]Variable, error) {
+	variables := make([]Variable, 0)
+	err := db.MasterDB.Where("proc_inst_id = ?", processInstanceId).Find(&variables)
+	if err != nil {
+		log.Infoln("新增数据异常", err)
+	}
+	if variables == nil || len(variables) <= 0 {
+		return []Variable{}, errs.ProcessError{}
+	}
+	return variables, nil
+}
+
+func (defineManager VariableManager) SelectByTaskId(taskId int64) ([]Variable, error) {
+	variables := make([]Variable, 0)
+	err := db.MasterDB.Where("task_id = ?", taskId).Find(&variables)
+	if err != nil {
+		log.Infoln("新增数据异常", err)
+	}
+	if variables == nil || len(variables) <= 0 {
+		return []Variable{}, errs.ProcessError{}
+	}
+	return variables, nil
+}
