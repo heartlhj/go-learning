@@ -42,6 +42,7 @@ func (exclusive ExclusiveGatewayActivityBehavior) Leave(execution engine.Executi
 			execution.SetCurrentFlowElement(*defaultSequenceFlow)
 		}
 	}
+	//执行出口逻辑，设置条件判断
 	GetAgenda().PlanTakeOutgoingSequenceFlowsOperation(execution, true)
 
 }
