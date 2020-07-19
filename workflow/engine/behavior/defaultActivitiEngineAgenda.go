@@ -42,10 +42,10 @@ func (agenda *DefaultActivitiEngineAgenda) PlanTriggerExecutionOperation(executi
 
 //连线出口设置
 func (agenda *DefaultActivitiEngineAgenda) PlanTakeOutgoingSequenceFlowsOperation(execution engine.ExecutionEntity, valuateConditions bool) {
-	agenda.PlanOperation(&TakeOutgoingSequenceFlowsOperation{AbstractOperation{Execution: execution}})
+	agenda.PlanOperation(&TakeOutgoingSequenceFlowsOperation{AbstractOperation: AbstractOperation{Execution: execution}, EvaluateConditions: valuateConditions})
 }
 
 //任务结束
 func (agenda *DefaultActivitiEngineAgenda) PlanEndExecutionOperation(execution engine.ExecutionEntity) {
-	agenda.PlanOperation(&TakeOutgoingSequenceFlowsOperation{AbstractOperation{Execution: execution}})
+	agenda.PlanOperation(&TakeOutgoingSequenceFlowsOperation{AbstractOperation: AbstractOperation{Execution: execution}})
 }

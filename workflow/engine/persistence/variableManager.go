@@ -40,7 +40,7 @@ func (defineManager VariableManager) SelectProcessInstanceId(name string, proces
 	return *variables[0], nil
 }
 
-func (defineManager VariableManager) SelectTakId(name string, taskId int64) (Variable, error) {
+func (defineManager VariableManager) SelectTaskId(name string, taskId int64) (Variable, error) {
 	variables := make([]*Variable, 0)
 	err := db.MasterDB.Where("task_id = ?", taskId).Where("name = ?", name).Limit(1, 0).Find(&variables)
 	if err != nil {

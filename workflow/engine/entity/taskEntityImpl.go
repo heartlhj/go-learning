@@ -27,11 +27,10 @@ func (task *TaskEntityImpl) GetVariable() map[string]interface{} {
 		return task.HandleVariable(variables)
 	}
 	return nil
-	return task.Variables
 }
 
 func (task *TaskEntityImpl) getSpecificVariable(variableName string, variableManager VariableManager) (Variable, error) {
-	return variableManager.SelectTakId(variableName, task.TaskId)
+	return variableManager.SelectTaskId(variableName, task.TaskId)
 }
 
 func (task *TaskEntityImpl) SetScope(variable *Variable) {

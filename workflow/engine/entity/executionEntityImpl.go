@@ -92,6 +92,7 @@ func (execution *ExecutionEntityImpl) HandleVariable(variables []Variable) map[s
 	return variableMap
 }
 
+//保存流程变量
 func (execution *ExecutionEntityImpl) SetVariable(variables map[string]interface{}) error {
 	engineConfiguration := GetProcessEngineConfiguration()
 	variableTypes := engineConfiguration.VariableTypes
