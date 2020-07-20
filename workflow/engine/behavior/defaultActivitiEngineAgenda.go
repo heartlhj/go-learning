@@ -47,5 +47,5 @@ func (agenda *DefaultActivitiEngineAgenda) PlanTakeOutgoingSequenceFlowsOperatio
 
 //任务结束
 func (agenda *DefaultActivitiEngineAgenda) PlanEndExecutionOperation(execution engine.ExecutionEntity) {
-	agenda.PlanOperation(&TakeOutgoingSequenceFlowsOperation{AbstractOperation: AbstractOperation{Execution: execution}})
+	agenda.PlanOperation(&EndExecutionOperation{AbstractOperation: AbstractOperation{Execution: execution}})
 }

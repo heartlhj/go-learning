@@ -25,39 +25,40 @@ func (task TakeOutgoingSequenceFlowsOperation) handleFlowNode() {
 	execution := task.Execution
 	currentFlowElement := task.Execution.GetCurrentFlowElement()
 	gateway, ok := currentFlowElement.(Gateway)
-	flowElements := currentFlowElement.GetOutgoing()
+	var defaultSequenceFlowId = ""
 	if ok {
-		defaultSequenceFlowId := gateway.DefaultFlow
-		var outgoingSequenceFlows = make([]FlowElement, 0)
-		if len(flowElements) > 0 {
-			for _, flowElement := range flowElements {
-				sequenceFlow := (*flowElement).(SequenceFlow)
-				if !task.EvaluateConditions || utils.HasTrueCondition(sequenceFlow, execution) {
-					outgoingSequenceFlows = append(outgoingSequenceFlows, *flowElement)
-				}
+		defaultSequenceFlowId = gateway.DefaultFlow
+	}
+	flowElements := currentFlowElement.GetOutgoing()
+	var outgoingSequenceFlows = make([]FlowElement, 0)
+	if len(flowElements) > 0 {
+		for _, flowElement := range flowElements {
+			sequenceFlow := (*flowElement).(SequenceFlow)
+			if !task.EvaluateConditions || utils.HasTrueCondition(sequenceFlow, execution) {
+				outgoingSequenceFlows = append(outgoingSequenceFlows, *flowElement)
 			}
-			if outgoingSequenceFlows != nil && len(outgoingSequenceFlows) == 0 {
-				if defaultSequenceFlowId != "" {
-					for _, flowElement := range flowElements {
-						if defaultSequenceFlowId == (*flowElement).GetId() {
-							outgoingSequenceFlows = append(outgoingSequenceFlows, *flowElement)
-						}
+		}
+		if outgoingSequenceFlows != nil && len(outgoingSequenceFlows) == 0 {
+			if defaultSequenceFlowId != "" {
+				for _, flowElement := range flowElements {
+					if defaultSequenceFlowId == (*flowElement).GetId() {
+						outgoingSequenceFlows = append(outgoingSequenceFlows, *flowElement)
 					}
 				}
 			}
 		}
+	}
 
-		if len(outgoingSequenceFlows) == 0 {
-			if flowElements == nil || len(flowElements) == 0 {
-				GetAgenda().PlanEndExecutionOperation(execution)
-			} else {
-				panic("No outgoing sequence flow of element")
-			}
+	if len(outgoingSequenceFlows) == 0 {
+		if flowElements == nil || len(flowElements) == 0 {
+			GetAgenda().PlanEndExecutionOperation(execution)
 		} else {
-			for _, outgoingExecution := range outgoingSequenceFlows {
-				execution.SetCurrentFlowElement(outgoingExecution)
-				GetAgenda().PlanContinueProcessOperation(execution)
-			}
+			panic("No outgoing sequence flow of element")
+		}
+	} else {
+		for _, outgoingExecution := range outgoingSequenceFlows {
+			execution.SetCurrentFlowElement(outgoingExecution)
+			GetAgenda().PlanContinueProcessOperation(execution)
 		}
 	}
 }

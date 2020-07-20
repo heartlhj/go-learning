@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/xml"
+	"fmt"
 	"github.com/heartlhj/go-learning/workflow/engine"
 	"github.com/heartlhj/go-learning/workflow/engine/behavior"
 	"github.com/heartlhj/go-learning/workflow/model"
@@ -50,8 +51,8 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		sendErrorResponse(w, http.StatusInternalServerError, "XML转换异常")
 		return
 	}
-	//behavior.Converter(data)
-	behavior.ConvertXMLToElement(data)
+	converter := behavior.Converter(body)
+	fmt.Println(converter.Id)
 	//导出xml文件
 	headerBytes := []byte(xml.Header)                //加入XML头
 	xmlOutPutData := append(headerBytes, dataStr...) //拼接XML头和实际XML内容

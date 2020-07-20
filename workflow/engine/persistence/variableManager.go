@@ -34,7 +34,7 @@ func (defineManager VariableManager) SelectProcessInstanceId(name string, proces
 	if err != nil {
 		log.Infoln("新增数据异常", err)
 	}
-	if variables == nil || len(variables) <= 0 {
+	if variables != nil || len(variables) >= 0 {
 		return Variable{}, errs.ProcessError{}
 	}
 	return *variables[0], nil
@@ -44,9 +44,9 @@ func (defineManager VariableManager) SelectTaskId(name string, taskId int64) (Va
 	variables := make([]*Variable, 0)
 	err := db.MasterDB.Where("task_id = ?", taskId).Where("name = ?", name).Limit(1, 0).Find(&variables)
 	if err != nil {
-		log.Infoln("新增数据异常", err)
+		log.Infoln("根据[taskId] 查询流程变量异常", err)
 	}
-	if variables == nil || len(variables) <= 0 {
+	if variables != nil || len(variables) >= 0 {
 		return Variable{}, errs.ProcessError{}
 	}
 	return *variables[0], nil

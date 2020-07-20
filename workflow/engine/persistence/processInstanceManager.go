@@ -21,7 +21,7 @@ func (processInstanceManager *ProcessInstanceManager) CreateProcessInstance() {
 //查询流程实例
 func (processInstanceManager *ProcessInstanceManager) GetProcessInstance(processInstanceId int64) ProcessInstance {
 	instance := make([]ProcessInstance, 0)
-	err := db.MasterDB.Id(processInstanceId).Find(instance)
+	err := db.MasterDB.Id(processInstanceId).Find(&instance)
 	if err != nil {
 		log.Infoln("create processInstance err", err)
 	}

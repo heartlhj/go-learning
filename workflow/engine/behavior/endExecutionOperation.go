@@ -4,7 +4,7 @@ type EndExecutionOperation struct {
 	AbstractOperation
 }
 
-func (end EndExecutionOperation) run() {
+func (end *EndExecutionOperation) Run() {
 	manager := GetProcessInstanceManager()
 	manager.DeleteProcessInstance(end.Execution.GetProcessInstanceId())
 }

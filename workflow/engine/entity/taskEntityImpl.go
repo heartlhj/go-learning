@@ -29,7 +29,7 @@ func (task *TaskEntityImpl) GetVariable() map[string]interface{} {
 	return nil
 }
 
-func (task *TaskEntityImpl) getSpecificVariable(variableName string, variableManager VariableManager) (Variable, error) {
+func (task *TaskEntityImpl) GetSpecificVariable(variableName string, variableManager VariableManager) (Variable, error) {
 	return variableManager.SelectTaskId(variableName, task.TaskId)
 }
 

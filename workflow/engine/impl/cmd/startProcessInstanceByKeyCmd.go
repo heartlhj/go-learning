@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
 	"github.com/heartlhj/go-learning/workflow/engine/behavior"
-	"github.com/heartlhj/go-learning/workflow/engine/entity"
+	. "github.com/heartlhj/go-learning/workflow/engine/entity"
 	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	"time"
@@ -24,16 +24,17 @@ func (start StartProcessInstanceByKeyCmd) Execute(interceptor behavior.CommandCo
 	instance := ProcessInstance{BusinessKey: start.BusinessKey, TenantId: start.TenantId, StartTime: time.Now()}
 	instance.Key = process.Id
 	instance.Name = process.Name
+	instance.ProcessDefineId = bytearries[0].Id
 	manager := ProcessInstanceManager{Instance: &instance}
 	manager.CreateProcessInstance()
 	flowElement := process.InitialFlowElement
 	element := flowElement.(engine.StartEvent)
 	outgoing := element.GetOutgoing()
-	execution := entity.ExecutionEntityImpl{ProcessInstanceId: instance.Id}
+	execution := ExecutionEntityImpl{ProcessInstanceId: instance.Id}
 	execution.SetCurrentFlowElement(*outgoing[0])
 	execution.SetProcessDefineId(bytearries[0].Id)
 	execution.SetCurrentActivityId((*outgoing[0]).GetId())
-	execution.SetVariable(start.Variables)
+	SetVariable(&execution, start.Variables)
 	context, e := behavior.GetCommandContext()
 	if e != nil {
 

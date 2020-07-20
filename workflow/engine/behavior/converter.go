@@ -7,21 +7,26 @@ import (
 )
 
 func FindCurrentTask(bytearries model.Bytearry, taskDefineKey string) FlowElement {
-	process := Converter(bytearries)
+	process := ConverterBpmn(bytearries)
 	flowElement := process.FlowMap[taskDefineKey]
 	return flowElement
 }
 func GetBpmn(bytes model.Bytearry) Process {
-	return Converter(bytes)
+	return ConverterBpmn(bytes)
 }
-
-func Converter(bytes model.Bytearry) Process {
+func ConverterBpmn(bytes model.Bytearry) Process {
 	process, err := GetProcess(bytes.Id)
 	if err == nil {
 		return process
 	}
+	process = Converter([]byte(bytes.Bytes))
+	SetProcess(bytes.Id, process)
+	return process
+}
+
+func Converter(bytes []byte) Process {
 	define := new(Definitions)
-	xml.Unmarshal([]byte(bytes.Bytes), &define)
+	xml.Unmarshal(bytes, &define)
 	processes := define.Process
 	if processes != nil {
 		for j, p := range processes {
@@ -56,6 +61,18 @@ func Converter(bytes model.Bytearry) Process {
 					processes[j].FlowMap[e.Id] = end[i]
 				}
 			}
+			exclusiveGateways := p.ExclusiveGateway
+			if exclusiveGateways != nil {
+				for i, exclusiveGateway := range exclusiveGateways {
+					processes[j].FlowMap[exclusiveGateway.Id] = exclusiveGateways[i]
+				}
+			}
+			inclusiveGateways := p.InclusiveGateway
+			if inclusiveGateways != nil {
+				for i, inclusiveGateway := range inclusiveGateways {
+					processes[j].FlowMap[inclusiveGateway.Id] = inclusiveGateways[i]
+				}
+			}
 			flows := make([]FlowElement, len(flowMap))
 			count := 0
 			for _, v := range flowMap {
@@ -66,7 +83,6 @@ func Converter(bytes model.Bytearry) Process {
 		}
 	}
 	ConvertXMLToElement(define)
-	SetProcess(bytes.Id, define.Process[0])
 	return define.Process[0]
 }
 

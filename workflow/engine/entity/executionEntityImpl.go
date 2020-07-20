@@ -93,7 +93,7 @@ func (execution *ExecutionEntityImpl) HandleVariable(variables []Variable) map[s
 }
 
 //保存流程变量
-func (execution *ExecutionEntityImpl) SetVariable(variables map[string]interface{}) error {
+func SetVariable(execution engine.ExecutionEntity, variables map[string]interface{}) error {
 	engineConfiguration := GetProcessEngineConfiguration()
 	variableTypes := engineConfiguration.VariableTypes
 	variableManager := GetVariableManager()
@@ -106,7 +106,7 @@ func (execution *ExecutionEntityImpl) SetVariable(variables map[string]interface
 			}
 			variable := variableManager.Create(k, variableType, v)
 			//存在更新
-			specificVariable, e := execution.getSpecificVariable(k, variableManager)
+			specificVariable, e := execution.GetSpecificVariable(k, variableManager)
 			if e != nil {
 				variable.Version = specificVariable.Version + 1
 			}
@@ -117,7 +117,7 @@ func (execution *ExecutionEntityImpl) SetVariable(variables map[string]interface
 	return nil
 }
 
-func (execution *ExecutionEntityImpl) getSpecificVariable(variableName string, variableManager VariableManager) (Variable, error) {
+func (execution *ExecutionEntityImpl) GetSpecificVariable(variableName string, variableManager VariableManager) (Variable, error) {
 	return variableManager.SelectProcessInstanceId(variableName, execution.ProcessInstanceId)
 }
 

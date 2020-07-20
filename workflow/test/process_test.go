@@ -20,5 +20,7 @@ func TestStartProcss(t *testing.T) {
 //测试完成任务
 func TestComplete(t *testing.T) {
 	taskService := peocess.TaskServiceImpl{}
-	taskService.Complete(13, nil)
+	variables := make(map[string]interface{}, 0)
+	variables["code"] = "0001"
+	taskService.Complete(40, variables, true)
 }

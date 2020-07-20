@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/heartlhj/go-learning/workflow/engine/behavior"
-	"github.com/heartlhj/go-learning/workflow/engine/entity"
+	. "github.com/heartlhj/go-learning/workflow/engine/entity"
 	. "github.com/heartlhj/go-learning/workflow/model"
 )
 
@@ -16,12 +16,14 @@ func (taskCmd CompleteCmd) Execute(interceptor behavior.CommandContext) interfac
 
 	manager := behavior.GetTaskManager()
 	tasks := manager.FindById(taskCmd.TaskId)
-	if len(tasks) > 0 {
+	if len(tasks) == 1 {
 		task := tasks[0]
 		taskCmd.executeTaskComplete(task, interceptor)
 		return task
+	} else {
+		panic("Not find task by taskId")
 	}
-	return Task{}
+	return tasks[0]
 }
 
 func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.CommandContext) {
@@ -30,8 +32,8 @@ func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.C
 	defineManager := behavior.GetDefineManager()
 	bytearry := defineManager.FindProcessByTask(task.ProcessInstanceId)
 	currentTask := behavior.FindCurrentTask(*bytearry, task.TaskDefineKey)
-	taskExecution := entity.TaskEntityImpl{}
-	execution := entity.ExecutionEntityImpl{}
+	taskExecution := TaskEntityImpl{}
+	execution := ExecutionEntityImpl{}
 	execution.SetCurrentFlowElement(currentTask)
 	execution.SetCurrentActivityId(task.TaskDefineKey)
 	processInstanceManager := behavior.GetProcessInstanceManager()
@@ -40,9 +42,9 @@ func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.C
 	taskExecution.SetTaskId(task.Id)
 	taskExecution.ExecutionEntityImpl = execution
 	if taskCmd.LocalScope {
-		taskExecution.SetVariable(taskCmd.Variables)
+		SetVariable(&taskExecution, taskCmd.Variables)
 	} else {
-		taskExecution.ExecutionEntityImpl.SetVariable(taskCmd.Variables)
+		SetVariable(&execution, taskCmd.Variables)
 	}
 	interceptor.Agenda.PlanTriggerExecutionOperation(&taskExecution)
 }

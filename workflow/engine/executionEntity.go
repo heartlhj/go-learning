@@ -1,5 +1,10 @@
 package engine
 
+import (
+	"github.com/heartlhj/go-learning/workflow/engine/persistence"
+	"github.com/heartlhj/go-learning/workflow/engine/variable"
+)
+
 type ExecutionEntity interface {
 	SetBusinessKey(businessKey string)
 
@@ -23,7 +28,11 @@ type ExecutionEntity interface {
 
 	SetCurrentActivityId(currentActivityId string)
 
-	SetVariable(variables map[string]interface{}) error
+	//SetVariable(execution ExecutionEntity,variables map[string]interface{}) error
+
+	GetSpecificVariable(variableName string, variableManager persistence.VariableManager) (variable.Variable, error)
+
+	SetScope(variable *variable.Variable)
 
 	GetVariable() map[string]interface{}
 

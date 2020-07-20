@@ -10,7 +10,7 @@ type TaskServiceImpl struct {
 }
 
 //流程审批完成
-func (task TaskServiceImpl) Complete(taskId int, variables map[string]interface{}) Task {
-	exe := behavior.GetServiceImpl().CommandExecutor.Exe(cmd.CompleteCmd{TaskId: taskId, Variables: variables})
+func (task TaskServiceImpl) Complete(taskId int, variables map[string]interface{}, localScope bool) Task {
+	exe := behavior.GetServiceImpl().CommandExecutor.Exe(cmd.CompleteCmd{TaskId: taskId, Variables: variables, LocalScope: localScope})
 	return exe.(Task)
 }

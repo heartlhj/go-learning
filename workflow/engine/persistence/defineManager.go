@@ -47,7 +47,7 @@ func (define DefineManager) CreateByteArry(name string, key string, bytes string
 
 func (define DefineManager) FindProcessByTask(processInstanceId int64) *model.Bytearry {
 	bytearries := make([]*model.Bytearry, 0)
-	var sql = "select b.* from bytearry b " +
+	var sql = "SELECT b.* FROM bytearry b " +
 		"LEFT JOIN process_instance p on b.key = p.key " +
 		"WHERE p.id = ? "
 	e := db.MasterDB.SQL(sql, processInstanceId).Find(&bytearries)

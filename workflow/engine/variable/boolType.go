@@ -8,16 +8,16 @@ func (boolType BooleanType) GetTypeName() string {
 }
 
 func (boolType BooleanType) GetValue(valueFields ValueFields) interface{} {
-	return valueFields.GetNumberValue() == 1
+	return valueFields.GetTextValue() == "true"
 }
 
 func (boolType BooleanType) SetValue(value interface{}, valueFields ValueFields) {
 	b, ok := value.(bool)
 	if ok {
 		if b {
-			valueFields.SetNumberValue(1)
+			valueFields.SetTextValue("true")
 		} else {
-			valueFields.SetNumberValue(0)
+			valueFields.SetTextValue("false")
 		}
 	} else {
 		valueFields.SetNumberValue(0)
