@@ -47,11 +47,9 @@ func Create(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	data := new(engine.Definitions)
 	err = xml.Unmarshal(body, &data)
 	dataStr, err := xml.MarshalIndent(data, "", " ")
-	if err != nil {
-		sendErrorResponse(w, http.StatusInternalServerError, "XML转换异常")
-		return
-	}
 	converter := behavior.Converter(body)
+	defineManager := behavior.GetDefineManager()
+	defineManager.CreateByteArry(converter.Name, converter.Id, string(body))
 	fmt.Println(converter.Id)
 	//导出xml文件
 	headerBytes := []byte(xml.Header)                //加入XML头

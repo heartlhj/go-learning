@@ -64,12 +64,16 @@ func Converter(bytes []byte) Process {
 			exclusiveGateways := p.ExclusiveGateway
 			if exclusiveGateways != nil {
 				for i, exclusiveGateway := range exclusiveGateways {
+					behavior := ExclusiveGatewayActivityBehavior{}
+					exclusiveGateways[i].SetBehavior(behavior)
 					processes[j].FlowMap[exclusiveGateway.Id] = exclusiveGateways[i]
 				}
 			}
 			inclusiveGateways := p.InclusiveGateway
 			if inclusiveGateways != nil {
 				for i, inclusiveGateway := range inclusiveGateways {
+					behavior := InclusiveGatewayActivityBehavior{}
+					inclusiveGateways[i].SetBehavior(behavior)
 					processes[j].FlowMap[inclusiveGateway.Id] = inclusiveGateways[i]
 				}
 			}
