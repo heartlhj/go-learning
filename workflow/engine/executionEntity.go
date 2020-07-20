@@ -36,6 +36,8 @@ type ExecutionEntity interface {
 
 	GetVariable() map[string]interface{}
 
+	GetProcessVariable() map[string]interface{}
+
 	GetTaskId() int64
 
 	SetTaskId(taskId int64)

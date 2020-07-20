@@ -17,7 +17,7 @@ type ConditionUtil struct {
 func HasTrueCondition(sequenceFlow engine.SequenceFlow, execution engine.ExecutionEntity) bool {
 	var conditionExpression = sequenceFlow.ConditionExpression
 	if conditionExpression != "" {
-		variable := execution.GetVariable()
+		variable := execution.GetProcessVariable()
 		context.SetVariables(variable)
 		valueContext := parser.ParseExpression(conditionExpression).GetValueContext(&context)
 		b, ok := valueContext.(bool)

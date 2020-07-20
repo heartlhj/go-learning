@@ -70,11 +70,14 @@ func (execution *ExecutionEntityImpl) GetTaskId() int64 {
 func (execution *ExecutionEntityImpl) SetTaskId(taskId int64) {
 
 }
+func (execution *ExecutionEntityImpl) GetProcessVariable() map[string]interface{} {
+	return execution.GetVariable()
+}
 
 func (execution *ExecutionEntityImpl) GetVariable() map[string]interface{} {
 	variableManager := GetVariableManager()
 	variables, err := variableManager.SelectByProcessInstanceId(execution.GetProcessInstanceId())
-	if err != nil {
+	if err == nil {
 		return execution.HandleVariable(variables)
 	}
 	return nil
