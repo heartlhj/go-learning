@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var key = "task001"
+var key = "process_demo"
 
 //测试发起流程
 func TestStartProcss(t *testing.T) {
@@ -22,5 +22,5 @@ func TestComplete(t *testing.T) {
 	taskService := peocess.TaskServiceImpl{}
 	variables := make(map[string]interface{}, 0)
 	variables["code"] = "0001"
-	taskService.Complete(40, variables, true)
+	taskService.Complete(46, variables, true)
 }

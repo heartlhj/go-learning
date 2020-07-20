@@ -15,7 +15,7 @@ func (exclusive ExclusiveGatewayActivityBehavior) Execute(execution engine.Execu
 
 func (exclusive ExclusiveGatewayActivityBehavior) Leave(execution engine.ExecutionEntity) {
 	element := execution.GetCurrentFlowElement()
-	exclusiveGateway, ok := element.(engine.Gateway)
+	exclusiveGateway, ok := element.(engine.ExclusiveGateway)
 	var outgoingSequenceFlow *engine.FlowElement
 	var defaultSequenceFlow *engine.FlowElement
 	if ok {
