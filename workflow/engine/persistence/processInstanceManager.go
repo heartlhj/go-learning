@@ -30,7 +30,7 @@ func (processInstanceManager *ProcessInstanceManager) GetProcessInstance(process
 
 //删除流程实例
 func (processInstanceManager ProcessInstanceManager) DeleteProcessInstance(processInstanceId int64) {
-	_, err := db.MasterDB.Id(processInstanceId).Delete(processInstanceManager.Instance)
+	_, err := db.MasterDB.Id(processInstanceId).Delete(ProcessInstance{})
 	if err != nil {
 		log.Infoln("delete processInstance err ", err)
 	}

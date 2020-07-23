@@ -32,7 +32,7 @@ func (defineManager VariableManager) SelectProcessInstanceId(name string, proces
 	variables := make([]*Variable, 0)
 	err := db.MasterDB.Where("proc_inst_id = ?", processInstanceId).Where("name = ?", name).Limit(1, 0).Find(&variables)
 	if err != nil {
-		log.Infoln("新增数据异常", err)
+		log.Infoln("Select Variable err: ", err)
 	}
 	if variables != nil || len(variables) >= 0 {
 		return Variable{}, errs.ProcessError{}
@@ -40,7 +40,7 @@ func (defineManager VariableManager) SelectProcessInstanceId(name string, proces
 	return *variables[0], nil
 }
 
-func (defineManager VariableManager) SelectTaskId(name string, taskId int64) (Variable, error) {
+func (variableManager VariableManager) SelectTaskId(name string, taskId int64) (Variable, error) {
 	variables := make([]*Variable, 0)
 	err := db.MasterDB.Where("task_id = ?", taskId).Where("name = ?", name).Limit(1, 0).Find(&variables)
 	if err != nil {
@@ -52,11 +52,11 @@ func (defineManager VariableManager) SelectTaskId(name string, taskId int64) (Va
 	return *variables[0], nil
 }
 
-func (defineManager VariableManager) SelectByProcessInstanceId(processInstanceId int64) ([]Variable, error) {
+func (variableManager VariableManager) SelectByProcessInstanceId(processInstanceId int64) ([]Variable, error) {
 	variables := make([]Variable, 0)
 	err := db.MasterDB.Where("proc_inst_id = ?", processInstanceId).Find(&variables)
 	if err != nil {
-		log.Infoln("新增数据异常", err)
+		log.Infoln("Select Variable err: ", err)
 	}
 	if variables == nil || len(variables) <= 0 {
 		return []Variable{}, errs.ProcessError{}
@@ -64,14 +64,22 @@ func (defineManager VariableManager) SelectByProcessInstanceId(processInstanceId
 	return variables, nil
 }
 
-func (defineManager VariableManager) SelectByTaskId(taskId int64) ([]Variable, error) {
+func (variableManager VariableManager) SelectByTaskId(taskId int64) ([]Variable, error) {
 	variables := make([]Variable, 0)
 	err := db.MasterDB.Where("task_id = ?", taskId).Find(&variables)
 	if err != nil {
-		log.Infoln("新增数据异常", err)
+		log.Infoln("Select Variable err: ", err)
 	}
 	if variables == nil || len(variables) <= 0 {
 		return []Variable{}, errs.ProcessError{}
 	}
 	return variables, nil
+}
+
+func (variableManager VariableManager) Delete(variableId int64) {
+	task := Variable{}
+	_, err := db.MasterDB.Id(variableId).Delete(task)
+	if err != nil {
+		log.Infoln("delete Variable err: ", err)
+	}
 }

@@ -16,4 +16,5 @@ func (stringType StringType) SetValue(value interface{}, valueFields ValueFields
 	if ok {
 		valueFields.SetTextValue(b)
 	}
+	valueFields.SetBlobValue("")
 }

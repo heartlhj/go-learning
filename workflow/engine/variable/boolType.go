@@ -19,7 +19,6 @@ func (boolType BooleanType) SetValue(value interface{}, valueFields ValueFields)
 		} else {
 			valueFields.SetTextValue("false")
 		}
-	} else {
-		valueFields.SetNumberValue(0)
 	}
+	valueFields.SetBlobValue("")
 }

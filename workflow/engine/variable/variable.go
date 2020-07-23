@@ -10,7 +10,7 @@ type Variable struct {
 	Name              string    `xorm:"name"`
 	Type              string    `xorm:"type"`
 	Date              time.Time `xorm:"date"`
-	Number            int64     `xorm:"number"`
+	Number            int       `xorm:"number"`
 	Float             float64   `xorm:"float"`
 	Text              string    `xorm:"text"`
 	Blob              string    `xorm:"blob"`
@@ -28,11 +28,11 @@ func (variable Variable) GetTaskId() int64 {
 	return variable.TaskId
 }
 
-func (variable Variable) GetNumberValue() int64 {
+func (variable Variable) GetNumberValue() int {
 	return variable.Number
 }
 
-func (variable *Variable) SetNumberValue(value int64) {
+func (variable *Variable) SetNumberValue(value int) {
 	variable.Number = value
 }
 
@@ -46,4 +46,12 @@ func (variable *Variable) SetTextValue(value string) {
 
 func (variable *Variable) SetValue(value interface{}, variableType VariableType) {
 	variableType.SetValue(value, variable)
+}
+
+func (variable *Variable) SetBlobValue(value string) {
+	variable.Blob = value
+}
+
+func (variable Variable) GetBlobValue() string {
+	return variable.Blob
 }

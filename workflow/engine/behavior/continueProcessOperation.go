@@ -28,5 +28,10 @@ func (cont *ContinueProcessOperation) continueThroughSequenceFlow(sequenceFlow e
 
 func (cont *ContinueProcessOperation) continueThroughFlowNode(element engine.FlowElement) {
 	behavior := element.GetBehavior()
-	behavior.Execute(cont.Execution)
+	if behavior != nil {
+		behavior.Execute(cont.Execution)
+	} else {
+		GetAgenda().PlanTakeOutgoingSequenceFlowsOperation(cont.Execution, true)
+	}
+
 }

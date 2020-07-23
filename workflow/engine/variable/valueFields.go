@@ -7,11 +7,15 @@ type ValueFields interface {
 
 	GetTaskId() int64
 
-	GetNumberValue() int64
+	GetNumberValue() int
 
-	SetNumberValue(value int64)
+	SetNumberValue(value int)
 
 	GetTextValue() string
 
 	SetTextValue(value string)
+
+	SetBlobValue(value string)
+
+	GetBlobValue() string
 }
