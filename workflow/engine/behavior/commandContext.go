@@ -2,7 +2,7 @@ package behavior
 
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
-	"github.com/heartlhj/go-learning/workflow/engine/persistence"
+	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
 )
 
 type CommandContext struct {
@@ -11,17 +11,33 @@ type CommandContext struct {
 	ProcessEngineConfiguration ProcessEngineConfiguration
 }
 
-func GetProcessInstanceManager() persistence.ProcessInstanceManager {
-	return persistence.ProcessInstanceManager{}
+func GetProcessInstanceManager() ProcessInstanceManager {
+	return ProcessInstanceManager{}
 }
 
-func GetTaskManager() persistence.TaskManager {
-	return persistence.TaskManager{}
+func GetTaskManager() TaskManager {
+	return TaskManager{}
 }
 
-func GetDefineManager() persistence.DefineManager {
-	return persistence.DefineManager{}
+func GetDefineManager() DefineManager {
+	return DefineManager{}
 }
-func GetVariableManager() persistence.VariableManager {
-	return persistence.VariableManager{}
+func GetVariableManager() VariableManager {
+	return VariableManager{}
+}
+
+func GetIdentityLinkManager() IdentityLinkManager {
+	return IdentityLinkManager{}
+}
+
+func GetHistoricActinstManager() HistoricActinstManager {
+	return HistoricActinstManager{}
+}
+
+func GetHistoricTaskManager() HistoricTaskManager {
+	return HistoricTaskManager{}
+}
+
+func GetHistoricProcessManager() HistoricProcessManager {
+	return HistoricProcessManager{}
 }

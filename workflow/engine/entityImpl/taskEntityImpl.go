@@ -1,4 +1,4 @@
-package entity
+package entityImpl
 
 import (
 	. "github.com/heartlhj/go-learning/workflow/engine/behavior"
@@ -29,7 +29,8 @@ func (task *TaskEntityImpl) GetVariable() map[string]interface{} {
 	return nil
 }
 
-func (task *TaskEntityImpl) GetSpecificVariable(variableName string, variableManager VariableManager) (Variable, error) {
+func (task *TaskEntityImpl) GetSpecificVariable(variableName string) (Variable, error) {
+	variableManager := VariableManager{}
 	return variableManager.SelectTaskId(variableName, task.TaskId)
 }
 

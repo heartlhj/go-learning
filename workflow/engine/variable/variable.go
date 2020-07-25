@@ -1,19 +1,16 @@
 package variable
 
-import "time"
+import (
+	"github.com/heartlhj/go-learning/workflow/entity"
+)
 
 type Variable struct {
-	Id                int64
-	Version           int64     `xorm:"version"`
-	TaskId            int64     `xorm:"task_id"`
-	ProcessInstanceId int64     `xorm:"proc_inst_id"`
-	Name              string    `xorm:"name"`
-	Type              string    `xorm:"type"`
-	Date              time.Time `xorm:"date"`
-	Number            int       `xorm:"number"`
-	Float             float64   `xorm:"float"`
-	Text              string    `xorm:"text"`
-	Blob              string    `xorm:"blob"`
+	*entity.VariableEntity
+	Id int64
+}
+
+func (Variable) TableName() string {
+	return "variable"
 }
 
 func (variable Variable) GetName() string {

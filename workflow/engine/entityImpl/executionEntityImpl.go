@@ -1,4 +1,4 @@
-package entity
+package entityImpl
 
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
@@ -109,18 +109,20 @@ func SetVariable(execution engine.ExecutionEntity, variables map[string]interfac
 			}
 			variable := variableManager.Create(k, variableType, v)
 			//存在更新
-			specificVariable, e := execution.GetSpecificVariable(k, variableManager)
+			specificVariable, e := execution.GetSpecificVariable(k)
 			if e != nil {
 				variable.Version = specificVariable.Version + 1
 			}
 			execution.SetScope(variable)
-			variableManager.Insert(variable)
+			variableManager.Variable = variable
+			variableManager.Insert()
 		}
 	}
 	return nil
 }
 
-func (execution *ExecutionEntityImpl) GetSpecificVariable(variableName string, variableManager VariableManager) (Variable, error) {
+func (execution *ExecutionEntityImpl) GetSpecificVariable(variableName string) (Variable, error) {
+	variableManager := VariableManager{}
 	return variableManager.SelectProcessInstanceId(variableName, execution.ProcessInstanceId)
 }
 

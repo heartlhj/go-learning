@@ -16,6 +16,8 @@ func (processInstanceManager *ProcessInstanceManager) CreateProcessInstance() {
 	if err != nil {
 		log.Infoln("create processInstance err", err)
 	}
+
+	processInstanceManager.createHistoricProcessInstance()
 }
 
 //查询流程实例
@@ -34,4 +36,14 @@ func (processInstanceManager ProcessInstanceManager) DeleteProcessInstance(proce
 	if err != nil {
 		log.Infoln("delete processInstance err ", err)
 	}
+}
+
+func (processInstanceManager *ProcessInstanceManager) createHistoricProcessInstance() {
+	processInstance := processInstanceManager.Instance
+	historicProcess := HistoricProcess{}
+	historicProcess.ProcessInstanceEntity = processInstance.ProcessInstanceEntity
+	historicProcess.ProcessInstanceId = processInstance.Id
+	historicProcessManager := HistoricProcessManager{}
+	historicProcessManager.HistoricProcess = historicProcess
+	historicProcessManager.Insert()
 }

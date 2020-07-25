@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/heartlhj/go-learning/workflow/engine/behavior"
-	. "github.com/heartlhj/go-learning/workflow/engine/entity"
+	. "github.com/heartlhj/go-learning/workflow/engine/entityImpl"
 	. "github.com/heartlhj/go-learning/workflow/model"
 )
 
@@ -27,8 +27,7 @@ func (taskCmd CompleteCmd) Execute(interceptor behavior.CommandContext) interfac
 }
 
 func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.CommandContext) {
-	manager := behavior.GetTaskManager()
-	manager.DeleteTask(task.Id)
+	deleteTask(task)
 	defineManager := behavior.GetDefineManager()
 	bytearry := defineManager.FindProcessByTask(task.ProcessInstanceId)
 	currentTask := behavior.FindCurrentTask(*bytearry, task.TaskDefineKey)
@@ -47,4 +46,23 @@ func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.C
 		SetVariable(&execution, taskCmd.Variables)
 	}
 	interceptor.Agenda.PlanTriggerExecutionOperation(&taskExecution)
+}
+
+func deleteTask(task Task) {
+	manager := behavior.GetTaskManager()
+	manager.DeleteTask(task.Id)
+	identityLinkManager := behavior.GetIdentityLinkManager()
+	identityLinks, err := identityLinkManager.SelectByTaskId(task.Id)
+	if err == nil {
+		for _, identityLink := range identityLinks {
+			identityLinkManager.Delete(identityLink.Id)
+		}
+	}
+	variableManager := behavior.GetVariableManager()
+	variables, err := variableManager.SelectByTaskId(task.Id)
+	if err == nil {
+		for _, variable := range variables {
+			variableManager.Delete(variable.Id)
+		}
+	}
 }

@@ -20,6 +20,14 @@ func deleteDataForExecution(entity engine.ExecutionEntity) {
 			taskManager.DeleteTask(task.Id)
 		}
 	}
+
+	identityLinkManager := GetIdentityLinkManager()
+	identityLinks, err := identityLinkManager.SelectByProcessInstanceId(entity.GetProcessInstanceId())
+	if err == nil {
+		for _, identityLink := range identityLinks {
+			identityLinkManager.Delete(identityLink.Id)
+		}
+	}
 	variableManager := GetVariableManager()
 	variables, err := variableManager.SelectByProcessInstanceId(entity.GetProcessInstanceId())
 	if err == nil {

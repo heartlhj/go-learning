@@ -27,6 +27,8 @@ func (cont *ContinueProcessOperation) continueThroughSequenceFlow(sequenceFlow e
 }
 
 func (cont *ContinueProcessOperation) continueThroughFlowNode(element engine.FlowElement) {
+	historicActinstManager := GetHistoricActinstManager()
+	historicActinstManager.RecordActivityStart(cont.Execution)
 	behavior := element.GetBehavior()
 	if behavior != nil {
 		behavior.Execute(cont.Execution)

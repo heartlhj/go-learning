@@ -3,8 +3,9 @@ package cmd
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
 	"github.com/heartlhj/go-learning/workflow/engine/behavior"
-	. "github.com/heartlhj/go-learning/workflow/engine/entity"
+	. "github.com/heartlhj/go-learning/workflow/engine/entityImpl"
 	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
+	"github.com/heartlhj/go-learning/workflow/entity"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	"time"
 )
@@ -21,12 +22,17 @@ func (start StartProcessInstanceByKeyCmd) Execute(interceptor behavior.CommandCo
 	bytearries := defineManager.FindDeployedProcessDefinitionByKey(start.ProcessDefinitionKey)
 	//解析xml数据
 	process := behavior.GetBpmn(*bytearries[0])
-	instance := ProcessInstance{BusinessKey: start.BusinessKey, TenantId: start.TenantId, StartTime: time.Now()}
+	instance := ProcessInstance{ProcessInstanceEntity: &entity.ProcessInstanceEntity{}}
+	instance.BusinessKey = start.BusinessKey
+	instance.TenantId = start.TenantId
+	instance.StartTime = time.Now()
 	instance.Key = process.Id
 	instance.Name = process.Name
 	instance.ProcessDefineId = bytearries[0].Id
+	//生成流程实例
 	manager := ProcessInstanceManager{Instance: &instance}
 	manager.CreateProcessInstance()
+	//获取开始节点
 	flowElement := process.InitialFlowElement
 	element := flowElement.(engine.StartEvent)
 	outgoing := element.GetOutgoing()
@@ -34,6 +40,7 @@ func (start StartProcessInstanceByKeyCmd) Execute(interceptor behavior.CommandCo
 	execution.SetCurrentFlowElement(*outgoing[0])
 	execution.SetProcessDefineId(bytearries[0].Id)
 	execution.SetCurrentActivityId((*outgoing[0]).GetId())
+	//保存流程变量
 	SetVariable(&execution, start.Variables)
 	context, e := behavior.GetCommandContext()
 	if e != nil {

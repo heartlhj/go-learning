@@ -3,16 +3,17 @@ package persistence
 import (
 	"github.com/heartlhj/go-learning/workflow/db"
 	. "github.com/heartlhj/go-learning/workflow/engine/variable"
+	"github.com/heartlhj/go-learning/workflow/entity"
 	"github.com/heartlhj/go-learning/workflow/errs"
 	"github.com/prometheus/common/log"
 )
 
 type VariableManager struct {
-	Variable Variable
+	Variable *Variable
 }
 
 func (define VariableManager) Create(name string, variableType VariableType, value interface{}) *Variable {
-	variable := Variable{}
+	variable := Variable{VariableEntity: &entity.VariableEntity{}}
 	variable.Version = 0
 	variable.Name = name
 	variable.Type = variableType.GetTypeName()
@@ -21,11 +22,22 @@ func (define VariableManager) Create(name string, variableType VariableType, val
 
 }
 
-func (defineManager VariableManager) Insert(define *Variable) {
-	_, err := db.MasterDB.Insert(define)
+func (defineManager VariableManager) Insert() {
+	_, err := db.MasterDB.Insert(defineManager.Variable)
 	if err != nil {
-		log.Infoln("新增数据异常", err)
+		log.Infoln("Create Variable Error", err)
 	}
+	defineManager.createHistoricVariable()
+}
+
+func (defineManager VariableManager) createHistoricVariable() {
+	variable := defineManager.Variable
+	historicVariable := HistoricVariable{}
+	historicVariable.VariableEntity = variable.VariableEntity
+
+	historicVariableManager := HistoricVariableManager{}
+	historicVariableManager.HistoricVariable = historicVariable
+	historicVariableManager.Insert()
 }
 
 func (defineManager VariableManager) SelectProcessInstanceId(name string, processInstanceId int64) (Variable, error) {
@@ -69,6 +81,7 @@ func (variableManager VariableManager) SelectByTaskId(taskId int64) ([]Variable,
 	err := db.MasterDB.Where("task_id = ?", taskId).Find(&variables)
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
+		return []Variable{}, nil
 	}
 	if variables == nil || len(variables) <= 0 {
 		return []Variable{}, errs.ProcessError{}

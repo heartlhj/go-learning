@@ -9,3 +9,7 @@ type Bytearry struct {
 	Bytes        string `xorm:"bytes"`
 	DeploymentId int    `xorm:"deployment_id"`
 }
+
+func (Bytearry) TableName() string {
+	return "bytearry"
+}

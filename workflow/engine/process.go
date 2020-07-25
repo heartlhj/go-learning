@@ -173,6 +173,7 @@ type FlowElement interface {
 	SetBehavior(behavior ActivityBehavior)
 
 	GetId() string
+	GetName() string
 }
 
 func SetProcess(defineId int64, process Process) {
@@ -229,4 +230,8 @@ func (flow *Flow) SetBehavior(behavior ActivityBehavior) {
 
 func (flow *Flow) GetId() string {
 	return flow.Id
+}
+
+func (flow *Flow) GetName() string {
+	return flow.Name
 }

@@ -3,6 +3,7 @@ package behavior
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
 	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
+	"github.com/heartlhj/go-learning/workflow/entity"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	"time"
 )
@@ -13,12 +14,14 @@ type UserTaskActivityBehavior struct {
 
 //普通用户节点处理
 func (user UserTaskActivityBehavior) Execute(execution engine.ExecutionEntity) {
-
-	task := Task{ProcessInstanceId: execution.GetProcessInstanceId(), Assignee: user.UserTask.Assignee, StartTime: time.Now()}
+	task := Task{TaskEntity: &entity.TaskEntity{}}
+	task.ProcessInstanceId = execution.GetProcessInstanceId()
+	task.Assignee = user.UserTask.Assignee
+	task.StartTime = time.Now()
 	task.TaskDefineKey = user.UserTask.Id
 	task.TaskDefineName = user.UserTask.Name
 	manager := TaskManager{Task: &task}
-	manager.Insert()
+	manager.Insert(execution)
 	handleAssignments(user.UserTask, task.Id)
 }
 
@@ -27,9 +30,12 @@ func handleAssignments(user engine.UserTask, taskId int64) {
 	users := user.CandidateUsers
 	if len(users) >= 0 {
 		for _, user := range users {
-			link := IdentityLink{TaskId: taskId, UserId: user}
-			manager := IdentityLinkManager{IdentityLink: link}
-			manager.CreateIdentityLink()
+			link := IdentityLink{IdentityLinkEntity: &entity.IdentityLinkEntity{}}
+			link.TaskId = taskId
+			link.UserId = user
+			identityLinkManager := GetIdentityLinkManager()
+			identityLinkManager.IdentityLink = link
+			identityLinkManager.CreateIdentityLink()
 		}
 	}
 }
