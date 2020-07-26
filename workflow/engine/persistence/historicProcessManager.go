@@ -16,3 +16,17 @@ func (historicProcessManager HistoricProcessManager) Insert() {
 		log.Infoln("Create HistoricActinst Err", err)
 	}
 }
+
+func (historicProcessManager HistoricProcessManager) MarkEnded() {
+	historicProcess := historicProcessManager.HistoricProcess
+	_, err := db.MasterDB.Where("proc_inst_id=?", historicProcess.ProcessInstanceId).Update(historicProcess)
+	if err != nil {
+		log.Infoln("delete HistoricProcess Err", err)
+	}
+	historicActinst := HistoricActinst{}
+	historicActinst.EndTime = historicProcess.EndTime
+	historicProcess.ProcessInstanceId = historicProcess.Id
+	historicActinstManager := HistoricActinstManager{}
+	historicActinstManager.HistoricActinst = historicActinst
+	historicActinstManager.UpdateProcessInstanceId()
+}

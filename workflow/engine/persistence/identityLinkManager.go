@@ -55,8 +55,7 @@ func (identityLinkManager IdentityLinkManager) Delete(identityLinkId int64) {
 func (identityLinkManager IdentityLinkManager) createHistoricIdentityLink() {
 	identityLink := identityLinkManager.IdentityLink
 	historicIdentityLink := HistoricIdentityLink{}
-	historicIdentityLink.IdentityLinkEntity = identityLink.IdentityLinkEntity
-
+	historicIdentityLink.UserId = identityLink.UserId
 	historicIdentityLinkManager := HistoricIdentityLinkManager{}
 	historicIdentityLinkManager.HistoricIdentityLink = historicIdentityLink
 	historicIdentityLinkManager.Insert()

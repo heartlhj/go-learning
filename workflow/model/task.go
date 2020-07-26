@@ -1,10 +1,18 @@
 package model
 
-import "github.com/heartlhj/go-learning/workflow/entity"
+import (
+	"time"
+)
 
 type Task struct {
-	*entity.TaskEntity
-	Id int64
+	Id                int64
+	TaskDefineKey     string    `xorm:"task_define_key"`
+	TaskDefineName    string    `xorm:"task_define_name"`
+	TenantId          string    `xorm:"tenant_id"`
+	DeploymentId      int       `xorm:"deployment_id"`
+	StartTime         time.Time `xorm:"start_time"`
+	Assignee          string    `xorm:"assignee"`
+	ProcessInstanceId int64     `xorm:"proc_inst_id"`
 }
 
 func (Task) TableName() string {

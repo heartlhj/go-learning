@@ -3,7 +3,6 @@ package behavior
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
 	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
-	"github.com/heartlhj/go-learning/workflow/entity"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	"time"
 )
@@ -14,7 +13,7 @@ type UserTaskActivityBehavior struct {
 
 //普通用户节点处理
 func (user UserTaskActivityBehavior) Execute(execution engine.ExecutionEntity) {
-	task := Task{TaskEntity: &entity.TaskEntity{}}
+	task := Task{}
 	task.ProcessInstanceId = execution.GetProcessInstanceId()
 	task.Assignee = user.UserTask.Assignee
 	task.StartTime = time.Now()
@@ -30,7 +29,7 @@ func handleAssignments(user engine.UserTask, taskId int64) {
 	users := user.CandidateUsers
 	if len(users) >= 0 {
 		for _, user := range users {
-			link := IdentityLink{IdentityLinkEntity: &entity.IdentityLinkEntity{}}
+			link := IdentityLink{}
 			link.TaskId = taskId
 			link.UserId = user
 			identityLinkManager := GetIdentityLinkManager()

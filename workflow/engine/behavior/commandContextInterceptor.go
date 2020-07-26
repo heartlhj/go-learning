@@ -6,15 +6,15 @@ type CommandContextInterceptor struct {
 	CommandContextFactory      CommandContextFactory
 }
 
-func (a CommandContextInterceptor) Execute(command Command) interface{} {
+func (commandContext CommandContextInterceptor) Execute(command Command) interface{} {
 	context, err := GetCommandContext()
 	if err != nil {
-		context = a.CommandContextFactory.CreateCommandContext(command)
+		context = commandContext.CommandContextFactory.CreateCommandContext(command)
 	}
 	SetCommandContext(context)
-	return a.Next.Execute(command)
+	return commandContext.Next.Execute(command)
 }
 
-func (a *CommandContextInterceptor) SetNext(next CommandInterceptor) {
-	a.Next = next
+func (commandContext *CommandContextInterceptor) SetNext(next CommandInterceptor) {
+	commandContext.Next = next
 }

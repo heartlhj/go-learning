@@ -4,7 +4,7 @@ type CommandInvoker struct {
 	Next CommandInterceptor
 }
 
-func (a CommandInvoker) Execute(command Command) interface{} {
+func (commandInvoker CommandInvoker) Execute(command Command) interface{} {
 	context, err := GetCommandContext()
 	if err != nil {
 

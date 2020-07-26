@@ -4,6 +4,7 @@ import (
 	"github.com/heartlhj/go-learning/workflow/db"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	"github.com/prometheus/common/log"
+	"time"
 )
 
 type ProcessInstanceManager struct {
@@ -36,13 +37,31 @@ func (processInstanceManager ProcessInstanceManager) DeleteProcessInstance(proce
 	if err != nil {
 		log.Infoln("delete processInstance err ", err)
 	}
+	processInstanceManager.recordActivityEnd(processInstanceId)
+}
+
+func (processInstanceManager ProcessInstanceManager) recordActivityEnd(processInstanceId int64) {
+	historicProcessManager := HistoricProcessManager{}
+	historicProcess := HistoricProcess{}
+	historicProcess.ProcessInstanceId = processInstanceId
+	historicProcess.EndTime = time.Now()
+	historicProcessManager.HistoricProcess = historicProcess
+	historicProcessManager.MarkEnded()
 }
 
 func (processInstanceManager *ProcessInstanceManager) createHistoricProcessInstance() {
 	processInstance := processInstanceManager.Instance
 	historicProcess := HistoricProcess{}
-	historicProcess.ProcessInstanceEntity = processInstance.ProcessInstanceEntity
+	//historicProcess.ProcessInstanceEntity = processInstance.ProcessInstanceEntity
 	historicProcess.ProcessInstanceId = processInstance.Id
+	historicProcess.DeploymentId = processInstance.DeploymentId
+	historicProcess.TenantId = processInstance.TenantId
+	historicProcess.StartTime = processInstance.StartTime
+	historicProcess.Name = processInstance.Name
+	historicProcess.BusinessKey = processInstance.BusinessKey
+	historicProcess.StartUserId = processInstance.StartUserId
+	historicProcess.Key = processInstance.Key
+
 	historicProcessManager := HistoricProcessManager{}
 	historicProcessManager.HistoricProcess = historicProcess
 	historicProcessManager.Insert()

@@ -13,6 +13,6 @@ type HistoricVariableManager struct {
 func (historicVariableManager HistoricVariableManager) Insert() {
 	_, err := db.MasterDB.Insert(historicVariableManager.HistoricVariable)
 	if err != nil {
-		log.Infoln("Create HistoricVariable Err", err)
+		log.Infoln("Create HistoricVariable Err ", err)
 	}
 }

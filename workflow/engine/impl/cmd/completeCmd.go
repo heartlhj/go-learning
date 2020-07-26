@@ -50,19 +50,5 @@ func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.C
 
 func deleteTask(task Task) {
 	manager := behavior.GetTaskManager()
-	manager.DeleteTask(task.Id)
-	identityLinkManager := behavior.GetIdentityLinkManager()
-	identityLinks, err := identityLinkManager.SelectByTaskId(task.Id)
-	if err == nil {
-		for _, identityLink := range identityLinks {
-			identityLinkManager.Delete(identityLink.Id)
-		}
-	}
-	variableManager := behavior.GetVariableManager()
-	variables, err := variableManager.SelectByTaskId(task.Id)
-	if err == nil {
-		for _, variable := range variables {
-			variableManager.Delete(variable.Id)
-		}
-	}
+	manager.DeleteTask(task)
 }

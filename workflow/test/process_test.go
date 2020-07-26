@@ -22,5 +22,5 @@ func TestComplete(t *testing.T) {
 	taskService := peocess.TaskServiceImpl{}
 	variables := make(map[string]interface{}, 0)
 	variables["code"] = "0001"
-	taskService.Complete(78, variables, true)
+	taskService.Complete(34, variables, true)
 }

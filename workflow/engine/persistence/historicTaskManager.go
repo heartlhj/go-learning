@@ -16,3 +16,10 @@ func (historicTaskManager HistoricTaskManager) Insert() {
 		log.Infoln("Create HistoricTask Err", err)
 	}
 }
+
+func (historicTaskManager HistoricTaskManager) MarkEnded() {
+	_, err := db.MasterDB.Where("task_id=?", historicTaskManager.HistoricTask.TaskId).Update(historicTaskManager.HistoricTask)
+	if err != nil {
+		log.Infoln("Create HistoricTask Err", err)
+	}
+}

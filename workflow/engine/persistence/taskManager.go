@@ -5,6 +5,7 @@ import (
 	"github.com/heartlhj/go-learning/workflow/engine"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	"github.com/prometheus/common/log"
+	"time"
 )
 
 type TaskManager struct {
@@ -26,10 +27,10 @@ func (taskManager TaskManager) recordTaskCreated(task *Task, entity engine.Execu
 	historicTaskManager.Insert()
 
 	historicActinstManager := HistoricActinstManager{}
-	actinst, err := historicActinstManager.FindUnfinishedHistoricActivityInstancesByExecutionAndActivityId(entity.GetProcessInstanceId(), task.Id)
-	if err != nil {
-		actinst.TaskId = task.Id
+	actinst, err := historicActinstManager.FindUnfinishedHistoricActivityInstancesByExecutionAndActivityId(entity.GetProcessInstanceId(), task.TaskDefineKey)
+	if err == nil {
 		actinst.Assignee = task.Assignee
+		actinst.TaskId = task.Id
 		historicActinstManager.HistoricActinst = actinst
 		historicActinstManager.Update()
 	}
@@ -37,8 +38,15 @@ func (taskManager TaskManager) recordTaskCreated(task *Task, entity engine.Execu
 
 func (taskManager TaskManager) createHistoricTask(task *Task) HistoricTask {
 	historicTask := HistoricTask{}
-	historicTask.TaskEntity = task.TaskEntity
+	//historicTask.TaskEntity = task.TaskEntity
 	historicTask.TaskId = task.Id
+	historicTask.ProcessInstanceId = task.ProcessInstanceId
+	historicTask.StartTime = task.StartTime
+	historicTask.TenantId = task.TenantId
+	historicTask.Assignee = task.Assignee
+	historicTask.TaskDefineKey = task.TaskDefineKey
+	historicTask.DeploymentId = task.DeploymentId
+	historicTask.TaskDefineName = task.TaskDefineName
 	return historicTask
 }
 
@@ -60,10 +68,40 @@ func (taskManager TaskManager) FindByProcessInstanceId(processInstanceId int64) 
 	return task
 }
 
-func (taskManager TaskManager) DeleteTask(taskId int64) {
-	task := Task{}
-	_, err := db.MasterDB.Id(taskId).Delete(task)
+func (taskManager TaskManager) DeleteTask(task Task) {
+	_, err := db.MasterDB.Id(task.Id).Delete(task)
 	if err != nil {
 		log.Infoln("Delete Task Err ", err)
 	}
+	identityLinkManager := IdentityLinkManager{}
+	identityLinks, err := identityLinkManager.SelectByTaskId(task.Id)
+	if err == nil {
+		for _, identityLink := range identityLinks {
+			identityLinkManager.Delete(identityLink.Id)
+		}
+	}
+	variableManager := VariableManager{}
+	variables, err := variableManager.SelectByTaskId(task.Id)
+	if err == nil {
+		for _, variable := range variables {
+			variableManager.Delete(variable.Id)
+		}
+	}
+	recordTaskEnd(task)
+}
+
+func recordTaskEnd(task Task) {
+	historicTaskManager := HistoricTaskManager{}
+	historicTask := HistoricTask{}
+	historicTask.TaskId = task.Id
+	historicTask.EndTime = time.Now()
+	historicTaskManager.HistoricTask = historicTask
+	historicTaskManager.MarkEnded()
+
+	historicActinst := HistoricActinst{}
+	historicActinst.EndTime = historicTask.EndTime
+	historicActinst.TaskId = historicTask.TaskId
+	historicActinstManager := HistoricActinstManager{}
+	historicActinstManager.HistoricActinst = historicActinst
+	historicActinstManager.UpdateTaskId()
 }

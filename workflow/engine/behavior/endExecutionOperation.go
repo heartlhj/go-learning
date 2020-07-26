@@ -17,7 +17,7 @@ func deleteDataForExecution(entity engine.ExecutionEntity) {
 	tasks := taskManager.FindByProcessInstanceId(entity.GetProcessInstanceId())
 	if tasks != nil && len(tasks) > 0 {
 		for _, task := range tasks {
-			taskManager.DeleteTask(task.Id)
+			taskManager.DeleteTask(task)
 		}
 	}
 

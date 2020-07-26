@@ -3,7 +3,6 @@ package persistence
 import (
 	"github.com/heartlhj/go-learning/workflow/db"
 	. "github.com/heartlhj/go-learning/workflow/engine/variable"
-	"github.com/heartlhj/go-learning/workflow/entity"
 	"github.com/heartlhj/go-learning/workflow/errs"
 	"github.com/prometheus/common/log"
 )
@@ -13,7 +12,7 @@ type VariableManager struct {
 }
 
 func (define VariableManager) Create(name string, variableType VariableType, value interface{}) *Variable {
-	variable := Variable{VariableEntity: &entity.VariableEntity{}}
+	variable := Variable{}
 	variable.Version = 0
 	variable.Name = name
 	variable.Type = variableType.GetTypeName()
@@ -33,7 +32,17 @@ func (defineManager VariableManager) Insert() {
 func (defineManager VariableManager) createHistoricVariable() {
 	variable := defineManager.Variable
 	historicVariable := HistoricVariable{}
-	historicVariable.VariableEntity = variable.VariableEntity
+
+	historicVariable.TaskId = variable.TaskId
+	historicVariable.ProcessInstanceId = variable.ProcessInstanceId
+	historicVariable.Name = variable.Name
+	historicVariable.Version = variable.Version
+	historicVariable.Type = variable.Type
+	historicVariable.Text = variable.Text
+	historicVariable.Number = variable.Number
+	historicVariable.Date = variable.Date
+	historicVariable.Float = variable.Float
+	historicVariable.Blob = variable.Blob
 
 	historicVariableManager := HistoricVariableManager{}
 	historicVariableManager.HistoricVariable = historicVariable
@@ -45,6 +54,7 @@ func (defineManager VariableManager) SelectProcessInstanceId(name string, proces
 	err := db.MasterDB.Where("proc_inst_id = ?", processInstanceId).Where("name = ?", name).Limit(1, 0).Find(&variables)
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
+		return Variable{}, errs.ProcessError{}
 	}
 	if variables != nil || len(variables) >= 0 {
 		return Variable{}, errs.ProcessError{}
@@ -57,6 +67,7 @@ func (variableManager VariableManager) SelectTaskId(name string, taskId int64) (
 	err := db.MasterDB.Where("task_id = ?", taskId).Where("name = ?", name).Limit(1, 0).Find(&variables)
 	if err != nil {
 		log.Infoln("根据[taskId] 查询流程变量异常", err)
+		return Variable{}, errs.ProcessError{}
 	}
 	if variables != nil || len(variables) >= 0 {
 		return Variable{}, errs.ProcessError{}
