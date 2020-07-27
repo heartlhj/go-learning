@@ -24,6 +24,7 @@ func (task TakeOutgoingSequenceFlowsOperation) Run() {
 func (task TakeOutgoingSequenceFlowsOperation) handleFlowNode() {
 	execution := task.Execution
 	currentFlowElement := task.Execution.GetCurrentFlowElement()
+	task.handleActivityEnd(currentFlowElement)
 	gateway, ok := currentFlowElement.(Gateway)
 	var defaultSequenceFlowId = ""
 	if ok {
@@ -76,4 +77,9 @@ func (task TakeOutgoingSequenceFlowsOperation) getCurrentFlowElement() FlowEleme
 		return currentFlowElement
 	}
 	return nil
+}
+
+func (task TakeOutgoingSequenceFlowsOperation) handleActivityEnd(element FlowElement) {
+	historicActinstManager := GetHistoricActinstManager()
+	historicActinstManager.RecordTaskCreated(element, task.Execution)
 }

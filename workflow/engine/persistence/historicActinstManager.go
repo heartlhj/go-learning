@@ -73,6 +73,15 @@ func (historicActinstManager HistoricActinstManager) UpdateTaskId() {
 	}
 }
 
+func (historicActinstManager HistoricActinstManager) RecordTaskCreated(element engine.FlowElement, entity engine.ExecutionEntity) {
+	actinst, err := historicActinstManager.FindUnfinishedHistoricActivityInstancesByExecutionAndActivityId(entity.GetProcessInstanceId(), element.GetId())
+	if err == nil {
+		actinst.EndTime = time.Now()
+		historicActinstManager.HistoricActinst = actinst
+		historicActinstManager.Update()
+	}
+}
+
 func (historicActinstManager HistoricActinstManager) parseActivityType(element engine.FlowElement) string {
 	typeOf := reflect.TypeOf(element)
 	return typeOf.Name()
