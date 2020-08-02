@@ -1,5 +1,5 @@
 package engine
 
 type Operation interface {
-	Run()
+	Run() error
 }

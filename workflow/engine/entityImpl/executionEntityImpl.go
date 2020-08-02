@@ -115,7 +115,10 @@ func SetVariable(execution engine.ExecutionEntity, variables map[string]interfac
 			}
 			execution.SetScope(variable)
 			variableManager.Variable = variable
-			variableManager.Insert()
+			err := variableManager.Insert()
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

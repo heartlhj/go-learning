@@ -6,24 +6,28 @@ type EndExecutionOperation struct {
 	AbstractOperation
 }
 
-func (end *EndExecutionOperation) Run() {
-	deleteDataForExecution(end.Execution)
+func (end *EndExecutionOperation) Run() (err error) {
+	err = deleteDataForExecution(end.Execution)
+	if err != nil {
+		return err
+	}
 	manager := GetProcessInstanceManager()
-	manager.DeleteProcessInstance(end.Execution.GetProcessInstanceId())
+	err = manager.DeleteProcessInstance(end.Execution.GetProcessInstanceId())
+	return err
 }
 
-func deleteDataForExecution(entity engine.ExecutionEntity) {
+func deleteDataForExecution(entity engine.ExecutionEntity) (err error) {
 	taskManager := GetTaskManager()
-	tasks := taskManager.FindByProcessInstanceId(entity.GetProcessInstanceId())
-	if tasks != nil && len(tasks) > 0 {
+	tasks, errSelect := taskManager.FindByProcessInstanceId(entity.GetProcessInstanceId())
+	if errSelect == nil {
 		for _, task := range tasks {
 			taskManager.DeleteTask(task)
 		}
 	}
 
 	identityLinkManager := GetIdentityLinkManager()
-	identityLinks, err := identityLinkManager.SelectByProcessInstanceId(entity.GetProcessInstanceId())
-	if err == nil {
+	identityLinks, errSelect := identityLinkManager.SelectByProcessInstanceId(entity.GetProcessInstanceId())
+	if errSelect == nil {
 		for _, identityLink := range identityLinks {
 			identityLinkManager.Delete(identityLink.Id)
 		}
@@ -35,4 +39,5 @@ func deleteDataForExecution(entity engine.ExecutionEntity) {
 			variableManager.Delete(variable.Id)
 		}
 	}
+	return err
 }

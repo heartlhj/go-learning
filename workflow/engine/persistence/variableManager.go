@@ -21,15 +21,17 @@ func (define VariableManager) Create(name string, variableType VariableType, val
 
 }
 
-func (defineManager VariableManager) Insert() {
-	_, err := db.MasterDB.Insert(defineManager.Variable)
+func (defineManager VariableManager) Insert() (err error) {
+	err = db.TXDB.Create(&defineManager.Variable).Error
 	if err != nil {
 		log.Infoln("Create Variable Error", err)
+		return err
 	}
-	defineManager.createHistoricVariable()
+	err = defineManager.createHistoricVariable()
+	return err
 }
 
-func (defineManager VariableManager) createHistoricVariable() {
+func (defineManager VariableManager) createHistoricVariable() (err error) {
 	variable := defineManager.Variable
 	historicVariable := HistoricVariable{}
 
@@ -46,63 +48,58 @@ func (defineManager VariableManager) createHistoricVariable() {
 
 	historicVariableManager := HistoricVariableManager{}
 	historicVariableManager.HistoricVariable = historicVariable
-	historicVariableManager.Insert()
+	return historicVariableManager.Insert()
 }
 
 func (defineManager VariableManager) SelectProcessInstanceId(name string, processInstanceId int64) (Variable, error) {
-	variables := make([]*Variable, 0)
-	err := db.MasterDB.Where("proc_inst_id = ?", processInstanceId).Where("name = ?", name).Limit(1, 0).Find(&variables)
+	variables := Variable{}
+	err := db.TXDB.Where("proc_inst_id = ?", processInstanceId).Where("name = ?", name).First(&variables).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
-		return Variable{}, errs.ProcessError{}
+		return Variable{}, err
 	}
-	if variables != nil || len(variables) >= 0 {
-		return Variable{}, errs.ProcessError{}
-	}
-	return *variables[0], nil
+	return variables, nil
 }
 
 func (variableManager VariableManager) SelectTaskId(name string, taskId int64) (Variable, error) {
-	variables := make([]*Variable, 0)
-	err := db.MasterDB.Where("task_id = ?", taskId).Where("name = ?", name).Limit(1, 0).Find(&variables)
+	variables := Variable{}
+	err := db.TXDB.Where("task_id = ?", taskId).Where("name = ?", name).First(&variables).Error
 	if err != nil {
 		log.Infoln("根据[taskId] 查询流程变量异常", err)
-		return Variable{}, errs.ProcessError{}
+		return Variable{}, err
 	}
-	if variables != nil || len(variables) >= 0 {
-		return Variable{}, errs.ProcessError{}
-	}
-	return *variables[0], nil
+	return variables, nil
 }
 
 func (variableManager VariableManager) SelectByProcessInstanceId(processInstanceId int64) ([]Variable, error) {
 	variables := make([]Variable, 0)
-	err := db.MasterDB.Where("proc_inst_id = ?", processInstanceId).Find(&variables)
+	err := db.TXDB.Where("proc_inst_id = ?", processInstanceId).Find(&variables).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
+		return variables, err
 	}
-	if variables == nil || len(variables) <= 0 {
-		return []Variable{}, errs.ProcessError{}
+	if variables != nil && len(variables) > 0 {
+		return variables, nil
 	}
-	return variables, nil
+	return variables, errs.ProcessError{Code: "1001", Msg: "Not Find"}
 }
 
 func (variableManager VariableManager) SelectByTaskId(taskId int64) ([]Variable, error) {
 	variables := make([]Variable, 0)
-	err := db.MasterDB.Where("task_id = ?", taskId).Find(&variables)
+	err := db.TXDB.Where("task_id = ?", taskId).Find(&variables).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
-		return []Variable{}, nil
+		return variables, err
 	}
-	if variables == nil || len(variables) <= 0 {
-		return []Variable{}, errs.ProcessError{}
+	if variables != nil && len(variables) > 0 {
+		return variables, nil
 	}
-	return variables, nil
+	return variables, errs.ProcessError{Code: "1001", Msg: "Not Find"}
 }
 
 func (variableManager VariableManager) Delete(variableId int64) {
-	task := Variable{}
-	_, err := db.MasterDB.Id(variableId).Delete(task)
+	variable := Variable{}
+	err := db.TXDB.Where("id=?", variableId).Delete(variable).Error
 	if err != nil {
 		log.Infoln("delete Variable err: ", err)
 	}

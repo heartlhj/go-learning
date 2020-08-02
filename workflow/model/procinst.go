@@ -7,14 +7,14 @@ import (
 //流程实例
 type ProcessInstance struct {
 	Id              int64
-	Key             string    `xorm:"key"`
-	Name            string    `xorm:"name"`
-	BusinessKey     string    `xorm:"business_key"`
-	TenantId        string    `xorm:"tenant_id"`
-	DeploymentId    int64     `xorm:"deployment_id"`
-	StartTime       time.Time `xorm:"start_time"`
-	StartUserId     string    `xorm:"start_user_id"`
-	ProcessDefineId int64     `xorm:"process_define_id"`
+	Key             string    `gorm:"column:key"`
+	Name            string    `gorm:"column:name"`
+	BusinessKey     string    `gorm:"column:business_key"`
+	TenantId        string    `gorm:"column:tenant_id"`
+	DeploymentId    int64     `gorm:"column:deployment_id"`
+	StartTime       time.Time `gorm:"column:start_time"`
+	StartUserId     string    `gorm:"column:start_user_id"`
+	ProcessDefineId int64     `gorm:"column:process_define_id"`
 }
 
 func (ProcessInstance) TableName() string {

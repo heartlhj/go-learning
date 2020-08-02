@@ -2,11 +2,11 @@ package model
 
 type HistoricIdentityLink struct {
 	Id                int64
-	Type              string `xorm:"type"`
-	TaskId            int64  `xorm:"task_id"`
-	ProcessInstanceId int    `xorm:"proc_inst_id"`
-	GroupId           string `xorm:"group_id"`
-	UserId            string `xorm:"user_id"`
+	Type              string `gorm:"column:type"`
+	TaskId            int64  `gorm:"column:task_id"`
+	ProcessInstanceId int    `gorm:"column:proc_inst_id"`
+	GroupId           string `gorm:"column:group_id"`
+	UserId            string `gorm:"column:user_id"`
 }
 
 func (HistoricIdentityLink) TableName() string {

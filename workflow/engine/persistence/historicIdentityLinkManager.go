@@ -10,9 +10,10 @@ type HistoricIdentityLinkManager struct {
 	HistoricIdentityLink model.HistoricIdentityLink
 }
 
-func (historicIdentityLink HistoricIdentityLinkManager) Insert() {
-	_, err := db.MasterDB.Insert(historicIdentityLink.HistoricIdentityLink)
+func (historicIdentityLink HistoricIdentityLinkManager) Insert() (err error) {
+	err = db.TXDB.Create(&historicIdentityLink.HistoricIdentityLink).Error
 	if err != nil {
 		log.Infoln("Create HistoricIdentityLink Err", err)
 	}
+	return err
 }

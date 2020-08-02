@@ -4,10 +4,10 @@ import "time"
 
 //部署
 type Deployment struct {
-	Id         int       `xorm:"id" xorm:"pk autoincr"`
-	Key        string    `xorm:"key"`
-	Name       string    `xorm:"name"`
-	Version    int       `xorm:"version"`
-	TenantId   string    `xorm:"tenant_id"`
-	DeployTime time.Time `xorm:"deploy_time"`
+	Id         int64     `gorm:"column:id"`
+	Key        string    `gorm:"column:key"`
+	Name       string    `gorm:"column:name"`
+	Version    int       `gorm:"column:version"`
+	TenantId   string    `gorm:"column:tenant_id"`
+	DeployTime time.Time `gorm:"column:deploy_time"`
 }

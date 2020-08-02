@@ -2,12 +2,12 @@ package model
 
 //流程源数据
 type Bytearry struct {
-	Id           int64  `xorm:"id" xorm:"pk autoincr"`
-	Key          string `xorm:"key"`
-	Name         string `xorm:"name"`
-	Version      int    `xorm:"version"`
-	Bytes        string `xorm:"bytes"`
-	DeploymentId int    `xorm:"deployment_id"`
+	Id           int64  `gorm:"column:id"`
+	Key          string `gorm:"column:key"`
+	Name         string `gorm:"column:name"`
+	Version      int    `gorm:"column:version"`
+	Bytes        string `gorm:"column:bytes"`
+	DeploymentId int    `gorm:"column:deployment_id"`
 }
 
 func (Bytearry) TableName() string {

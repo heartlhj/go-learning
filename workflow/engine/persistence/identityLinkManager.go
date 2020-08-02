@@ -12,51 +12,54 @@ type IdentityLinkManager struct {
 }
 
 //创建流程实例
-func (identityLinkManager IdentityLinkManager) CreateIdentityLink() {
-	_, err := db.MasterDB.Insert(identityLinkManager.IdentityLink)
+func (identityLinkManager IdentityLinkManager) CreateIdentityLink() (err error) {
+	err = db.TXDB.Create(&identityLinkManager.IdentityLink).Error
 	if err != nil {
 		log.Infoln("Create IdentityLink Err ", err)
+		return err
 	}
-	identityLinkManager.createHistoricIdentityLink()
+	err = identityLinkManager.createHistoricIdentityLink()
+	return err
 }
 
 func (identityLinkManager IdentityLinkManager) SelectByProcessInstanceId(processInstanceId int64) ([]IdentityLink, error) {
-	variables := make([]IdentityLink, 0)
-	err := db.MasterDB.Where("proc_inst_id = ?", processInstanceId).Find(&variables)
+	identityLink := make([]IdentityLink, 0)
+	err := db.TXDB.Where("proc_inst_id = ?", processInstanceId).Find(&identityLink).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
 	}
-	if variables == nil || len(variables) <= 0 {
-		return []IdentityLink{}, errs.ProcessError{}
+	if identityLink == nil || len(identityLink) <= 0 {
+		return []IdentityLink{}, errs.ProcessError{Code: "1001", Msg: "Not find"}
 	}
-	return variables, nil
+	return identityLink, nil
 }
 
 func (identityLinkManager IdentityLinkManager) SelectByTaskId(taskId int64) ([]IdentityLink, error) {
-	variables := make([]IdentityLink, 0)
-	err := db.MasterDB.Where("task_id = ?", taskId).Find(&variables)
+	identityLink := make([]IdentityLink, 0)
+	err := db.TXDB.Where("task_id = ?", taskId).Find(&identityLink).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
 	}
-	if variables == nil || len(variables) <= 0 {
-		return []IdentityLink{}, errs.ProcessError{}
+	if identityLink != nil && len(identityLink) > 0 {
+		return identityLink, nil
 	}
-	return variables, nil
+	return identityLink, errs.ProcessError{Code: "1001", Msg: "Not Find"}
 }
 
 func (identityLinkManager IdentityLinkManager) Delete(identityLinkId int64) {
-	task := IdentityLink{}
-	_, err := db.MasterDB.Id(identityLinkId).Delete(task)
+	identityLink := IdentityLink{}
+	err := db.TXDB.Where("id=?", identityLinkId).Delete(&identityLink).Error
 	if err != nil {
 		log.Infoln("delete Variable err: ", err)
 	}
 }
 
-func (identityLinkManager IdentityLinkManager) createHistoricIdentityLink() {
+func (identityLinkManager IdentityLinkManager) createHistoricIdentityLink() (err error) {
 	identityLink := identityLinkManager.IdentityLink
 	historicIdentityLink := HistoricIdentityLink{}
 	historicIdentityLink.UserId = identityLink.UserId
 	historicIdentityLinkManager := HistoricIdentityLinkManager{}
 	historicIdentityLinkManager.HistoricIdentityLink = historicIdentityLink
-	historicIdentityLinkManager.Insert()
+	err = historicIdentityLinkManager.Insert()
+	return err
 }

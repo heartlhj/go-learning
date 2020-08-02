@@ -1,5 +1,5 @@
 package engine
 
 type ActivityBehavior interface {
-	Execute(execution ExecutionEntity)
+	Execute(execution ExecutionEntity) error
 }

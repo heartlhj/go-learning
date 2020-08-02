@@ -6,15 +6,15 @@ import (
 
 type HistoricTask struct {
 	Id                int64
-	TaskId            int64     `xorm:"task_id"`
-	TaskDefineKey     string    `xorm:"task_define_key"`
-	TaskDefineName    string    `xorm:"task_define_name"`
-	TenantId          string    `xorm:"tenant_id"`
-	DeploymentId      int       `xorm:"deployment_id"`
-	StartTime         time.Time `xorm:"start_time"`
-	EndTime           time.Time `xorm:"end_time"`
-	Assignee          string    `xorm:"assignee"`
-	ProcessInstanceId int64     `xorm:"proc_inst_id"`
+	TaskId            int64     `gorm:"column:task_id"`
+	TaskDefineKey     string    `gorm:"column:task_define_key"`
+	TaskDefineName    string    `gorm:"column:task_define_name"`
+	TenantId          string    `gorm:"column:tenant_id"`
+	DeploymentId      int       `gorm:"column:deployment_id"`
+	StartTime         time.Time `gorm:"column:start_time"`
+	EndTime           time.Time `gorm:"column:end_time","default: null"`
+	Assignee          string    `gorm:"column:assignee"`
+	ProcessInstanceId int64     `gorm:"column:proc_inst_id"`
 }
 
 func (HistoricTask) TableName() string {

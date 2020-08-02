@@ -10,9 +10,10 @@ type HistoricVariableManager struct {
 	HistoricVariable variable.HistoricVariable
 }
 
-func (historicVariableManager HistoricVariableManager) Insert() {
-	_, err := db.MasterDB.Insert(historicVariableManager.HistoricVariable)
+func (historicVariableManager HistoricVariableManager) Insert() (err error) {
+	err = db.TXDB.Create(&historicVariableManager.HistoricVariable).Error
 	if err != nil {
 		log.Infoln("Create HistoricVariable Err ", err)
 	}
+	return err
 }

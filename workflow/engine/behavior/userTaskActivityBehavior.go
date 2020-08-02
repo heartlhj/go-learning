@@ -12,7 +12,7 @@ type UserTaskActivityBehavior struct {
 }
 
 //普通用户节点处理
-func (user UserTaskActivityBehavior) Execute(execution engine.ExecutionEntity) {
+func (user UserTaskActivityBehavior) Execute(execution engine.ExecutionEntity) (err error) {
 	task := Task{}
 	task.ProcessInstanceId = execution.GetProcessInstanceId()
 	task.Assignee = user.UserTask.Assignee
@@ -20,12 +20,16 @@ func (user UserTaskActivityBehavior) Execute(execution engine.ExecutionEntity) {
 	task.TaskDefineKey = user.UserTask.Id
 	task.TaskDefineName = user.UserTask.Name
 	manager := TaskManager{Task: &task}
-	manager.Insert(execution)
-	handleAssignments(user.UserTask, task.Id)
+	err = manager.Insert(execution)
+	if err != nil {
+		return err
+	}
+	err = handleAssignments(user.UserTask, task.Id)
+	return err
 }
 
 //保存候选用户
-func handleAssignments(user engine.UserTask, taskId int64) {
+func handleAssignments(user engine.UserTask, taskId int64) (err error) {
 	users := user.CandidateUsers
 	if len(users) >= 0 {
 		for _, user := range users {
@@ -34,9 +38,13 @@ func handleAssignments(user engine.UserTask, taskId int64) {
 			link.UserId = user
 			identityLinkManager := GetIdentityLinkManager()
 			identityLinkManager.IdentityLink = link
-			identityLinkManager.CreateIdentityLink()
+			err = identityLinkManager.CreateIdentityLink()
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return err
 }
 
 //普通用户节点处理

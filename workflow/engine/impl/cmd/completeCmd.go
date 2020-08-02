@@ -12,25 +12,27 @@ type CompleteCmd struct {
 	LocalScope bool
 }
 
-func (taskCmd CompleteCmd) Execute(interceptor behavior.CommandContext) interface{} {
-
+func (taskCmd CompleteCmd) Execute(interceptor behavior.CommandContext) (interface{}, error) {
 	manager := behavior.GetTaskManager()
-	tasks := manager.FindById(taskCmd.TaskId)
-	if len(tasks) == 1 {
-		task := tasks[0]
-		taskCmd.executeTaskComplete(task, interceptor)
-		return task
-	} else {
-		panic("Not find task by taskId")
+	task, err := manager.FindById(taskCmd.TaskId)
+	if err != nil {
+		return task, err
 	}
-	return tasks[0]
+	taskCmd.executeTaskComplete(task, interceptor)
+	return task, err
 }
 
-func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.CommandContext) {
-	deleteTask(task)
+func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.CommandContext) (err error) {
+	err = deleteTask(task)
+	if err != nil {
+		return err
+	}
 	defineManager := behavior.GetDefineManager()
-	bytearry := defineManager.FindProcessByTask(task.ProcessInstanceId)
-	currentTask := behavior.FindCurrentTask(*bytearry, task.TaskDefineKey)
+	bytearry, err := defineManager.FindProcessByTask(task.ProcessInstanceId)
+	if err != nil {
+		return err
+	}
+	currentTask := behavior.FindCurrentTask(bytearry, task.TaskDefineKey)
 	taskExecution := TaskEntityImpl{}
 	execution := ExecutionEntityImpl{}
 	execution.SetCurrentFlowElement(currentTask)
@@ -41,14 +43,18 @@ func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.C
 	taskExecution.SetTaskId(task.Id)
 	taskExecution.ExecutionEntityImpl = execution
 	if taskCmd.LocalScope {
-		SetVariable(&taskExecution, taskCmd.Variables)
+		err = SetVariable(&taskExecution, taskCmd.Variables)
 	} else {
-		SetVariable(&execution, taskCmd.Variables)
+		err = SetVariable(&execution, taskCmd.Variables)
+	}
+	if err != nil {
+		return err
 	}
 	interceptor.Agenda.PlanTriggerExecutionOperation(&taskExecution)
+	return nil
 }
 
-func deleteTask(task Task) {
+func deleteTask(task Task) (err error) {
 	manager := behavior.GetTaskManager()
-	manager.DeleteTask(task)
+	return manager.DeleteTask(task)
 }

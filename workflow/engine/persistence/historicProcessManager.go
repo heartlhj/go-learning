@@ -10,23 +10,26 @@ type HistoricProcessManager struct {
 	HistoricProcess HistoricProcess
 }
 
-func (historicProcessManager HistoricProcessManager) Insert() {
-	_, err := db.MasterDB.Insert(historicProcessManager.HistoricProcess)
+func (historicProcessManager HistoricProcessManager) Insert() (err error) {
+	err = db.TXDB.Create(&historicProcessManager.HistoricProcess).Error
 	if err != nil {
 		log.Infoln("Create HistoricActinst Err", err)
 	}
+	return err
 }
 
-func (historicProcessManager HistoricProcessManager) MarkEnded() {
+func (historicProcessManager HistoricProcessManager) MarkEnded() (err error) {
 	historicProcess := historicProcessManager.HistoricProcess
-	_, err := db.MasterDB.Where("proc_inst_id=?", historicProcess.ProcessInstanceId).Update(historicProcess)
+	err = db.TXDB.Where("proc_inst_id=?", historicProcess.ProcessInstanceId).Update(&historicProcess).Error
 	if err != nil {
 		log.Infoln("delete HistoricProcess Err", err)
+		return err
 	}
 	historicActinst := HistoricActinst{}
 	historicActinst.EndTime = historicProcess.EndTime
 	historicProcess.ProcessInstanceId = historicProcess.Id
 	historicActinstManager := HistoricActinstManager{}
 	historicActinstManager.HistoricActinst = historicActinst
-	historicActinstManager.UpdateProcessInstanceId()
+	err = historicActinstManager.UpdateProcessInstanceId()
+	return err
 }

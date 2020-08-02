@@ -16,9 +16,12 @@ type StartProcessInstanceByKeyCmd struct {
 	TenantId             string
 }
 
-func (start StartProcessInstanceByKeyCmd) Execute(interceptor behavior.CommandContext) interface{} {
+func (start StartProcessInstanceByKeyCmd) Execute(interceptor behavior.CommandContext) (interface{}, error) {
 	defineManager := behavior.GetDefineManager()
-	bytearries := defineManager.FindDeployedProcessDefinitionByKey(start.ProcessDefinitionKey)
+	bytearries, err := defineManager.FindDeployedProcessDefinitionByKey(start.ProcessDefinitionKey)
+	if err != nil {
+		return nil, err
+	}
 	//解析xml数据
 	process := behavior.GetBpmn(*bytearries[0])
 	instance := ProcessInstance{}
@@ -39,11 +42,13 @@ func (start StartProcessInstanceByKeyCmd) Execute(interceptor behavior.CommandCo
 	execution.SetProcessDefineId(bytearries[0].Id)
 	execution.SetCurrentActivityId(element.GetId())
 	//保存流程变量
-	SetVariable(&execution, start.Variables)
-	context, e := behavior.GetCommandContext()
-	if e != nil {
-
+	err = SetVariable(&execution, start.Variables)
+	if err != nil {
+		return nil, err
 	}
-	context.Agenda.PlanContinueProcessOperation(&execution)
-	return process
+	context, err := behavior.GetCommandContext()
+	if err == nil {
+		context.Agenda.PlanContinueProcessOperation(&execution)
+	}
+	return process, nil
 }

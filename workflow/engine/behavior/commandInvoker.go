@@ -4,23 +4,29 @@ type CommandInvoker struct {
 	Next CommandInterceptor
 }
 
-func (commandInvoker CommandInvoker) Execute(command Command) interface{} {
+func (commandInvoker CommandInvoker) Execute(command Command) (result interface{}, err error) {
 	context, err := GetCommandContext()
 	if err != nil {
-
+		return nil, err
 	}
-	execute := command.Execute(context)
-	executeOperations(context)
-	return execute
+	result, err = command.Execute(context)
+	if err != nil {
+		return nil, err
+	}
+	err = executeOperations(context)
+	return result, err
 }
 
-func executeOperations(context CommandContext) {
+func executeOperations(context CommandContext) (err error) {
 	for !context.Agenda.IsEmpty() {
-		context.Agenda.GetNextOperation().Run()
+		err = context.Agenda.GetNextOperation().Run()
+		if err != nil {
+			return err
+		}
 	}
-
+	return err
 }
 
-func (a *CommandInvoker) SetNext(next CommandInterceptor) {
-	a.Next = next
+func (commandInvoker *CommandInvoker) SetNext(next CommandInterceptor) {
+	commandInvoker.Next = next
 }

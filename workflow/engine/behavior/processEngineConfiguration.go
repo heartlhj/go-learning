@@ -49,6 +49,7 @@ func getDefaultCommandInterceptors() []CommandInterceptor {
 	var interceptors []CommandInterceptor
 	interceptors = append(interceptors, &CommandContextInterceptor{CommandContextFactory: processEngineConfiguration.CommandContextFactory})
 	//interceptors = append(interceptors, CommandInvoker{})
+	interceptors = append(interceptors, &TransactionContextInterceptor{})
 	return interceptors
 }
 func initCommandInvoker() {

@@ -6,16 +6,16 @@ import (
 
 type Variable struct {
 	Id                int64
-	Version           int64     `xorm:"version"`
-	TaskId            int64     `xorm:"task_id"`
-	ProcessInstanceId int64     `xorm:"proc_inst_id"`
-	Name              string    `xorm:"name"`
-	Type              string    `xorm:"type"`
-	Date              time.Time `xorm:"date"`
-	Number            int       `xorm:"number"`
-	Float             float64   `xorm:"float"`
-	Text              string    `xorm:"text"`
-	Blob              string    `xorm:"blob"`
+	Version           int64     `gorm:"column:version"`
+	TaskId            int64     `gorm:"column:task_id"`
+	ProcessInstanceId int64     `gorm:"column:proc_inst_id"`
+	Name              string    `gorm:"column:name"`
+	Type              string    `gorm:"column:type"`
+	Date              time.Time `gorm:"column:date"`
+	Number            int       `gorm:"column:number"`
+	Float             float64   `gorm:"column:float"`
+	Text              string    `gorm:"column:text"`
+	Blob              string    `gorm:"column:blob"`
 }
 
 func (Variable) TableName() string {

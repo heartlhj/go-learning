@@ -6,7 +6,7 @@ type CommandContextInterceptor struct {
 	CommandContextFactory      CommandContextFactory
 }
 
-func (commandContext CommandContextInterceptor) Execute(command Command) interface{} {
+func (commandContext CommandContextInterceptor) Execute(command Command) (interface{}, error) {
 	context, err := GetCommandContext()
 	if err != nil {
 		context = commandContext.CommandContextFactory.CreateCommandContext(command)

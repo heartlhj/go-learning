@@ -8,11 +8,12 @@ type TriggerExecutionOperation struct {
 	AbstractOperation
 }
 
-func (trigger TriggerExecutionOperation) Run() {
+func (trigger TriggerExecutionOperation) Run() (err error) {
 	element := trigger.getCurrentFlowElement(trigger.Execution)
 	behavior := element.GetBehavior()
 	operation := behavior.(TriggerableActivityBehavior)
 	operation.Trigger(trigger.Execution)
+	return err
 }
 
 func (trigger TriggerExecutionOperation) getCurrentFlowElement(execut engine.ExecutionEntity) engine.FlowElement {

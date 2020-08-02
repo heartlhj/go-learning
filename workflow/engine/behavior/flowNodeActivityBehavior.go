@@ -5,5 +5,5 @@ import (
 )
 
 type FlowNodeActivityBehavior interface {
-	Leave(execution engine.ExecutionEntity)
+	Leave(execution engine.ExecutionEntity) error
 }

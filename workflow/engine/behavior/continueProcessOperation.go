@@ -8,16 +8,17 @@ type ContinueProcessOperation struct {
 	AbstractOperation
 }
 
-func (cont *ContinueProcessOperation) Run() {
+func (cont *ContinueProcessOperation) Run() (err error) {
 	element := cont.Execution.GetCurrentFlowElement()
 	if element != nil {
 		flow, ok := element.(engine.SequenceFlow)
 		if !ok {
-			cont.continueThroughFlowNode(element)
+			err = cont.continueThroughFlowNode(element)
 		} else {
 			cont.continueThroughSequenceFlow(flow)
 		}
 	}
+	return err
 }
 
 func (cont *ContinueProcessOperation) continueThroughSequenceFlow(sequenceFlow engine.SequenceFlow) {
@@ -26,14 +27,14 @@ func (cont *ContinueProcessOperation) continueThroughSequenceFlow(sequenceFlow e
 	GetAgenda().PlanContinueProcessOperation(cont.Execution)
 }
 
-func (cont *ContinueProcessOperation) continueThroughFlowNode(element engine.FlowElement) {
+func (cont *ContinueProcessOperation) continueThroughFlowNode(element engine.FlowElement) (err error) {
 	historicActinstManager := GetHistoricActinstManager()
 	historicActinstManager.RecordActivityStart(cont.Execution)
 	behavior := element.GetBehavior()
 	if behavior != nil {
-		behavior.Execute(cont.Execution)
+		err = behavior.Execute(cont.Execution)
 	} else {
 		GetAgenda().PlanTakeOutgoingSequenceFlowsOperation(cont.Execution, true)
 	}
-
+	return err
 }

@@ -10,21 +10,25 @@ type TakeOutgoingSequenceFlowsOperation struct {
 	EvaluateConditions bool
 }
 
-func (task TakeOutgoingSequenceFlowsOperation) Run() {
+func (task TakeOutgoingSequenceFlowsOperation) Run() (err error) {
 	currentFlowElement := task.getCurrentFlowElement()
 	_, ok := currentFlowElement.(SequenceFlow)
 	if ok {
 		task.handleSequenceFlow()
 	} else {
-		task.handleFlowNode()
+		err = task.handleFlowNode()
 	}
+	return err
 }
 
 //处理节点
-func (task TakeOutgoingSequenceFlowsOperation) handleFlowNode() {
+func (task TakeOutgoingSequenceFlowsOperation) handleFlowNode() (err error) {
 	execution := task.Execution
 	currentFlowElement := task.Execution.GetCurrentFlowElement()
-	task.handleActivityEnd(currentFlowElement)
+	err = task.handleActivityEnd(currentFlowElement)
+	if err != nil {
+		return err
+	}
 	gateway, ok := currentFlowElement.(Gateway)
 	var defaultSequenceFlowId = ""
 	if ok {
@@ -62,6 +66,7 @@ func (task TakeOutgoingSequenceFlowsOperation) handleFlowNode() {
 			GetAgenda().PlanContinueProcessOperation(execution)
 		}
 	}
+	return err
 }
 
 //处理连线
@@ -79,7 +84,8 @@ func (task TakeOutgoingSequenceFlowsOperation) getCurrentFlowElement() FlowEleme
 	return nil
 }
 
-func (task TakeOutgoingSequenceFlowsOperation) handleActivityEnd(element FlowElement) {
+func (task TakeOutgoingSequenceFlowsOperation) handleActivityEnd(element FlowElement) (err error) {
 	historicActinstManager := GetHistoricActinstManager()
-	historicActinstManager.RecordTaskCreated(element, task.Execution)
+	err = historicActinstManager.RecordTaskCreated(element, task.Execution)
+	return err
 }

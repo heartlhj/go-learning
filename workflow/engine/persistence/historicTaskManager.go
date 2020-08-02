@@ -10,15 +10,16 @@ type HistoricTaskManager struct {
 	HistoricTask HistoricTask
 }
 
-func (historicTaskManager HistoricTaskManager) Insert() {
-	_, err := db.MasterDB.Insert(historicTaskManager.HistoricTask)
+func (historicTaskManager HistoricTaskManager) Insert() (err error) {
+	err = db.TXDB.Create(&historicTaskManager.HistoricTask).Error
 	if err != nil {
 		log.Infoln("Create HistoricTask Err", err)
 	}
+	return err
 }
 
 func (historicTaskManager HistoricTaskManager) MarkEnded() {
-	_, err := db.MasterDB.Where("task_id=?", historicTaskManager.HistoricTask.TaskId).Update(historicTaskManager.HistoricTask)
+	err := db.TXDB.Model(&HistoricTask{}).Where("task_id=?", historicTaskManager.HistoricTask.TaskId).Update(&historicTaskManager.HistoricTask).Error
 	if err != nil {
 		log.Infoln("Create HistoricTask Err", err)
 	}
