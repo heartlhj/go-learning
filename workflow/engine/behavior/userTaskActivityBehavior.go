@@ -3,6 +3,8 @@ package behavior
 import (
 	"github.com/heartlhj/go-learning/workflow/engine"
 	. "github.com/heartlhj/go-learning/workflow/engine/persistence"
+	"github.com/heartlhj/go-learning/workflow/event"
+	. "github.com/heartlhj/go-learning/workflow/event/impl"
 	. "github.com/heartlhj/go-learning/workflow/model"
 	"time"
 )
@@ -25,6 +27,15 @@ func (user UserTaskActivityBehavior) Execute(execution engine.ExecutionEntity) (
 		return err
 	}
 	err = handleAssignments(user.UserTask, task.Id)
+
+	// All properties set, now firing 'create' events
+	if GetProcessEngineConfiguration().EventDispatcher.IsEnabled() {
+		activitiEntityEvent, err := CreateEntityEvent(event.TASK_CREATED, task)
+		if err != nil {
+			return err
+		}
+		GetProcessEngineConfiguration().EventDispatcher.DispatchEvent(activitiEntityEvent)
+	}
 	return err
 }
 

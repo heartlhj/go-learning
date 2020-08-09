@@ -3,6 +3,8 @@ package cmd
 import (
 	"github.com/heartlhj/go-learning/workflow/engine/behavior"
 	. "github.com/heartlhj/go-learning/workflow/engine/entityImpl"
+	"github.com/heartlhj/go-learning/workflow/event"
+	"github.com/heartlhj/go-learning/workflow/event/impl"
 	. "github.com/heartlhj/go-learning/workflow/model"
 )
 
@@ -23,6 +25,15 @@ func (taskCmd CompleteCmd) Execute(interceptor behavior.CommandContext) (interfa
 }
 
 func (taskCmd CompleteCmd) executeTaskComplete(task Task, interceptor behavior.CommandContext) (err error) {
+
+	// All properties set, now firing 'create' events
+	if event.GetEventDispatcher().IsEnabled() {
+		activitiEntityEvent, err := impl.CreateEntityEvent(event.TASK_COMPLETED, task)
+		if err != nil {
+			return err
+		}
+		event.GetEventDispatcher().DispatchEvent(activitiEntityEvent)
+	}
 	err = deleteTask(task)
 	if err != nil {
 		return err

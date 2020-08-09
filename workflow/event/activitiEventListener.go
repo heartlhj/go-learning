@@ -1,5 +1,5 @@
 package event
 
 type ActivitiEventListener interface {
-	onEvent(event ActivitiEvent)
+	onEvent(event ActivitiEvent) error
 }

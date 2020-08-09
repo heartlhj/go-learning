@@ -18,6 +18,8 @@ func (taskManager TaskManager) Insert(execution engine.ExecutionEntity) (err err
 	if err == nil {
 		err = taskManager.recordTaskCreated(taskManager.Task, execution)
 	}
+	//dispatcher := event.GetEventDispatcher()
+	//dispatcher.DispatchEvent(CreateEntityEvent())
 	return err
 }
 

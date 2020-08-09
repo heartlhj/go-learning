@@ -15,6 +15,7 @@ type ProcessEngineConfiguration struct {
 	CommandExecutor       CommandExecutor
 	CommandContextFactory CommandContextFactory
 	VariableTypes         VariableTypes
+	EventDispatcher       ActivitiEventDispatcher
 }
 
 func GetProcessEngineConfiguration() *ProcessEngineConfiguration {
@@ -29,13 +30,14 @@ func init() {
 	initService()
 	initCommandContext(processEngineConfiguration)
 	initVariableTypes()
+	initEventDispatcher()
 }
 
 func initCommandContext(configuration ProcessEngineConfiguration) {
 	//context := CommandContext{}
 }
 
-func AddEventListeners(eventListeners []ActivitiEventListener) {
+func (processEngineConfiguration ProcessEngineConfiguration) AddEventListeners(eventListeners []ActivitiEventListener) {
 	var EventListeners []ActivitiEventListener
 	if len(eventListeners) > 0 {
 		for _, listener := range eventListeners {
@@ -98,4 +100,18 @@ func initVariableTypes() {
 	defaultVariableTypes.AddType(StringType{})
 	defaultVariableTypes.AddType(MapType{})
 	processEngineConfiguration.VariableTypes = defaultVariableTypes
+}
+
+func initEventDispatcher() {
+	eventDispatcher := processEngineConfiguration.EventDispatcher
+	if processEngineConfiguration.EventDispatcher == nil {
+		eventDispatcher = ActivitiEventDispatcherImpl{EventSupport: &ActivitiEventSupport{}, Enabled: true}
+	}
+	if processEngineConfiguration.EventListeners != nil && len(processEngineConfiguration.EventListeners) > 0 {
+		for _, listenerToAdd := range processEngineConfiguration.EventListeners {
+			eventDispatcher.AddEventListener(listenerToAdd)
+		}
+	}
+	processEngineConfiguration.EventDispatcher = eventDispatcher
+	SetEventDispatcher(eventDispatcher)
 }
