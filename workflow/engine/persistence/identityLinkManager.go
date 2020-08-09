@@ -13,7 +13,7 @@ type IdentityLinkManager struct {
 
 //创建流程实例
 func (identityLinkManager IdentityLinkManager) CreateIdentityLink() (err error) {
-	err = db.TXDB.Create(&identityLinkManager.IdentityLink).Error
+	err = db.DB().Create(&identityLinkManager.IdentityLink).Error
 	if err != nil {
 		log.Infoln("Create IdentityLink Err ", err)
 		return err
@@ -24,7 +24,7 @@ func (identityLinkManager IdentityLinkManager) CreateIdentityLink() (err error) 
 
 func (identityLinkManager IdentityLinkManager) SelectByProcessInstanceId(processInstanceId int64) ([]IdentityLink, error) {
 	identityLink := make([]IdentityLink, 0)
-	err := db.TXDB.Where("proc_inst_id = ?", processInstanceId).Find(&identityLink).Error
+	err := db.DB().Where("proc_inst_id = ?", processInstanceId).Find(&identityLink).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
 	}
@@ -36,7 +36,7 @@ func (identityLinkManager IdentityLinkManager) SelectByProcessInstanceId(process
 
 func (identityLinkManager IdentityLinkManager) SelectByTaskId(taskId int64) ([]IdentityLink, error) {
 	identityLink := make([]IdentityLink, 0)
-	err := db.TXDB.Where("task_id = ?", taskId).Find(&identityLink).Error
+	err := db.DB().Where("task_id = ?", taskId).Find(&identityLink).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
 	}
@@ -48,7 +48,7 @@ func (identityLinkManager IdentityLinkManager) SelectByTaskId(taskId int64) ([]I
 
 func (identityLinkManager IdentityLinkManager) Delete(identityLinkId int64) {
 	identityLink := IdentityLink{}
-	err := db.TXDB.Where("id=?", identityLinkId).Delete(&identityLink).Error
+	err := db.DB().Where("id=?", identityLinkId).Delete(&identityLink).Error
 	if err != nil {
 		log.Infoln("delete Variable err: ", err)
 	}

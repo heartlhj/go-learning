@@ -11,7 +11,7 @@ type HistoricVariableManager struct {
 }
 
 func (historicVariableManager HistoricVariableManager) Insert() (err error) {
-	err = db.TXDB.Create(&historicVariableManager.HistoricVariable).Error
+	err = db.DB().Create(&historicVariableManager.HistoricVariable).Error
 	if err != nil {
 		log.Infoln("Create HistoricVariable Err ", err)
 	}

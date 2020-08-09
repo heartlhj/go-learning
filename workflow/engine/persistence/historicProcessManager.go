@@ -11,7 +11,7 @@ type HistoricProcessManager struct {
 }
 
 func (historicProcessManager HistoricProcessManager) Insert() (err error) {
-	err = db.TXDB.Create(&historicProcessManager.HistoricProcess).Error
+	err = db.DB().Create(&historicProcessManager.HistoricProcess).Error
 	if err != nil {
 		log.Infoln("Create HistoricActinst Err", err)
 	}
@@ -20,7 +20,7 @@ func (historicProcessManager HistoricProcessManager) Insert() (err error) {
 
 func (historicProcessManager HistoricProcessManager) MarkEnded() (err error) {
 	historicProcess := historicProcessManager.HistoricProcess
-	err = db.TXDB.Where("proc_inst_id=?", historicProcess.ProcessInstanceId).Update(&historicProcess).Error
+	err = db.DB().Where("proc_inst_id=?", historicProcess.ProcessInstanceId).Update(&historicProcess).Error
 	if err != nil {
 		log.Infoln("delete HistoricProcess Err", err)
 		return err

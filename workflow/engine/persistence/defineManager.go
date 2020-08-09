@@ -12,13 +12,13 @@ type DefineManager struct {
 
 func (define DefineManager) FindDeployedProcessDefinitionByKey(key string) ([]*Bytearry, error) {
 	bytearries := make([]*Bytearry, 0)
-	err := db.TXDB.Where("`key`=?", key).Find(&bytearries).Error
+	err := db.DB().Where("`key`=?", key).Find(&bytearries).Error
 	return bytearries, err
 }
 
 func (define DefineManager) GetBytearry(processDefineId int64) (Bytearry, error) {
 	bytearries := Bytearry{}
-	err := db.TXDB.Where("id=?", processDefineId).First(&bytearries).Error
+	err := db.DB().Where("id=?", processDefineId).First(&bytearries).Error
 	if err != nil {
 		log.Infoln("create processInstance err", err)
 		return bytearries, err
@@ -37,7 +37,7 @@ func (define DefineManager) CreateByteArry(name string, key string, bytes string
 		verion++
 	}
 	byteArry := Bytearry{Name: name, Bytes: bytes, Key: key, Version: verion}
-	err = db.TXDB.Create(&byteArry).Error
+	err = db.DB().Create(&byteArry).Error
 	if err != nil {
 		log.Infoln("新增数据异常", err)
 		return err
@@ -50,7 +50,7 @@ func (define DefineManager) FindProcessByTask(processInstanceId int64) (Bytearry
 	var sql = "SELECT b.* FROM bytearry b " +
 		"LEFT JOIN process_instance p on b.key = p.key " +
 		"WHERE p.id = ? "
-	err := db.TXDB.Raw(sql, processInstanceId).Find(&bytearries).Error
+	err := db.DB().Raw(sql, processInstanceId).Find(&bytearries).Error
 	if err != nil {
 		return Bytearry{}, err
 	}

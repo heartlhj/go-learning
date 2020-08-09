@@ -1,7 +1,9 @@
 package test
 
 import (
+	"fmt"
 	peocess "github.com/heartlhj/go-learning/workflow/engine/impl"
+	"github.com/heartlhj/go-learning/workflow/runtime"
 	"testing"
 )
 
@@ -23,4 +25,10 @@ func TestComplete(t *testing.T) {
 	variables := make(map[string]interface{}, 0)
 	variables["code"] = "0001"
 	taskService.Complete(35, variables, true)
+}
+
+//测试完成任务
+func TestRuntime(t *testing.T) {
+	id := runtime.GoroutineId()
+	fmt.Println(id)
 }

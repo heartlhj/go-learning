@@ -14,7 +14,7 @@ type HistoricActinstManager struct {
 }
 
 func (historicActinstManager HistoricActinstManager) Insert() {
-	err := db.TXDB.Create(&historicActinstManager.HistoricActinst).Error
+	err := db.DB().Create(&historicActinstManager.HistoricActinst).Error
 	if err != nil {
 		log.Infoln("Create HistoricActinst Err", err)
 	}
@@ -36,7 +36,7 @@ func (historicActinstManager HistoricActinstManager) RecordActivityStart(entity 
 
 func (historicActinstManager HistoricActinstManager) FindUnfinishedHistoricActivityInstancesByExecutionAndActivityId(processInstanceId int64, actId string) (HistoricActinst, error) {
 	historicActinst := HistoricActinst{}
-	err := db.TXDB.Where("act_id = ?", actId).Where("proc_inst_id = ?", processInstanceId).First(&historicActinst).Error
+	err := db.DB().Where("act_id = ?", actId).Where("proc_inst_id = ?", processInstanceId).First(&historicActinst).Error
 	if err != nil {
 		log.Infoln("Select HistoricActinst err: ", err)
 		return HistoricActinst{}, err
@@ -45,7 +45,7 @@ func (historicActinstManager HistoricActinstManager) FindUnfinishedHistoricActiv
 }
 
 func (historicActinstManager HistoricActinstManager) Update() (err error) {
-	err = db.TXDB.Model(&HistoricActinst{}).Where("act_id = ?", historicActinstManager.HistoricActinst.ActId).
+	err = db.DB().Model(&HistoricActinst{}).Where("act_id = ?", historicActinstManager.HistoricActinst.ActId).
 		Where("proc_inst_id = ?", historicActinstManager.HistoricActinst.ProcessInstanceId).
 		Where("end_time IS NULL").
 		Update(&historicActinstManager.HistoricActinst).Error
@@ -55,7 +55,7 @@ func (historicActinstManager HistoricActinstManager) Update() (err error) {
 	return err
 }
 func (historicActinstManager HistoricActinstManager) UpdateProcessInstanceId() (err error) {
-	err = db.TXDB.Model(&HistoricActinst{}).Where("proc_inst_id = ?", historicActinstManager.HistoricActinst.ProcessInstanceId).
+	err = db.DB().Model(&HistoricActinst{}).Where("proc_inst_id = ?", historicActinstManager.HistoricActinst.ProcessInstanceId).
 		Update(&historicActinstManager.HistoricActinst).Error
 	if err != nil {
 		log.Infoln("Update HistoricActinst err: ", err)
@@ -64,7 +64,7 @@ func (historicActinstManager HistoricActinstManager) UpdateProcessInstanceId() (
 }
 
 func (historicActinstManager HistoricActinstManager) UpdateTaskId() (err error) {
-	err = db.TXDB.Model(&HistoricActinst{}).Where("task_id = ?", historicActinstManager.HistoricActinst.TaskId).
+	err = db.DB().Model(&HistoricActinst{}).Where("task_id = ?", historicActinstManager.HistoricActinst.TaskId).
 		Update(&historicActinstManager.HistoricActinst).Error
 	if err != nil {
 		log.Infoln("Update HistoricActinst err: ", err)

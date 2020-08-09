@@ -14,7 +14,7 @@ type TaskManager struct {
 }
 
 func (taskManager TaskManager) Insert(execution engine.ExecutionEntity) (err error) {
-	err = db.TXDB.Create(taskManager.Task).Error
+	err = db.DB().Create(taskManager.Task).Error
 	if err == nil {
 		err = taskManager.recordTaskCreated(taskManager.Task, execution)
 	}
@@ -55,7 +55,7 @@ func (taskManager TaskManager) createHistoricTask(task *Task) HistoricTask {
 
 func (taskManager TaskManager) FindById(taskId int) (Task, error) {
 	task := Task{}
-	err := db.TXDB.Where("id= ?", taskId).First(&task).Error
+	err := db.DB().Where("id= ?", taskId).First(&task).Error
 	if err != nil {
 		log.Infoln("Select FindById Err ", err)
 		return task, err
@@ -65,7 +65,7 @@ func (taskManager TaskManager) FindById(taskId int) (Task, error) {
 
 func (taskManager TaskManager) FindByProcessInstanceId(processInstanceId int64) (task []Task, err error) {
 	task = make([]Task, 0)
-	err = db.TXDB.Where("proc_inst_id=?", processInstanceId).Find(&task).Error
+	err = db.DB().Where("proc_inst_id=?", processInstanceId).Find(&task).Error
 	if err != nil {
 		log.Infoln("Select FindByProcessInstanceId err ", err)
 	}
@@ -76,7 +76,7 @@ func (taskManager TaskManager) FindByProcessInstanceId(processInstanceId int64) 
 }
 
 func (taskManager TaskManager) DeleteTask(task Task) (err error) {
-	err = db.TXDB.Where("id = ?", task.Id).Delete(&task).Error
+	err = db.DB().Where("id = ?", task.Id).Delete(&task).Error
 	if err != nil {
 		return err
 	}

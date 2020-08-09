@@ -4,19 +4,22 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/heartlhj/go-learning/workflow/runtime"
 	"github.com/jinzhu/gorm"
 	. "github.com/polaris1119/config"
+	"sync"
 )
 
 //var MasterDB *xorm.Engine
 
-var DB *gorm.DB
+var GORM_DB *gorm.DB
 
-var TXDB *gorm.DB
+var TXDB *sync.Map
 
 var dns string
 
 func init() {
+	TXDB = new(sync.Map)
 	initConf()
 	mysqlConfig, err := ConfigFile.GetSection("mysql")
 	if err != nil {
@@ -30,7 +33,7 @@ func init() {
 		panic(err)
 	}
 	// 测试数据库连接是否 OK
-	if err = DB.DB().Ping(); err != nil {
+	if err = GORM_DB.DB().Ping(); err != nil {
 		panic(err)
 	}
 }
@@ -76,18 +79,18 @@ func TestDB() error {
 		fmt.Println("new engine error:", err)
 		return err
 	}
-	defer DB.Close()
+	defer GORM_DB.Close()
 
 	// 测试数据库连接是否 OK
-	if err = DB.DB().Ping(); err != nil {
+	if err = GORM_DB.DB().Ping(); err != nil {
 		fmt.Println("ping db error:", err)
 		return ConnectDBErr
 	}
 
-	err = DB.Exec("use " + mysqlConfig["dbname"]).Error
+	err = GORM_DB.Exec("use " + mysqlConfig["dbname"]).Error
 	if err != nil {
 		fmt.Println("use db error:", err)
-		err = DB.Exec("CREATE DATABASE " + mysqlConfig["dbname"] + " DEFAULT CHARACTER SET " + mysqlConfig["charset"]).Error
+		err = GORM_DB.Exec("CREATE DATABASE " + mysqlConfig["dbname"] + " DEFAULT CHARACTER SET " + mysqlConfig["charset"]).Error
 		if err != nil {
 			fmt.Println("create database error:", err)
 
@@ -131,18 +134,26 @@ func fillDns(mysqlConfig map[string]string) {
 
 func initEngine() error {
 	var err error
-	DB, err = gorm.Open("mysql", dns)
+	GORM_DB, err = gorm.Open("mysql", dns)
 	if err != nil {
 		return err
 	}
-	DB.LogMode(true)
+	GORM_DB.LogMode(true)
 	return nil
 }
 
 func InitTXDB(db *gorm.DB) {
-	TXDB = db
+	TXDB.Store(runtime.GoroutineId(), db)
 }
 
 func ClearTXDB() {
-	TXDB = nil
+	TXDB.Delete(runtime.GoroutineId())
+}
+
+func DB() *gorm.DB {
+	db, ok := TXDB.Load(runtime.GoroutineId())
+	if !ok {
+		panic("db not init")
+	}
+	return db.(*gorm.DB)
 }

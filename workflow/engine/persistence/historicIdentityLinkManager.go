@@ -11,7 +11,7 @@ type HistoricIdentityLinkManager struct {
 }
 
 func (historicIdentityLink HistoricIdentityLinkManager) Insert() (err error) {
-	err = db.TXDB.Create(&historicIdentityLink.HistoricIdentityLink).Error
+	err = db.DB().Create(&historicIdentityLink.HistoricIdentityLink).Error
 	if err != nil {
 		log.Infoln("Create HistoricIdentityLink Err", err)
 	}

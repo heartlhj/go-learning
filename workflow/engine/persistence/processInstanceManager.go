@@ -13,7 +13,7 @@ type ProcessInstanceManager struct {
 
 //创建流程实例
 func (processInstanceManager *ProcessInstanceManager) CreateProcessInstance() {
-	err := db.TXDB.Create(&processInstanceManager.Instance).Error
+	err := db.DB().Create(&processInstanceManager.Instance).Error
 	if err != nil {
 		log.Infoln("create processInstance err", err)
 	}
@@ -24,7 +24,7 @@ func (processInstanceManager *ProcessInstanceManager) CreateProcessInstance() {
 //查询流程实例
 func (processInstanceManager *ProcessInstanceManager) GetProcessInstance(processInstanceId int64) ProcessInstance {
 	instance := ProcessInstance{}
-	err := db.TXDB.Where("id = ?", processInstanceId).Find(&instance).Error
+	err := db.DB().Where("id = ?", processInstanceId).Find(&instance).Error
 	if err != nil {
 		log.Infoln("create processInstance err", err)
 	}
@@ -33,7 +33,7 @@ func (processInstanceManager *ProcessInstanceManager) GetProcessInstance(process
 
 //删除流程实例
 func (processInstanceManager ProcessInstanceManager) DeleteProcessInstance(processInstanceId int64) (err error) {
-	err = db.TXDB.Where("id = ?", processInstanceId).Delete(&ProcessInstance{}).Error
+	err = db.DB().Where("id = ?", processInstanceId).Delete(&ProcessInstance{}).Error
 	if err != nil {
 		log.Infoln("delete processInstance err ", err)
 		return err

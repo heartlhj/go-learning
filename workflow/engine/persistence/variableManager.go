@@ -22,7 +22,7 @@ func (define VariableManager) Create(name string, variableType VariableType, val
 }
 
 func (defineManager VariableManager) Insert() (err error) {
-	err = db.TXDB.Create(&defineManager.Variable).Error
+	err = db.DB().Create(&defineManager.Variable).Error
 	if err != nil {
 		log.Infoln("Create Variable Error", err)
 		return err
@@ -53,7 +53,7 @@ func (defineManager VariableManager) createHistoricVariable() (err error) {
 
 func (defineManager VariableManager) SelectProcessInstanceId(name string, processInstanceId int64) (Variable, error) {
 	variables := Variable{}
-	err := db.TXDB.Where("proc_inst_id = ?", processInstanceId).Where("name = ?", name).First(&variables).Error
+	err := db.DB().Where("proc_inst_id = ?", processInstanceId).Where("name = ?", name).First(&variables).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
 		return Variable{}, err
@@ -63,7 +63,7 @@ func (defineManager VariableManager) SelectProcessInstanceId(name string, proces
 
 func (variableManager VariableManager) SelectTaskId(name string, taskId int64) (Variable, error) {
 	variables := Variable{}
-	err := db.TXDB.Where("task_id = ?", taskId).Where("name = ?", name).First(&variables).Error
+	err := db.DB().Where("task_id = ?", taskId).Where("name = ?", name).First(&variables).Error
 	if err != nil {
 		log.Infoln("根据[taskId] 查询流程变量异常", err)
 		return Variable{}, err
@@ -73,7 +73,7 @@ func (variableManager VariableManager) SelectTaskId(name string, taskId int64) (
 
 func (variableManager VariableManager) SelectByProcessInstanceId(processInstanceId int64) ([]Variable, error) {
 	variables := make([]Variable, 0)
-	err := db.TXDB.Where("proc_inst_id = ?", processInstanceId).Find(&variables).Error
+	err := db.DB().Where("proc_inst_id = ?", processInstanceId).Find(&variables).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
 		return variables, err
@@ -86,7 +86,7 @@ func (variableManager VariableManager) SelectByProcessInstanceId(processInstance
 
 func (variableManager VariableManager) SelectByTaskId(taskId int64) ([]Variable, error) {
 	variables := make([]Variable, 0)
-	err := db.TXDB.Where("task_id = ?", taskId).Find(&variables).Error
+	err := db.DB().Where("task_id = ?", taskId).Find(&variables).Error
 	if err != nil {
 		log.Infoln("Select Variable err: ", err)
 		return variables, err
@@ -99,7 +99,7 @@ func (variableManager VariableManager) SelectByTaskId(taskId int64) ([]Variable,
 
 func (variableManager VariableManager) Delete(variableId int64) {
 	variable := Variable{}
-	err := db.TXDB.Where("id=?", variableId).Delete(variable).Error
+	err := db.DB().Where("id=?", variableId).Delete(variable).Error
 	if err != nil {
 		log.Infoln("delete Variable err: ", err)
 	}
