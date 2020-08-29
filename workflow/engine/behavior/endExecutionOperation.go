@@ -29,14 +29,20 @@ func deleteDataForExecution(entity engine.ExecutionEntity) (err error) {
 	identityLinks, errSelect := identityLinkManager.SelectByProcessInstanceId(entity.GetProcessInstanceId())
 	if errSelect == nil {
 		for _, identityLink := range identityLinks {
-			identityLinkManager.Delete(identityLink.Id)
+			err := identityLinkManager.Delete(identityLink.Id)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	variableManager := GetVariableManager()
 	variables, err := variableManager.SelectByProcessInstanceId(entity.GetProcessInstanceId())
 	if err == nil {
 		for _, variable := range variables {
-			variableManager.Delete(variable.Id)
+			err = variableManager.Delete(variable.Id)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return err

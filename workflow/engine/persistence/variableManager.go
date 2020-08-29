@@ -97,10 +97,11 @@ func (variableManager VariableManager) SelectByTaskId(taskId int64) ([]Variable,
 	return variables, errs.ProcessError{Code: "1001", Msg: "Not Find"}
 }
 
-func (variableManager VariableManager) Delete(variableId int64) {
+func (variableManager VariableManager) Delete(variableId int64) error {
 	variable := Variable{}
 	err := db.DB().Where("id=?", variableId).Delete(variable).Error
 	if err != nil {
 		log.Infoln("delete Variable err: ", err)
 	}
+	return err
 }

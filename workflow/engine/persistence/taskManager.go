@@ -86,14 +86,20 @@ func (taskManager TaskManager) DeleteTask(task Task) (err error) {
 	identityLinks, errSelect := identityLinkManager.SelectByTaskId(task.Id)
 	if errSelect == nil {
 		for _, identityLink := range identityLinks {
-			identityLinkManager.Delete(identityLink.Id)
+			err = identityLinkManager.Delete(identityLink.Id)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	variableManager := VariableManager{}
 	variables, errSelect := variableManager.SelectByTaskId(task.Id)
 	if errSelect == nil {
 		for _, variable := range variables {
-			variableManager.Delete(variable.Id)
+			err = variableManager.Delete(variable.Id)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	err = recordTaskEnd(task)
@@ -106,7 +112,10 @@ func recordTaskEnd(task Task) (err error) {
 	historicTask.TaskId = task.Id
 	historicTask.EndTime = time.Now()
 	historicTaskManager.HistoricTask = historicTask
-	historicTaskManager.MarkEnded()
+	err = historicTaskManager.MarkEnded()
+	if err != nil {
+		return err
+	}
 
 	historicActinst := HistoricActinst{}
 	historicActinst.EndTime = historicTask.EndTime

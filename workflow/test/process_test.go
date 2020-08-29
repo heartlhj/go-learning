@@ -2,12 +2,23 @@ package test
 
 import (
 	"fmt"
+	"github.com/heartlhj/go-learning/workflow/engine/behavior"
 	peocess "github.com/heartlhj/go-learning/workflow/engine/impl"
+	"github.com/heartlhj/go-learning/workflow/event"
 	"github.com/heartlhj/go-learning/workflow/runtime"
 	"testing"
 )
 
 var key = "process_demo"
+
+type ActivitiListener struct {
+	name string
+}
+
+func (act ActivitiListener) OnEvent(event event.ActivitiEvent) error {
+	fmt.Println(event)
+	return nil
+}
 
 //测试发起流程
 func TestStartProcss(t *testing.T) {
@@ -31,4 +42,14 @@ func TestComplete(t *testing.T) {
 func TestRuntime(t *testing.T) {
 	id := runtime.GoroutineId()
 	fmt.Println(id)
+}
+
+//测试完成任务
+func TestListener(t *testing.T) {
+	configuration := behavior.GetProcessEngineConfiguration()
+	eventListeners := make([]event.ActivitiEventListener, 0)
+	eventListeners = append(eventListeners, ActivitiListener{})
+	configuration.AddEventListeners(eventListeners)
+	taskService := peocess.TaskServiceImpl{}
+	taskService.Complete(7, nil, true)
 }

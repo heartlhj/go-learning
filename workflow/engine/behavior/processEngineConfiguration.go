@@ -39,11 +39,14 @@ func initCommandContext(configuration ProcessEngineConfiguration) {
 
 func (processEngineConfiguration ProcessEngineConfiguration) AddEventListeners(eventListeners []ActivitiEventListener) {
 	var EventListeners []ActivitiEventListener
+	dispatcher := GetEventDispatcher()
 	if len(eventListeners) > 0 {
 		for _, listener := range eventListeners {
 			EventListeners = append(EventListeners, listener)
+			dispatcher.AddEventListener(listener)
 		}
 	}
+	SetEventDispatcher(dispatcher)
 	processEngineConfiguration.EventListeners = EventListeners
 }
 

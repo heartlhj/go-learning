@@ -6,7 +6,7 @@ type ActivitiEventSupport struct {
 	EventListeners []ActivitiEventListener
 }
 
-func (activitiEventSupport ActivitiEventSupport) AddEventListener(listenerToAdd ActivitiEventListener) (err error) {
+func (activitiEventSupport *ActivitiEventSupport) AddEventListener(listenerToAdd ActivitiEventListener) (err error) {
 	if listenerToAdd == nil {
 		err = ProcessError{Msg: "Listener cannot be null."}
 	}
@@ -38,5 +38,5 @@ func (activitiEventSupport ActivitiEventSupport) DispatchEvent(event ActivitiEve
 }
 
 func dispatchEvent(event ActivitiEvent, listener ActivitiEventListener) error {
-	return listener.onEvent(event)
+	return listener.OnEvent(event)
 }

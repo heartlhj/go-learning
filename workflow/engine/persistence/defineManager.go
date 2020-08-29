@@ -20,7 +20,7 @@ func (define DefineManager) GetBytearry(processDefineId int64) (Bytearry, error)
 	bytearries := Bytearry{}
 	err := db.DB().Where("id=?", processDefineId).First(&bytearries).Error
 	if err != nil {
-		log.Infoln("create processInstance err", err)
+		log.Infoln("Find bytearry by err", err)
 		return bytearries, err
 	}
 	return bytearries, nil
@@ -39,7 +39,7 @@ func (define DefineManager) CreateByteArry(name string, key string, bytes string
 	byteArry := Bytearry{Name: name, Bytes: bytes, Key: key, Version: verion}
 	err = db.DB().Create(&byteArry).Error
 	if err != nil {
-		log.Infoln("新增数据异常", err)
+		log.Infoln("Create bytearry err", err)
 		return err
 	}
 	return nil

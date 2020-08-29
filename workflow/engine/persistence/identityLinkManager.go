@@ -46,12 +46,13 @@ func (identityLinkManager IdentityLinkManager) SelectByTaskId(taskId int64) ([]I
 	return identityLink, errs.ProcessError{Code: "1001", Msg: "Not Find"}
 }
 
-func (identityLinkManager IdentityLinkManager) Delete(identityLinkId int64) {
+func (identityLinkManager IdentityLinkManager) Delete(identityLinkId int64) (err error) {
 	identityLink := IdentityLink{}
-	err := db.DB().Where("id=?", identityLinkId).Delete(&identityLink).Error
+	err = db.DB().Where("id=?", identityLinkId).Delete(&identityLink).Error
 	if err != nil {
-		log.Infoln("delete Variable err: ", err)
+		log.Infoln("Delete identityLink err: ", err)
 	}
+	return err
 }
 
 func (identityLinkManager IdentityLinkManager) createHistoricIdentityLink() (err error) {

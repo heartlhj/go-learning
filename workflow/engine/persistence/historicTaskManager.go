@@ -18,9 +18,10 @@ func (historicTaskManager HistoricTaskManager) Insert() (err error) {
 	return err
 }
 
-func (historicTaskManager HistoricTaskManager) MarkEnded() {
-	err := db.DB().Model(&HistoricTask{}).Where("task_id=?", historicTaskManager.HistoricTask.TaskId).Update(&historicTaskManager.HistoricTask).Error
+func (historicTaskManager HistoricTaskManager) MarkEnded() (err error) {
+	err = db.DB().Model(&HistoricTask{}).Where("task_id=?", historicTaskManager.HistoricTask.TaskId).Update(&historicTaskManager.HistoricTask).Error
 	if err != nil {
-		log.Infoln("Create HistoricTask Err", err)
+		log.Infoln("Update HistoricTask Err", err)
 	}
+	return err
 }

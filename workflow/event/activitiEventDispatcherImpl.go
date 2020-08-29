@@ -1,14 +1,14 @@
 package event
 
-var eventDispatcher ActivitiEventDispatcherImpl
+var eventDispatcher ActivitiEventDispatcher
 
 type ActivitiEventDispatcherImpl struct {
 	EventSupport *ActivitiEventSupport
 	Enabled      bool
 }
 
-func SetEventDispatcher(eventDispatcher ActivitiEventDispatcher) {
-	eventDispatcher = eventDispatcher
+func SetEventDispatcher(event ActivitiEventDispatcher) {
+	eventDispatcher = event
 }
 
 func GetEventDispatcher() ActivitiEventDispatcher {
